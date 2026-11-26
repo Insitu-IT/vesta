@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+"""Manage a Vesta installation from the extracted offline kit."""
+
+from pathlib import Path
+import sys
+
+sys.dont_write_bytecode = True
+root = Path(__file__).resolve().parent
+sys.path.insert(0, str(root / "install"))
+from vesta_site import main  # noqa: E402
+
+sys.exit(main(root))

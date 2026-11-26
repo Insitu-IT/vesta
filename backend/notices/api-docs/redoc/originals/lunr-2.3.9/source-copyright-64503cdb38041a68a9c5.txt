@@ -1,0 +1,4 @@
+/*!
+ * lunr.trimmer
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

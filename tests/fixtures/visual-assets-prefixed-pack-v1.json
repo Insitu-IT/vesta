@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "namespace": "appearance-test",
+  "active_manifest": {
+    "schema_version": 1,
+    "id": "prefixed-active",
+    "version": "1.0.0",
+    "name": "Prefixed SVG Backup fixture",
+    "type": "theme",
+    "assets": {
+      "brand-logo": {
+        "file": "logo.svg",
+        "content_type": "image/svg+xml"
+      }
+    },
+    "meta": {
+      "vnbui": {
+        "schema_version": 1,
+        "product_name": "Prefixed SVG Backup",
+        "colors": {
+          "primary": "#245890"
+        }
+      }
+    }
+  },
+  "previous_manifest": {
+    "schema_version": 1,
+    "id": "prefixed-previous",
+    "version": "1.0.0",
+    "name": "Previous SVG Backup fixture",
+    "type": "theme",
+    "assets": {
+      "brand-logo": {
+        "file": "logo.svg",
+        "content_type": "image/svg+xml"
+      }
+    },
+    "meta": {
+      "vnbui": {
+        "schema_version": 1,
+        "product_name": "Previous SVG Backup",
+        "colors": {
+          "primary": "#7157a6"
+        }
+      }
+    }
+  },
+  "active_svg_case": "prefixed-root",
+  "previous_svg_case": "default-namespace",
+  "resource": {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "vnbui-appearance-e15a6f92b845f1d2df1a",
+      "namespace": "appearance-test"
+    },
+    "immutable": true,
+    "binaryData": {
+      "asset-000": "eyJzY2hlbWFfdmVyc2lvbiI6MSwiYWN0aXZlX3BhY2siOiIvYXBwZWFyYW5jZS9wYWNrcy9wcmVmaXhlZC1hY3RpdmUvMS4wLjAiLCJwcmV2aW91c19wYWNrIjoiL2FwcGVhcmFuY2UvcGFja3MvcHJlZml4ZWQtcHJldmlvdXMvMS4wLjAifQ==",
+      "asset-001": "PHN2ZzpzdmcgeG1sbnM6c3ZnPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48c3ZnOnBhdGggZD0iTTAgMGgyNHYyNHoiLz48L3N2Zzpzdmc+",
+      "asset-002": "eyJzY2hlbWFfdmVyc2lvbiI6MSwiaWQiOiJwcmVmaXhlZC1hY3RpdmUiLCJ2ZXJzaW9uIjoiMS4wLjAiLCJuYW1lIjoiUHJlZml4ZWQgU1ZHIEJhY2t1cCBmaXh0dXJlIiwidHlwZSI6InRoZW1lIiwiYXNzZXRzIjp7ImJyYW5kLWxvZ28iOnsiZmlsZSI6ImxvZ28uc3ZnIiwiY29udGVudF90eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9fSwibWV0YSI6eyJ2bmJ1aSI6eyJzY2hlbWFfdmVyc2lvbiI6MSwicHJvZHVjdF9uYW1lIjoiUHJlZml4ZWQgU1ZHIEJhY2t1cCIsImNvbG9ycyI6eyJwcmltYXJ5IjoiIzI0NTg5MCJ9fX19",
+      "asset-003": "PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0wIDAiLz48L3N2Zz4=",
+      "asset-004": "eyJzY2hlbWFfdmVyc2lvbiI6MSwiaWQiOiJwcmVmaXhlZC1wcmV2aW91cyIsInZlcnNpb24iOiIxLjAuMCIsIm5hbWUiOiJQcmV2aW91cyBTVkcgQmFja3VwIGZpeHR1cmUiLCJ0eXBlIjoidGhlbWUiLCJhc3NldHMiOnsiYnJhbmQtbG9nbyI6eyJmaWxlIjoibG9nby5zdmciLCJjb250ZW50X3R5cGUiOiJpbWFnZS9zdmcreG1sIn19LCJtZXRhIjp7InZuYnVpIjp7InNjaGVtYV92ZXJzaW9uIjoxLCJwcm9kdWN0X25hbWUiOiJQcmV2aW91cyBTVkcgQmFja3VwIiwiY29sb3JzIjp7InByaW1hcnkiOiIjNzE1N2E2In19fX0="
+    }
+  },
+  "projection": {
+    "config_map": "vnbui-appearance-e15a6f92b845f1d2df1a",
+    "items": [
+      {
+        "key": "asset-000",
+        "path": "config.json"
+      },
+      {
+        "key": "asset-001",
+        "path": "packs/prefixed-active/1.0.0/logo.svg"
+      },
+      {
+        "key": "asset-002",
+        "path": "packs/prefixed-active/1.0.0/manifest.json"
+      },
+      {
+        "key": "asset-003",
+        "path": "packs/prefixed-previous/1.0.0/logo.svg"
+      },
+      {
+        "key": "asset-004",
+        "path": "packs/prefixed-previous/1.0.0/manifest.json"
+      }
+    ]
+  }
+}

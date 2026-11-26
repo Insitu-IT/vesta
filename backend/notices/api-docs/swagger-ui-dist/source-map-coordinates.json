@@ -1,0 +1,26 @@
+{
+  "schema": "vesta-api-doc-source-map-coordinates/1",
+  "bundle_sha256": "36eeb4d5640b9c036b1d0f854499af1cceebbdb260b790a03a18be5e8488fbf5",
+  "source_map_sha256": "5c0d0705c0079e3c1b24ae88062dfc25968f4f9754de8fa14cbb548af8996954",
+  "bundle_line_count": 2,
+  "source_map_line_count": 2,
+  "coordinates": [
+    {
+      "line": 1,
+      "last_generated_column": 0,
+      "actual_utf16_length": 74,
+      "out_of_bounds": false
+    },
+    {
+      "line": 2,
+      "last_generated_column": 1426125,
+      "actual_utf16_length": 1684503,
+      "out_of_bounds": false
+    }
+  ],
+  "status": "coordinates-in-bounds-only",
+  "scope": "Coordinate integrity diagnostic; does not certify emitted package inventory or complete attribution; stored coordinate rows are a sample plus every failure",
+  "archive_sha256": "8e7286de0230e431fc8a5a75490d28117af3d0c306413b6f9e17f7bb55045fb6",
+  "bundle_member": "package/swagger-ui-bundle.js",
+  "coordinate_record_count": 2
+}

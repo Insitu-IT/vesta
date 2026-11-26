@@ -1,0 +1,198 @@
+{
+  "schema": "vesta-api-doc-exceptional-originals/1",
+  "uri-js-replace": {
+    "selected_gitHead": "38927505b51a74b53444dc723be10e0d2e53823c",
+    "license_commit": "06b35553cf4707fc87bbd9740c23c153e7086562",
+    "owner_merged_pr": "https://github.com/andreinwald/uri-js-replace/pull/5",
+    "code_comparison": [
+      {
+        "member": "package/dist/Parse.js",
+        "later_source_url": "https://raw.githubusercontent.com/andreinwald/uri-js-replace/06b35553cf4707fc87bbd9740c23c153e7086562/dist/Parse.js",
+        "archive_sha256": "ed860ba8edfe49bf1c9ccbaac46a1cb8b6abd78348111cd46e5a094583d4aa6b",
+        "later_sha256": "ed860ba8edfe49bf1c9ccbaac46a1cb8b6abd78348111cd46e5a094583d4aa6b",
+        "equal": true
+      },
+      {
+        "member": "package/dist/Resolve.js",
+        "later_source_url": "https://raw.githubusercontent.com/andreinwald/uri-js-replace/06b35553cf4707fc87bbd9740c23c153e7086562/dist/Resolve.js",
+        "archive_sha256": "50195d12363b6b150d166624674e02ea74d322e6b4fef4dd99a443f61e90a1da",
+        "later_sha256": "50195d12363b6b150d166624674e02ea74d322e6b4fef4dd99a443f61e90a1da",
+        "equal": true
+      },
+      {
+        "member": "package/dist/Serialize.js",
+        "later_source_url": "https://raw.githubusercontent.com/andreinwald/uri-js-replace/06b35553cf4707fc87bbd9740c23c153e7086562/dist/Serialize.js",
+        "archive_sha256": "970f140626cd4333386f42248462c08924241e2ac772f7ccf69576573602923b",
+        "later_sha256": "970f140626cd4333386f42248462c08924241e2ac772f7ccf69576573602923b",
+        "equal": true
+      },
+      {
+        "member": "package/dist/index.js",
+        "later_source_url": "https://raw.githubusercontent.com/andreinwald/uri-js-replace/06b35553cf4707fc87bbd9740c23c153e7086562/dist/index.js",
+        "archive_sha256": "45d565d4f7c274322f0109d439487e36b0ddb6a34e34969b63e2c00f6c280a6d",
+        "later_sha256": "45d565d4f7c274322f0109d439487e36b0ddb6a34e34969b63e2c00f6c280a6d",
+        "equal": true
+      }
+    ],
+    "inherited_comparison": {
+      "source_uri_js_version": "4.4.1",
+      "archive_sha256": "5612de52afe83da73e66b519e83aa56aa81151c844b90bcf8e045df5ecec8d2d",
+      "registry_integrity_verified": true,
+      "parent_member": "package/dist/esnext/uri.js",
+      "child_member": "package/dist/Resolve.js",
+      "comparison": "removeDotSegments body from const output onward; normalize whitespace and single/double quote spelling only",
+      "body_equal": true,
+      "inherited_original_license_sha256": "0af366eff4c01ec147c9c61ea9e8ffad64a4294754c9d79355f3fd1b97cb2fb9",
+      "direct_bundle_marker": "Unexpected dot segment condition",
+      "direct_bundle_offset": 682384,
+      "qualification": "Direct observed transformed component and strongly shared function; conservatively retain original BSD terms in addition to replacement MIT-0, without claiming full package ancestry of every line."
+    },
+    "scope": "Later MIT-0 covers replacement-author rights for unchanged code. Original Gary Court BSD terms remain separately required for inherited removeDotSegments code."
+  },
+  "@redocly/workerize-loader": {
+    "author_selected_url": "https://oss.ninja/mit/developit",
+    "author": "Jason Miller",
+    "generator_commit": "92643be13a90935a93b0c51e4ebf54e24371de1e",
+    "generator_repository": "https://github.com/developit/oss.ninja",
+    "generator_files": [
+      {
+        "url": "https://raw.githubusercontent.com/developit/oss.ninja/92643be13a90935a93b0c51e4ebf54e24371de1e/README.md",
+        "sha256": "c26530cffd4a440bf06821ecb95b3969f19fc7e6a9f74b8e2f1266e097507e05"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/developit/oss.ninja/92643be13a90935a93b0c51e4ebf54e24371de1e/package.json",
+        "sha256": "8dfd67fa0f0061b6e5e704075902e3bbcf6488eec459e9aa5613809244eb9ee3"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/developit/oss.ninja/92643be13a90935a93b0c51e4ebf54e24371de1e/src/routes/license/index.js",
+        "sha256": "4c94d0b4f84d0c44050f13c0af7c2dd94dbcaea96ac9c5c428c5d21fb7ddb630"
+      }
+    ],
+    "template_variants": [
+      {
+        "version": "2.0.0-rc.0",
+        "url": "https://registry.npmjs.org/license.js/-/license.js-2.0.0-rc.0.tgz",
+        "archive_sha256": "82c7deaeba287fba7746d09eef659ee4bcb08af05cfcb6c54e9d3ee301a73cc6",
+        "integrity_verified": true,
+        "template_sha256": "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13"
+      },
+      {
+        "version": "2.0.0-rc.1",
+        "url": "https://registry.npmjs.org/license.js/-/license.js-2.0.0-rc.1.tgz",
+        "archive_sha256": "fa22ef469f9c07c5684e88dab23207585bddca0ee3f1ba9e05b201ebda33b37b",
+        "integrity_verified": true,
+        "template_sha256": "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13"
+      },
+      {
+        "version": "2.0.0",
+        "url": "https://registry.npmjs.org/license.js/-/license.js-2.0.0.tgz",
+        "archive_sha256": "77de3e49f83b619fe79ac2194220e18a792fd6321034f94de85165011806f177",
+        "integrity_verified": true,
+        "template_sha256": "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13"
+      },
+      {
+        "version": "2.1.0",
+        "url": "https://registry.npmjs.org/license.js/-/license.js-2.1.0.tgz",
+        "archive_sha256": "88848419a2b4808f65acff9a5fe04a2d9b5de5e0d554b60217339dd07fe6e0dc",
+        "integrity_verified": true,
+        "template_sha256": "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13"
+      }
+    ],
+    "scope": "The exact archive README selects this author-linked MIT route. Preserve its copyright and the unmodified original license.js template together. Placeholders remain; no historical rendered year or recovered package LICENSE is asserted."
+  },
+  "xml-naming": {
+    "source_comparison": [
+      {
+        "url": "https://raw.githubusercontent.com/NaturalIntelligence/xml-naming/c0afc395948730bed124859d7fc7cccabe0aac8a/src/index.js",
+        "sha256": "ebdaa8d1ac41dbb15c842b0dcb091adb9c13e4a76f33b1537fcddfafb674cf11",
+        "archive_source_exact_match": true
+      },
+      {
+        "url": "https://raw.githubusercontent.com/NaturalIntelligence/xml-naming/c0afc395948730bed124859d7fc7cccabe0aac8a/LICENSE",
+        "sha256": "8e75fc0e776c62ccadb8178ece8d3daa9ba7601fb0a49b2dfb0ea9a7a5c0aa07",
+        "archive_source_exact_match": false
+      },
+      {
+        "url": "https://raw.githubusercontent.com/NaturalIntelligence/xml-naming/c0afc395948730bed124859d7fc7cccabe0aac8a/package.json",
+        "sha256": "b69775b228da8fb7f25c98f309bab65a3a27444a2fd6b96f6793ece74be1acdc",
+        "archive_source_exact_match": false
+      }
+    ]
+  },
+  "excluded_nonlegal_objects": [
+    {
+      "name": "@swagger-api/apidom-ns-openapi-3-0",
+      "version": "1.12.1",
+      "path": "backend/notices/api-docs/swagger-ui-dist/originals/swagger-api_apidom-ns-openapi-3-0-1.12.1/src/elements/License.cjs",
+      "sha256": "8195abdab791fbe23cbca82800c42510f9d58c65e31ef72e710c17fb74df5f2b",
+      "source_member": "package/src/elements/License.cjs",
+      "bytes": 542,
+      "reason": "ApiDOM source class named License; JavaScript object-model code, no copyright or legal grant. Basename-prefix extraction false positive."
+    },
+    {
+      "name": "@swagger-api/apidom-ns-openapi-3-0",
+      "version": "1.12.1",
+      "path": "backend/notices/api-docs/swagger-ui-dist/originals/swagger-api_apidom-ns-openapi-3-0-1.12.1/src/elements/License.mjs",
+      "sha256": "7a8fb99e511d3d2be417e09c775c93ad8de82b7db0a2eb48bd1a89b7cbc19351",
+      "source_member": "package/src/elements/License.mjs",
+      "bytes": 448,
+      "reason": "ApiDOM source class named License; JavaScript object-model code, no copyright or legal grant. Basename-prefix extraction false positive."
+    },
+    {
+      "name": "@swagger-api/apidom-ns-openapi-3-1",
+      "version": "1.12.1",
+      "path": "backend/notices/api-docs/swagger-ui-dist/originals/swagger-api_apidom-ns-openapi-3-1-1.12.1/src/elements/License.cjs",
+      "sha256": "467d507e4de4c1142a6813eab57edac28160d4c7338375adbb54e4543a7cc06a",
+      "source_member": "package/src/elements/License.cjs",
+      "bytes": 379,
+      "reason": "ApiDOM source class named License; JavaScript object-model code, no copyright or legal grant. Basename-prefix extraction false positive."
+    },
+    {
+      "name": "@swagger-api/apidom-ns-openapi-3-1",
+      "version": "1.12.1",
+      "path": "backend/notices/api-docs/swagger-ui-dist/originals/swagger-api_apidom-ns-openapi-3-1-1.12.1/src/elements/License.mjs",
+      "sha256": "98f34ae143c90cddf9f2a8bb780c716a19f165d475d81fcc0d37cef223ee7459",
+      "source_member": "package/src/elements/License.mjs",
+      "bytes": 276,
+      "reason": "ApiDOM source class named License; JavaScript object-model code, no copyright or legal grant. Basename-prefix extraction false positive."
+    },
+    {
+      "name": "@redocly/openapi-core",
+      "version": "1.34.19",
+      "path": "backend/notices/api-docs/redoc/originals/redocly_openapi-core-1.34.19/package--src--rules--common--__tests__--license-url.test.ts",
+      "sha256": "4b0af236f71ef3e7a38be5093970c974000c48946dde599a2218ec0e72dfaf7d",
+      "source_member": "package/src/rules/common/__tests__/license-url.test.ts",
+      "reason": "Jest source testing OpenAPI license URL objects; no legal grant or attribution text."
+    }
+  ],
+  "@redocly/openapi-core": {
+    "name": "@redocly/openapi-core",
+    "version": "1.34.19",
+    "registry_gitHead": "11f4afd7642595ca4a62ec132994930ec77fc33e",
+    "archive_sha256": "6a5b8588290ef9e1a3649dd1bb6fd806dc975ff4c9a8882b22674448a712006c",
+    "registry_sha512_verified": true,
+    "source_comparisons": [
+      {
+        "archive_member": "package/package.json",
+        "upstream_member": "packages/core/package.json",
+        "exact_bytes_equal": true,
+        "sha256": "69a59b58f9e0c14550cfa5b35e050a9a6a6a91f73d6254dda93b6162b78065c3"
+      },
+      {
+        "archive_member": "package/src/index.ts",
+        "upstream_member": "packages/core/src/index.ts",
+        "exact_bytes_equal": true,
+        "sha256": "4217817e67319ed7e1e6f368eec995e0e3e4d827adc038d2c359a8c758bffcd7"
+      }
+    ],
+    "original_grant": {
+      "upstream_url": "https://raw.githubusercontent.com/Redocly/redocly-cli/11f4afd7642595ca4a62ec132994930ec77fc33e/LICENSE.md",
+      "sha256": "f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5",
+      "scope": "Repository-root original MIT grant, at publisher-selected gitHead; package identity and representative source match the exact npm archive bytes. Does not establish exact emitted version."
+    },
+    "false_positive": {
+      "archive_member": "package/src/rules/common/__tests__/license-url.test.ts",
+      "reason": "Jest source testing OpenAPI license URL objects; no legal grant or attribution text."
+    }
+  }
+}

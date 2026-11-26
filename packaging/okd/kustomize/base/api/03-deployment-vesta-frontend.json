@@ -1,0 +1,138 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "vesta-frontend",
+    "namespace": "vesta",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "strategy": {
+      "type": "Recreate"
+    },
+    "selector": {
+      "matchLabels": {
+        "app": "vesta-frontend"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "vesta-frontend",
+          "app.kubernetes.io/part-of": "vesta"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "frontend",
+            "image": "registry.invalid/vesta/frontend@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "imagePullPolicy": "IfNotPresent",
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "cpu": "500m",
+                "memory": "256Mi"
+              }
+            },
+            "securityContext": {
+              "runAsNonRoot": true,
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp",
+                "readOnly": false
+              },
+              {
+                "name": "nginx",
+                "mountPath": "/etc/nginx/nginx.conf",
+                "readOnly": true,
+                "subPath": "nginx.conf"
+              },
+              {
+                "name": "nginx",
+                "mountPath": "/usr/share/nginx/html/site-config.json",
+                "readOnly": true,
+                "subPath": "site-config.json"
+              },
+              {
+                "name": "trust",
+                "mountPath": "/trust",
+                "readOnly": true
+              }
+            ],
+            "ports": [
+              {
+                "name": "http",
+                "containerPort": 8080
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "command": [
+              "nginx",
+              "-g",
+              "daemon off;"
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {}
+          },
+          {
+            "name": "nginx",
+            "configMap": {
+              "name": "vesta-frontend"
+            }
+          },
+          {
+            "name": "trust",
+            "secret": {
+              "secretName": "vesta-trust",
+              "defaultMode": 288
+            }
+          }
+        ]
+      }
+    }
+  }
+}

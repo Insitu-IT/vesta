@@ -1,0 +1,89 @@
+{
+  "format": "libvirt-native-fileset/1",
+  "domain_uuid": "11111111-1111-4111-8111-111111111111",
+  "backup_id": "22222222-2222-4222-8222-222222222222",
+  "attempt_id": "33333333-3333-4333-8333-333333333333",
+  "job_id": "local-job-1",
+  "checkpoint": "checkpoint-1",
+  "disks": [
+    {
+      "id": "disk-1",
+      "target": "vda",
+      "bus": "virtio",
+      "serial": "native-1"
+    },
+    {
+      "id": "disk-2",
+      "target": "vdb",
+      "bus": "virtio",
+      "serial": "native-2"
+    }
+  ],
+  "files": [
+    {
+      "artifact_id": "ab935ddc379e0038f84985dba53e2ed9dc5bdfb1c198d9ec824cbce9a5cd2f13",
+      "path": "vda.data",
+      "role": "disk_payload",
+      "disk_id": "disk-1",
+      "device": 1,
+      "inode": 100,
+      "size": 0,
+      "mtime_ns": 1,
+      "ctime_ns": 1,
+      "member_backup_id": "22222222-2222-4222-8222-222222222222",
+      "member_checkpoint": "checkpoint-1"
+    },
+    {
+      "artifact_id": "d44356afcde3dcdf8a1741150e7bb28d7af1d8678a0b7ebea9f75577c9a364b9",
+      "path": "vdb.data",
+      "role": "disk_payload",
+      "disk_id": "disk-2",
+      "device": 1,
+      "inode": 101,
+      "size": 0,
+      "mtime_ns": 1,
+      "ctime_ns": 1,
+      "member_backup_id": "22222222-2222-4222-8222-222222222222",
+      "member_checkpoint": "checkpoint-1"
+    },
+    {
+      "artifact_id": "b8cf8c3009c80af593452b38c6c3107c75ef1baa65464874341390ce93f0795c",
+      "path": "vmconfig.xml",
+      "role": "domain_config",
+      "disk_id": null,
+      "device": 1,
+      "inode": 102,
+      "size": 0,
+      "mtime_ns": 1,
+      "ctime_ns": 1,
+      "member_backup_id": "22222222-2222-4222-8222-222222222222",
+      "member_checkpoint": "checkpoint-1"
+    },
+    {
+      "artifact_id": "4ad19ef7447fbb8b5711f5879af5f286ffc7148777e05566290301f8c12067b7",
+      "path": "checkpoints/member.xml",
+      "role": "checkpoint",
+      "disk_id": null,
+      "device": 1,
+      "inode": 103,
+      "size": 0,
+      "mtime_ns": 1,
+      "ctime_ns": 1,
+      "member_backup_id": "22222222-2222-4222-8222-222222222222",
+      "member_checkpoint": "checkpoint-1"
+    },
+    {
+      "artifact_id": "95dc53f099ff0f7513929acde5812a81ba130ce8ecbbc2b3694b50a790794448",
+      "path": "autostart",
+      "role": "autostart",
+      "disk_id": null,
+      "device": 1,
+      "inode": 104,
+      "size": 0,
+      "mtime_ns": 1,
+      "ctime_ns": 1,
+      "member_backup_id": "22222222-2222-4222-8222-222222222222",
+      "member_checkpoint": "checkpoint-1"
+    }
+  ]
+}

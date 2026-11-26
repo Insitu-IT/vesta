@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-deployment-vesta-backend.json
+  - 01-service-vesta-backend.json
+  - 02-configmap-vesta-frontend.json
+  - 03-deployment-vesta-frontend.json
+  - 04-service-vesta-frontend.json
+  - 05-route-vesta-frontend.json
+  - 06-route-vesta-backend.json

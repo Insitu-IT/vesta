@@ -1,0 +1,29 @@
+{
+  "protocol": "vnbui-storage-transaction/1",
+  "capability_profile": "consumer-verified/1",
+  "db_rooted_variant": {
+    "capability_profile": "db-rooted-consumer-verified/1",
+    "publication_authority": "tenant DB current-generation plus immutable receipt/generation facts and outbox",
+    "mutable_s3_root": false,
+    "conditional_generation_create": "enforced_required",
+    "replacement_412": "root_replace_unsupported",
+    "recovery": "untrusted/held until valid DAG, full consumer verification and explicit trust admission",
+    "implementation_status": "required_not_claimed_implemented"
+  },
+  "provider_capabilities": {
+    "upload_checksum_enforcement": "enforced_or_ignored_recorded_independently",
+    "multipart_create_precondition": "enforced_or_unique_attempt_fenced_producer_required",
+    "root_pointer_cas": "enforced_required",
+    "provider_immutability_claimed": false
+  },
+  "wire_examples": ["1-disk", "2-disk", "incremental", "libvirt"],
+  "expected_fields": ["plaintext_sha256", "ciphertext_sha256", "plaintext_bytes", "ciphertext_bytes"],
+  "anchor": "authenticated agent receipt committed in backend DB; immutable generation references receipt_sha256",
+  "checksum_sidecars": false,
+  "publication": {"assurance": "identity_metadata_only", "scrub_required": true, "payload_get_bytes": 0},
+  "consumers": ["restore", "scrub", "export", "import", "chain_assembly"],
+  "verified": {"assurance": "consumer_verified/1", "scrub_required": false, "scope": "exact anchored receipt and object identity only"},
+  "mismatch": {"state": "corrupt/held", "completion": false, "guest_exposure": false, "retain_attribution": true},
+  "unanchored": {"state": "untrusted/held", "publication": false},
+  "production_test_status": "required_not_claimed_implemented"
+}

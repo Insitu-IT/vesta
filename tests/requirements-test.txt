@@ -1,0 +1,31 @@
+# Testing dependencies for vnbui
+# Install with: pip install -r tests/requirements-test.txt
+
+# Test framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+
+# Test utilities
+PyYAML==6.0.3
+jsonschema==4.21.1
+faker>=19.0.0
+freezegun>=1.2.0
+
+# HTTP testing
+httpx>=0.24.0
+requests-mock>=1.11.0
+
+# Performance testing
+locust>=2.15.0
+
+# For API testing with FastAPI
+starlette>=0.27.0
+
+# Database testing
+pytest-postgresql>=5.0.0
+sqlalchemy-utils>=0.41.0
+
+# Parse generated PDFs for report payload qualification; never a runtime dependency.
+pypdf==6.12.0

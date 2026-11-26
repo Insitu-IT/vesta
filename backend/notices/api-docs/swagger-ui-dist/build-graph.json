@@ -1,0 +1,52 @@
+{
+  "source": "https://raw.githubusercontent.com/swagger-api/swagger-ui/d3296954a6b813898d298815ac3e68daa1cf7408/package-lock.json",
+  "sha256": "ae4719a2ff5450b3cfc25e16ea557b89b6133111eb27814dac6b516c2ae8b503",
+  "lockfileVersion": 3,
+  "package_version": "5.34.1",
+  "selected_nodes": {
+    "ieee754": {
+      "version": "1.2.1",
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/feross"
+        },
+        {
+          "type": "patreon",
+          "url": "https://www.patreon.com/feross"
+        },
+        {
+          "type": "consulting",
+          "url": "https://feross.org/support"
+        }
+      ],
+      "license": "BSD-3-Clause"
+    },
+    "dompurify": {
+      "version": "3.4.17",
+      "resolved": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.17.tgz",
+      "integrity": "sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==",
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "optionalDependencies": {
+        "@types/trusted-types": "^2.0.7"
+      }
+    }
+  },
+  "selected_archives": {
+    "ieee754": {
+      "sha256": "8ef14b9b397e339db89db97881fb714f49319d8f0eb1275901f45567b28f9dac",
+      "sha512": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA=="
+    },
+    "dompurify-3.4.17": {
+      "sha256": "056cbdae276897208b88c21d1d779adfa09ad7be488a2f510a28e900d3bbffe7",
+      "sha512": "sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w=="
+    },
+    "dompurify-3.4.13": {
+      "sha256": "2a0647141c748404c9958cf12079c3fdb79cf9a7faaa87c8fac034a3b1275ab2",
+      "sha512": "sha512-2vmYIoqjze2d+kakP8S/nS5shfsl587kzwEjcGlTdiksUVgFHnFCsLYDVj/JNqJVOQZGSYBTmuycv0PodwmnMQ=="
+    }
+  },
+  "publisher_gitHead": "d3296954a6b813898d298815ac3e68daa1cf7408",
+  "publisher_metadata_source": "https://registry.npmjs.org/swagger-ui-dist/5.34.1",
+  "publisher_metadata_sha256": "1506b1e3e8e683df9f193729dd7a9d3d98a03b8db14bba1fb64b2a38310854fc"
+}

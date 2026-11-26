@@ -1,0 +1,1773 @@
+{
+  "schema_version": 1,
+  "support_status": "DRAFT",
+  "first_public_version": "6.1.0",
+  "source": "Synthetic examples reviewed against source; no product or customer requests executed.",
+  "cases": [
+    {
+      "id": "backup.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "vm_name": "fixture",
+          "status": "pending",
+          "message": "fixture",
+          "executor": "real",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "backup.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "vm_name": "fixture",
+          "status": "pending",
+          "message": "fixture",
+          "executor": "real",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "queue.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/backups/queue",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "vm_name": "fixture",
+          "position": 0,
+          "priority": 0,
+          "queued_at": "2026-11-08T00:00:00Z",
+          "status": "pending",
+          "hold_reason": "fixture",
+          "started_backup_id": "fixture",
+          "message": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "queue.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/backups/queue",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "vm_name": "fixture",
+          "position": 0,
+          "priority": 0,
+          "queued_at": "2026-11-08T00:00:00Z",
+          "status": "pending",
+          "hold_reason": "fixture",
+          "started_backup_id": "fixture",
+          "message": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "restore.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/restores",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "backup_id": "fixture",
+          "status": "pending",
+          "progress": 0,
+          "restore_to_original": false,
+          "target_vm_name": "fixture",
+          "message": "fixture",
+          "target_vm_id": null,
+          "created_at": "2026-11-08T00:00:00Z",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "restore.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/restores",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "backup_id": "fixture",
+          "status": "pending",
+          "progress": 0,
+          "restore_to_original": false,
+          "target_vm_name": "fixture",
+          "message": "fixture",
+          "target_vm_id": null,
+          "created_at": "2026-11-08T00:00:00Z",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "backup.bulk_create.first",
+      "method": "POST",
+      "path_template": "/api/v1/backups/bulk-create",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "targets": [
+            "vm-1",
+            "vm-2",
+            "vm-3"
+          ],
+          "summary": {
+            "total": 3,
+            "created": 1,
+            "skipped": 1,
+            "failed": 1
+          },
+          "details": {
+            "created": [
+              {
+                "backup_id": "backup-1",
+                "vm_id": "vm-1",
+                "vm_name": "VM one"
+              }
+            ],
+            "skipped": [
+              {
+                "vm_id": "vm-2",
+                "reason": "Existing backup running"
+              }
+            ],
+            "failed": [
+              {
+                "vm_id": "vm-3",
+                "reason": "admission_failed"
+              }
+            ]
+          },
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "backup.bulk_create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/backups/bulk-create",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "targets": [
+            "vm-1",
+            "vm-2",
+            "vm-3"
+          ],
+          "summary": {
+            "total": 3,
+            "created": 1,
+            "skipped": 1,
+            "failed": 1
+          },
+          "details": {
+            "created": [
+              {
+                "backup_id": "backup-1",
+                "vm_id": "vm-1",
+                "vm_name": "VM one"
+              }
+            ],
+            "skipped": [
+              {
+                "vm_id": "vm-2",
+                "reason": "Existing backup running"
+              }
+            ],
+            "failed": [
+              {
+                "vm_id": "vm-3",
+                "reason": "admission_failed"
+              }
+            ]
+          },
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "credential.orchestrator.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/orchestrator-keys",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "key_prefix": "fixture1",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "created_at": "2026-11-08T00:00:00Z",
+          "message": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "one_time",
+          "api_key": "synthetic-credential-never-valid-for-authentication",
+          "usage_snippet": "ORCHESTRATOR_API_KEY=synthetic-credential-never-valid-for-authentication\n"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "credential.orchestrator.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/orchestrator-keys",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "key_prefix": "fixture1",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "created_at": "2026-11-08T00:00:00Z",
+          "message": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "unavailable"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "credential.registration.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/registration-keys",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "key_prefix": "fixture1",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "created_at": "2026-11-08T00:00:00Z",
+          "message": "fixture",
+          "agent_hostname": "fixture",
+          "max_uses": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "one_time",
+          "api_key": "synthetic-credential-never-valid-for-authentication"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "credential.registration.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/registration-keys",
+      "response": {
+        "status": 201,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "key_prefix": "fixture1",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "created_at": "2026-11-08T00:00:00Z",
+          "message": "fixture",
+          "agent_hostname": "fixture",
+          "max_uses": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "unavailable"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "credential.agent.rotate.first",
+      "method": "POST",
+      "path_template": "/api/v1/agents/{agent_id}/rotate-key",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "pending",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-09T00:00:00Z",
+          "activated_at": null,
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "one_time",
+          "api_key": "synthetic-credential-never-valid-for-authentication"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "credential.agent.rotate.replay",
+      "method": "POST",
+      "path_template": "/api/v1/agents/{agent_id}/rotate-key",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "pending",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-09T00:00:00Z",
+          "activated_at": null,
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "secret_delivery": "unavailable"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "encryption.create.first",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "algorithm": "aes-256-gcm",
+          "key_hash": "fixture",
+          "status": "active",
+          "provider": "local",
+          "created_at": "2026-11-08T00:00:00Z",
+          "created_by": "fixture",
+          "rotated_at": null,
+          "replaced_by_id": null,
+          "backed_up": false,
+          "backed_up_at": null,
+          "backed_up_locations": [],
+          "backup_count": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "encryption.create.replay",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "algorithm": "aes-256-gcm",
+          "key_hash": "fixture",
+          "status": "active",
+          "provider": "local",
+          "created_at": "2026-11-08T00:00:00Z",
+          "created_by": "fixture",
+          "rotated_at": null,
+          "replaced_by_id": null,
+          "backed_up": false,
+          "backed_up_at": null,
+          "backed_up_locations": [],
+          "backup_count": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "encryption.rotate.first",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys/{key_id}/rotate",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "algorithm": "aes-256-gcm",
+          "key_hash": "fixture",
+          "status": "active",
+          "provider": "local",
+          "created_at": "2026-11-08T00:00:00Z",
+          "created_by": "fixture",
+          "rotated_at": null,
+          "replaced_by_id": null,
+          "backed_up": false,
+          "backed_up_at": null,
+          "backed_up_locations": [],
+          "backup_count": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "encryption.rotate.replay",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys/{key_id}/rotate",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "id": "resource-1",
+          "name": "Fixture",
+          "algorithm": "aes-256-gcm",
+          "key_hash": "fixture",
+          "status": "active",
+          "provider": "local",
+          "created_at": "2026-11-08T00:00:00Z",
+          "created_by": "fixture",
+          "rotated_at": null,
+          "replaced_by_id": null,
+          "backed_up": false,
+          "backed_up_at": null,
+          "backed_up_locations": [],
+          "backup_count": 0,
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        }
+      }
+    },
+    {
+      "id": "backup.create.queued",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222",
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "status": "queued",
+          "queue_id": "fixture",
+          "vm_id": "vm-1",
+          "vm_name": "fixture",
+          "message": "fixture",
+          "request_id": "11111111-1111-4111-8111-111111111111"
+        }
+      },
+      "request": {
+        "headers": {
+          "Idempotency-Key": "11111111-1111-4111-8111-111111111111"
+        },
+        "body": {
+          "vm_id": "vm-1"
+        }
+      }
+    },
+    {
+      "id": "queue.lifecycle.queued",
+      "method": "GET",
+      "path_template": "/api/v1/backups/queue/{queue_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "status": "queued",
+          "hold_reason": null,
+          "started_backup_id": null,
+          "backup_status": null,
+          "position": 1,
+          "priority": 0,
+          "queued_at": "2026-11-08T00:00:00Z",
+          "started_at": null
+        }
+      }
+    },
+    {
+      "id": "queue.lifecycle.started",
+      "method": "GET",
+      "path_template": "/api/v1/backups/queue/{queue_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "status": "started",
+          "hold_reason": null,
+          "started_backup_id": "backup-1",
+          "backup_status": "running",
+          "position": null,
+          "priority": 0,
+          "queued_at": "2026-11-08T00:00:00Z",
+          "started_at": "2026-11-08T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "queue.lifecycle.held",
+      "method": "GET",
+      "path_template": "/api/v1/backups/queue/{queue_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "resource-1",
+          "vm_id": "vm-1",
+          "status": "held",
+          "hold_reason": "source_unavailable",
+          "started_backup_id": "backup-1",
+          "backup_status": "failed",
+          "position": null,
+          "priority": 0,
+          "queued_at": "2026-11-08T00:00:00Z",
+          "started_at": "2026-11-08T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "request.dispatch.pending",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "backup.bulk_create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 0,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "status": "pending",
+            "message": "fixture",
+            "executor": "real",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [
+            {
+              "kind": "backup",
+              "resource_id": "resource-1",
+              "state": "pending",
+              "reason": null,
+              "resource_status": "pending",
+              "resource_present": true
+            }
+          ],
+          "current_resource": null,
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.dispatch.dispatching",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "backup.bulk_create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 0,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "status": "pending",
+            "message": "fixture",
+            "executor": "real",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [
+            {
+              "kind": "backup",
+              "resource_id": "resource-1",
+              "state": "dispatching",
+              "reason": null,
+              "resource_status": "pending",
+              "resource_present": true
+            }
+          ],
+          "current_resource": null,
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.dispatch.delivered",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "backup.bulk_create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 0,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "status": "pending",
+            "message": "fixture",
+            "executor": "real",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [
+            {
+              "kind": "backup",
+              "resource_id": "resource-1",
+              "state": "delivered",
+              "reason": null,
+              "resource_status": "running",
+              "resource_present": true
+            }
+          ],
+          "current_resource": null,
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.dispatch.held",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "backup.bulk_create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 0,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "status": "pending",
+            "message": "fixture",
+            "executor": "real",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [
+            {
+              "kind": "backup",
+              "resource_id": "resource-1",
+              "state": "held",
+              "reason": "dispatch_outcome_unknown",
+              "resource_status": "failed",
+              "resource_present": true
+            }
+          ],
+          "current_resource": null,
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "capabilities.admin",
+      "method": "GET",
+      "path_template": "/api/v1/operator/capabilities",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "contract_version": 1,
+          "request_header": "Idempotency-Key",
+          "request_identity": "uuid",
+          "caller_identity_required_for_lost_reply_recovery": true,
+          "scope": "organization-and-original-principal",
+          "actions": [
+            "backup.bulk_create",
+            "backup.create",
+            "credential.agent.rotate",
+            "credential.orchestrator.create",
+            "credential.registration.create",
+            "encryption.create",
+            "encryption.rotate",
+            "queue.create",
+            "restore.create"
+          ],
+          "encryption_admission_provider": "local",
+          "retention": "permanent-no-reuse",
+          "secret_replay": false,
+          "max_bulk_targets": 200,
+          "agent_key_rotation": "staged-candidate-activation",
+          "polling_contract": 2,
+          "external_effects": "original-attempt-reconciliation"
+        }
+      }
+    },
+    {
+      "id": "rotation.lifecycle.pending",
+      "method": "GET",
+      "path_template": "/api/v1/agents/{agent_id}/key-rotations/{rotation_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "pending",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "activated_at": null
+        }
+      }
+    },
+    {
+      "id": "rotation.lifecycle.activated",
+      "method": "GET",
+      "path_template": "/api/v1/agents/{agent_id}/key-rotations/{rotation_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "activated",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "activated_at": "2026-11-08T00:00:00Z"
+        }
+      }
+    },
+    {
+      "id": "rotation.lifecycle.cancelled",
+      "method": "GET",
+      "path_template": "/api/v1/agents/{agent_id}/key-rotations/{rotation_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "cancelled",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "activated_at": null
+        }
+      }
+    },
+    {
+      "id": "rotation.lifecycle.expired",
+      "method": "GET",
+      "path_template": "/api/v1/agents/{agent_id}/key-rotations/{rotation_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "rotation_id": "rotation-1",
+          "agent_id": "agent-1",
+          "state": "expired",
+          "key_prefix": "fixture1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "expires_at": "2026-11-08T00:00:00Z",
+          "activated_at": null
+        }
+      }
+    },
+    {
+      "id": "error.identity_conflict",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "request_identity_conflict"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.request_missing",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 404,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "request_not_found",
+            "outcome": "unknown"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.bulk_limit",
+      "method": "POST",
+      "path_template": "/api/v1/backups/bulk-create",
+      "response": {
+        "status": 422,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "bulk_admission_limit",
+            "max_targets": 200
+          }
+        }
+      }
+    },
+    {
+      "id": "error.provider_unsupported",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "provider_admission_contract_unavailable"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.stale_kek",
+      "method": "POST",
+      "path_template": "/api/v1/encryption/keys/{key_id}/rotate",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "stale_key_predecessor"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.rotation_pending",
+      "method": "POST",
+      "path_template": "/api/v1/agents/{agent_id}/rotate-key",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "agent_rotation_pending",
+            "rotation_id": "rotation-1"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.candidate_expired",
+      "method": "POST",
+      "path_template": "/api/v1/agents/{agent_id}/key-rotations/{rotation_id}/activate",
+      "response": {
+        "status": 410,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "agent_candidate_expired",
+            "message": "Candidate credential expired; active key retained"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.identity_malformed",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 422,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "invalid_request_identity"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.action_revoked",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 403,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "operator_action_not_authorized"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.contract_retired",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "request_contract_retired"
+          }
+        }
+      }
+    },
+    {
+      "id": "error.outcome_unresolved",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "operator_outcome_unresolved"
+          }
+        }
+      }
+    },
+    {
+      "id": "request.current.credential-disabled",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "credential.orchestrator.create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 201,
+          "receipt": {
+            "id": "resource-1",
+            "name": "Fixture",
+            "key_prefix": "fixture1",
+            "expires_at": "2026-11-08T00:00:00Z",
+            "created_at": "2026-11-08T00:00:00Z",
+            "message": "fixture",
+            "request_id": "11111111-1111-4111-8111-111111111111",
+            "secret_delivery": "unavailable"
+          },
+          "secret_delivery": "unavailable",
+          "dispatches": [],
+          "current_resource": {
+            "id": "resource-1",
+            "resource_present": true,
+            "enabled": false,
+            "is_valid": false,
+            "expires_at": null
+          },
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.current.kek-rotated-again",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "encryption.rotate",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 200,
+          "receipt": {
+            "id": "resource-1",
+            "name": "Fixture",
+            "algorithm": "aes-256-gcm",
+            "key_hash": "fixture",
+            "status": "active",
+            "provider": "local",
+            "created_at": "2026-11-08T00:00:00Z",
+            "created_by": "fixture",
+            "rotated_at": null,
+            "replaced_by_id": null,
+            "backed_up": false,
+            "backed_up_at": null,
+            "backed_up_locations": [],
+            "backup_count": 0,
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [],
+          "current_resource": {
+            "id": "resource-1",
+            "resource_present": true,
+            "status": "rotated",
+            "replaced_by_id": "successor-2"
+          },
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.current.queue-started",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "queue.create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 200,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "position": 0,
+            "priority": 0,
+            "queued_at": "2026-11-08T00:00:00Z",
+            "status": "pending",
+            "hold_reason": "fixture",
+            "started_backup_id": "fixture",
+            "message": "fixture",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [],
+          "current_resource": {
+            "id": "resource-1",
+            "resource_present": true,
+            "status": "started",
+            "hold_reason": null,
+            "started_backup_id": "backup-1"
+          },
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "request.current.credential-deleted",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "credential.registration.create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": "2026-11-08T00:00:00Z",
+          "response_status": 201,
+          "receipt": {
+            "id": "resource-1",
+            "name": "Fixture",
+            "key_prefix": "fixture1",
+            "expires_at": "2026-11-08T00:00:00Z",
+            "created_at": "2026-11-08T00:00:00Z",
+            "message": "fixture",
+            "agent_hostname": "fixture",
+            "max_uses": 0,
+            "request_id": "11111111-1111-4111-8111-111111111111",
+            "secret_delivery": "unavailable"
+          },
+          "secret_delivery": "unavailable",
+          "dispatches": [],
+          "current_resource": {
+            "id": "resource-1",
+            "resource_present": false
+          },
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "backup.dispatch-held.single",
+      "method": "GET",
+      "path_template": "/api/v1/backups/{backup_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "backup-1",
+          "vm_id": "vm-1",
+          "vm_name": "VM one",
+          "status": "pending",
+          "progress": 0,
+          "storage_progress": null,
+          "size_bytes": null,
+          "retention_days": 30,
+          "backup_type": "full",
+          "scheduler_decision": null,
+          "storage_path": null,
+          "tags": {},
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": null,
+          "operator_dispatch": {
+            "state": "held",
+            "reason": "dispatch_outcome_unknown",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "safety_diagnostic": null
+        }
+      }
+    },
+    {
+      "id": "backup.dispatch-held.list",
+      "method": "GET",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "items": [
+            {
+              "id": "backup-1",
+              "vm_id": "vm-1",
+              "vm_name": "VM one",
+              "status": "pending",
+              "progress": 0,
+              "storage_progress": null,
+              "size_bytes": null,
+              "retention_days": 30,
+              "backup_type": "full",
+              "storage_path": null,
+              "tags": {},
+              "created_at": "2026-11-08T00:00:00Z",
+              "completed_at": null,
+              "operator_dispatch": {
+                "state": "held",
+                "reason": "dispatch_outcome_unknown",
+                "request_id": "11111111-1111-4111-8111-111111111111"
+              },
+              "capacity_state": "reserved",
+              "safety_diagnostic": null
+            }
+          ],
+          "total": 1,
+          "skip": 0,
+          "limit": 50,
+          "has_more": false
+        }
+      }
+    },
+    {
+      "id": "restore.dispatch-held.single",
+      "method": "GET",
+      "path_template": "/api/v1/restores/{restore_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "restore-1",
+          "backup_id": "backup-1",
+          "status": "pending",
+          "progress": 0,
+          "restore_to_original": false,
+          "target_vm_name": "Restored VM",
+          "target_vm_id": null,
+          "created_by": "actor-1",
+          "created_at": "2026-11-08T00:00:00Z",
+          "started_at": null,
+          "completed_at": null,
+          "error_message": null,
+          "kubevirt_target": null,
+          "native_target": null,
+          "result": null,
+          "operator_dispatch": {
+            "state": "held",
+            "reason": "dispatch_outcome_unknown",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          }
+        }
+      }
+    },
+    {
+      "id": "restore.dispatch-held.list",
+      "method": "GET",
+      "path_template": "/api/v1/restores",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "items": [
+            {
+              "id": "restore-1",
+              "backup_id": "backup-1",
+              "status": "pending",
+              "progress": 0,
+              "restore_to_original": false,
+              "target_vm_name": "Restored VM",
+              "target_vm_id": null,
+              "created_by": "actor-1",
+              "created_at": "2026-11-08T00:00:00Z",
+              "started_at": null,
+              "completed_at": null,
+              "error_message": null,
+              "kubevirt_target": null,
+              "native_target": null,
+              "result": null,
+              "operator_dispatch": {
+                "state": "held",
+                "reason": "dispatch_outcome_unknown",
+                "request_id": "11111111-1111-4111-8111-111111111111"
+              }
+            }
+          ],
+          "total": 1,
+          "skip": 0,
+          "limit": 50
+        }
+      }
+    },
+    {
+      "id": "request.ancient-retained",
+      "method": "GET",
+      "path_template": "/api/v1/operator/requests/{request_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "request_id": "11111111-1111-4111-8111-111111111111",
+          "action": "backup.bulk_create",
+          "contract_version": 1,
+          "state": "admitted",
+          "created_at": "2000-01-01T00:00:00Z",
+          "completed_at": "2000-01-01T00:00:00Z",
+          "response_status": 0,
+          "receipt": {
+            "id": "resource-1",
+            "vm_id": "vm-1",
+            "vm_name": "fixture",
+            "status": "pending",
+            "message": "fixture",
+            "executor": "real",
+            "request_id": "11111111-1111-4111-8111-111111111111"
+          },
+          "secret_delivery": "not_applicable",
+          "dispatches": [
+            {
+              "kind": "backup",
+              "resource_id": "resource-1",
+              "state": "pending",
+              "reason": null,
+              "resource_status": "pending",
+              "resource_present": true
+            }
+          ],
+          "current_resource": null,
+          "retention": "permanent-no-reuse"
+        }
+      }
+    },
+    {
+      "id": "backup.safety.native-count",
+      "method": "GET",
+      "path_template": "/api/v1/backups/{backup_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "backup-1",
+          "vm_id": "vm-1",
+          "vm_name": "VM one",
+          "status": "cleanup_required",
+          "progress": 0,
+          "storage_progress": null,
+          "size_bytes": null,
+          "retention_days": 30,
+          "backup_type": "full",
+          "scheduler_decision": null,
+          "storage_path": null,
+          "tags": {},
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": null,
+          "operator_dispatch": null,
+          "safety_diagnostic": {
+            "stage": "export_admission",
+            "reason": "native_volume_count_mismatch",
+            "disposition": "refused",
+            "expected_native_volumes": 2,
+            "observed_native_volumes": 0,
+            "observed_export_links": 2,
+            "native_stop_phase": "native_absent_unproven"
+          }
+        }
+      },
+      "introduced_in": "6.1.0"
+    },
+    {
+      "id": "backup.safety.observation-exhausted",
+      "method": "GET",
+      "path_template": "/api/v1/backups/{backup_id}",
+      "response": {
+        "status": 200,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "id": "backup-1",
+          "vm_id": "vm-1",
+          "vm_name": "VM one",
+          "status": "cleanup_required",
+          "progress": 0,
+          "storage_progress": null,
+          "size_bytes": null,
+          "retention_days": 30,
+          "backup_type": "full",
+          "scheduler_decision": null,
+          "storage_path": null,
+          "tags": {},
+          "created_at": "2026-11-08T00:00:00Z",
+          "completed_at": null,
+          "operator_dispatch": null,
+          "safety_diagnostic": {
+            "stage": "observation",
+            "reason": "observation_budget_exhausted",
+            "disposition": "refused",
+            "observation_reason": "service_health_unavailable",
+            "last_trustworthy_observation_at": "2026-11-10T10:00:00Z",
+            "observation_uncertain_since": "2026-11-10T10:00:05Z",
+            "observation_deadline": "2026-11-10T10:01:00Z",
+            "native_stop_phase": "native_absent_unproven"
+          }
+        }
+      },
+      "introduced_in": "6.1.0"
+    },
+    {
+      "id": "error.backup_admission_paused",
+      "introduced_in": "6.1.0",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "backup_admission_paused",
+            "message": "New backup admissions are paused. Already reserved backups may continue."
+          }
+        }
+      }
+    },
+    {
+      "id": "error.backup_admission_policy_unavailable",
+      "introduced_in": "6.1.0",
+      "method": "POST",
+      "path_template": "/api/v1/backups",
+      "response": {
+        "status": 409,
+        "headers": {
+          "X-Request-ID": "22222222-2222-4222-8222-222222222222"
+        },
+        "body": {
+          "detail": {
+            "code": "backup_admission_policy_unavailable",
+            "message": "The installation's backup admission policy needs review."
+          }
+        }
+      }
+    },
+    {
+      "id": "backup.close_unreserved.first",
+      "method": "POST",
+      "path_template": "/api/v1/backups/{backup_id}/close-unreserved",
+      "request": {
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333"
+        },
+        "body": {}
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "backup_id": "resource-unstarted",
+          "status": "failed",
+          "reason": "pre_dispatch_no_effect",
+          "capacity_state": "unreserved",
+          "request_id": "33333333-3333-4333-8333-333333333333"
+        }
+      }
+    },
+    {
+      "id": "backup.close_unreserved.replay",
+      "method": "POST",
+      "path_template": "/api/v1/backups/{backup_id}/close-unreserved",
+      "request": {
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333"
+        },
+        "body": {}
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333",
+          "Idempotency-Replayed": "true",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "backup_id": "resource-unstarted",
+          "status": "failed",
+          "reason": "pre_dispatch_no_effect",
+          "capacity_state": "unreserved",
+          "request_id": "33333333-3333-4333-8333-333333333333"
+        }
+      }
+    },
+    {
+      "id": "backup.close_unreserved.refused",
+      "method": "POST",
+      "path_template": "/api/v1/backups/{backup_id}/close-unreserved",
+      "request": {
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333"
+        },
+        "body": {}
+      },
+      "response": {
+        "status": 409,
+        "headers": {
+          "Idempotency-Key": "33333333-3333-4333-8333-333333333333",
+          "Idempotency-Replayed": "false",
+          "Cache-Control": "no-store"
+        },
+        "body": {
+          "detail": {
+            "code": "unreserved_no_effect_proof_required"
+          }
+        }
+      }
+    }
+  ],
+  "lifecycle_groups": [
+    [
+      "queue.lifecycle.queued",
+      "queue.lifecycle.started",
+      "queue.lifecycle.held"
+    ],
+    [
+      "rotation.lifecycle.pending",
+      "rotation.lifecycle.activated"
+    ],
+    [
+      "request.dispatch.pending",
+      "request.dispatch.dispatching",
+      "request.dispatch.delivered"
+    ],
+    [
+      "request.dispatch.pending",
+      "request.dispatch.held"
+    ]
+  ]
+}

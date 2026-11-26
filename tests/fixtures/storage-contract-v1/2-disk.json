@@ -1,0 +1,390 @@
+{
+  "request": {
+    "protocol": "vnbui-storage-transaction/1",
+    "org_id": "11111111-1111-4111-8111-111111111111",
+    "agent_id": "44444444-4444-4444-8444-444444444444",
+    "backup_id": "22222222-2222-4222-8222-222222222222",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "plan_sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80",
+    "plan": {
+      "source": {
+        "schema": 1,
+        "agent_id": "44444444-4444-4444-8444-444444444444",
+        "vm_id": "55555555-5555-4555-8555-555555555555",
+        "vm_uid": "66666666-6666-4666-8666-666666666666",
+        "namespace": "example",
+        "volumes": [
+          {
+            "name": "data1",
+            "pvc_name": "data1-pvc",
+            "pvc_uid": "88888888-8888-4888-8888-888888888881",
+            "pvc_resource_version": "1234",
+            "capacity_bytes": 100663296,
+            "mapping": {
+              "disk_name": "data1",
+              "device": "disk",
+              "bus": "virtio",
+              "serial": null
+            }
+          },
+          {
+            "name": "data2",
+            "pvc_name": "data2-pvc",
+            "pvc_uid": "88888888-8888-4888-8888-888888888882",
+            "pvc_resource_version": "1234",
+            "capacity_bytes": 100663296,
+            "mapping": {
+              "disk_name": "data2",
+              "device": "disk",
+              "bus": "virtio",
+              "serial": null
+            }
+          }
+        ]
+      },
+      "provider": "kubevirt",
+      "vm_name": "example-vm",
+      "backup_type": "full",
+      "exclusions": [
+        "boot"
+      ],
+      "parent": null,
+      "target": {
+        "endpoint": "https://s3.example.test",
+        "bucket": "contract-fixtures"
+      },
+      "credential_ref": "s3-target/example",
+      "encryption": {
+        "format": "none",
+        "key_ref": null
+      },
+      "artifacts": [
+        {
+          "volume_id": "88888888-8888-4888-8888-888888888881",
+          "role": "volume_payload",
+          "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload",
+          "plaintext_min": 0,
+          "plaintext_max": 100663296,
+          "ciphertext_min": 0,
+          "ciphertext_max": 100663941
+        },
+        {
+          "volume_id": "88888888-8888-4888-8888-888888888881",
+          "role": "volume_manifest",
+          "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest",
+          "plaintext_min": 0,
+          "plaintext_max": 16777216,
+          "ciphertext_min": 0,
+          "ciphertext_max": 16777216
+        },
+        {
+          "volume_id": "88888888-8888-4888-8888-888888888882",
+          "role": "volume_payload",
+          "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload",
+          "plaintext_min": 0,
+          "plaintext_max": 100663296,
+          "ciphertext_min": 0,
+          "ciphertext_max": 100663941
+        },
+        {
+          "volume_id": "88888888-8888-4888-8888-888888888882",
+          "role": "volume_manifest",
+          "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest",
+          "plaintext_min": 0,
+          "plaintext_max": 16777216,
+          "ciphertext_min": 0,
+          "ciphertext_max": 16777216
+        }
+      ],
+      "checksum_policy": "sha256-parts-receipt-v2"
+    }
+  },
+  "prepared_receipt": {
+    "protocol": "vnbui-storage-transaction/1",
+    "schema": 2,
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "backup_id": "22222222-2222-4222-8222-222222222222",
+    "endpoint": "https://s3.example.test",
+    "bucket": "contract-fixtures",
+    "objects": [
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload",
+        "version_id": null,
+        "etag": "\"fixture-opaque-1-volume_payload\"",
+        "plaintext_bytes": 4194304,
+        "ciphertext_bytes": 4194304,
+        "plaintext_sha256": "5d2bafc266e711ed1e303de871e5b281fea2083d96e579dd504798bba5a34b42",
+        "ciphertext_sha256": "5d2bafc266e711ed1e303de871e5b281fea2083d96e579dd504798bba5a34b42",
+        "volume_id": "88888888-8888-4888-8888-888888888881",
+        "role": "volume_payload"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest",
+        "version_id": null,
+        "etag": "\"fixture-opaque-1-volume_manifest\"",
+        "plaintext_bytes": 538,
+        "ciphertext_bytes": 538,
+        "plaintext_sha256": "2dcb6dc36d9d595c8dff9fd6de0391bd22bc3f9497c9954f2654128588b29f49",
+        "ciphertext_sha256": "2dcb6dc36d9d595c8dff9fd6de0391bd22bc3f9497c9954f2654128588b29f49",
+        "volume_id": "88888888-8888-4888-8888-888888888881",
+        "role": "volume_manifest"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload",
+        "version_id": null,
+        "etag": "\"fixture-opaque-2-volume_payload\"",
+        "plaintext_bytes": 4194304,
+        "ciphertext_bytes": 4194304,
+        "plaintext_sha256": "e4eb88707af669a2324ae8aad3950ac7b3f7837dec7823c94d4983a99ef13181",
+        "ciphertext_sha256": "e4eb88707af669a2324ae8aad3950ac7b3f7837dec7823c94d4983a99ef13181",
+        "volume_id": "88888888-8888-4888-8888-888888888882",
+        "role": "volume_payload"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest",
+        "version_id": null,
+        "etag": "\"fixture-opaque-2-volume_manifest\"",
+        "plaintext_bytes": 538,
+        "ciphertext_bytes": 538,
+        "plaintext_sha256": "ed01cbdcb86df4e4f161d463347053bdf2cac9bbca5a41aa1e8bc4a79d1722be",
+        "ciphertext_sha256": "ed01cbdcb86df4e4f161d463347053bdf2cac9bbca5a41aa1e8bc4a79d1722be",
+        "volume_id": "88888888-8888-4888-8888-888888888882",
+        "role": "volume_manifest"
+      }
+    ]
+  },
+  "acceptance": {
+    "protocol": "vnbui-storage-transaction/1",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "receipt_sha256": "882e4e9ac2781a7c3822e613a8b62334ee9183f39da1aba56350d76eee1c575e",
+    "accepted": true,
+    "acceptance_id": "accepted-2",
+    "scrub_required": true,
+    "verification": [
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload",
+        "version_id": null,
+        "assurance": "identity_metadata_only",
+        "reason": "provider_full_object_sha256_unavailable"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest",
+        "version_id": null,
+        "assurance": "identity_metadata_only",
+        "reason": "provider_full_object_sha256_unavailable"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload",
+        "version_id": null,
+        "assurance": "identity_metadata_only",
+        "reason": "provider_full_object_sha256_unavailable"
+      },
+      {
+        "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest",
+        "version_id": null,
+        "assurance": "identity_metadata_only",
+        "reason": "provider_full_object_sha256_unavailable"
+      }
+    ]
+  },
+  "checkpoint_proof": {
+    "protocol": "vnbui-storage-transaction/1",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "receipt_sha256": "882e4e9ac2781a7c3822e613a8b62334ee9183f39da1aba56350d76eee1c575e",
+    "acceptance_id": "accepted-2",
+    "vm_uid": "66666666-6666-4666-8666-666666666666",
+    "vmi_uid": "99999999-9999-4999-8999-999999999999",
+    "tracker_name": "example-tracker",
+    "tracker_uid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "vmb_name": "vnbui-22222222-2222-4222-8222-222222222222",
+    "vmb_uid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    "parent_checkpoint": null,
+    "checkpoint": "checkpoint-2",
+    "backup_type": "Full",
+    "finalize_intent_durable": true,
+    "vmb_absent": true
+  },
+  "generation": {
+    "protocol": "vnbui-storage-transaction/1",
+    "root_backup_id": "22222222-2222-4222-8222-222222222222",
+    "generation_id": "77777777-7777-4777-8777-777777777772",
+    "predecessor_generation_id": null,
+    "deleted": false,
+    "members": [
+      {
+        "backup_id": "22222222-2222-4222-8222-222222222222",
+        "receipt": {
+          "protocol": "vnbui-storage-transaction/1",
+          "schema": 2,
+          "reservation_id": "33333333-3333-4333-8333-333333333332",
+          "backup_id": "22222222-2222-4222-8222-222222222222",
+          "endpoint": "https://s3.example.test",
+          "bucket": "contract-fixtures",
+          "objects": [
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload",
+              "version_id": null,
+              "etag": "\"fixture-opaque-1-volume_payload\"",
+              "plaintext_bytes": 4194304,
+              "ciphertext_bytes": 4194304,
+              "plaintext_sha256": "5d2bafc266e711ed1e303de871e5b281fea2083d96e579dd504798bba5a34b42",
+              "ciphertext_sha256": "5d2bafc266e711ed1e303de871e5b281fea2083d96e579dd504798bba5a34b42",
+              "volume_id": "88888888-8888-4888-8888-888888888881",
+              "role": "volume_payload"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest",
+              "version_id": null,
+              "etag": "\"fixture-opaque-1-volume_manifest\"",
+              "plaintext_bytes": 538,
+              "ciphertext_bytes": 538,
+              "plaintext_sha256": "2dcb6dc36d9d595c8dff9fd6de0391bd22bc3f9497c9954f2654128588b29f49",
+              "ciphertext_sha256": "2dcb6dc36d9d595c8dff9fd6de0391bd22bc3f9497c9954f2654128588b29f49",
+              "volume_id": "88888888-8888-4888-8888-888888888881",
+              "role": "volume_manifest"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload",
+              "version_id": null,
+              "etag": "\"fixture-opaque-2-volume_payload\"",
+              "plaintext_bytes": 4194304,
+              "ciphertext_bytes": 4194304,
+              "plaintext_sha256": "e4eb88707af669a2324ae8aad3950ac7b3f7837dec7823c94d4983a99ef13181",
+              "ciphertext_sha256": "e4eb88707af669a2324ae8aad3950ac7b3f7837dec7823c94d4983a99ef13181",
+              "volume_id": "88888888-8888-4888-8888-888888888882",
+              "role": "volume_payload"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest",
+              "version_id": null,
+              "etag": "\"fixture-opaque-2-volume_manifest\"",
+              "plaintext_bytes": 538,
+              "ciphertext_bytes": 538,
+              "plaintext_sha256": "ed01cbdcb86df4e4f161d463347053bdf2cac9bbca5a41aa1e8bc4a79d1722be",
+              "ciphertext_sha256": "ed01cbdcb86df4e4f161d463347053bdf2cac9bbca5a41aa1e8bc4a79d1722be",
+              "volume_id": "88888888-8888-4888-8888-888888888882",
+              "role": "volume_manifest"
+            }
+          ]
+        },
+        "assurance": {
+          "protocol": "vnbui-storage-transaction/1",
+          "reservation_id": "33333333-3333-4333-8333-333333333332",
+          "receipt_sha256": "882e4e9ac2781a7c3822e613a8b62334ee9183f39da1aba56350d76eee1c575e",
+          "accepted": true,
+          "acceptance_id": "accepted-2",
+          "scrub_required": true,
+          "verification": [
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload",
+              "version_id": null,
+              "assurance": "identity_metadata_only",
+              "reason": "provider_full_object_sha256_unavailable"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest",
+              "version_id": null,
+              "assurance": "identity_metadata_only",
+              "reason": "provider_full_object_sha256_unavailable"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload",
+              "version_id": null,
+              "assurance": "identity_metadata_only",
+              "reason": "provider_full_object_sha256_unavailable"
+            },
+            {
+              "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest",
+              "version_id": null,
+              "assurance": "identity_metadata_only",
+              "reason": "provider_full_object_sha256_unavailable"
+            }
+          ]
+        },
+        "checkpoint_proof": {
+          "protocol": "vnbui-storage-transaction/1",
+          "reservation_id": "33333333-3333-4333-8333-333333333332",
+          "receipt_sha256": "882e4e9ac2781a7c3822e613a8b62334ee9183f39da1aba56350d76eee1c575e",
+          "acceptance_id": "accepted-2",
+          "vm_uid": "66666666-6666-4666-8666-666666666666",
+          "vmi_uid": "99999999-9999-4999-8999-999999999999",
+          "tracker_name": "example-tracker",
+          "tracker_uid": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "vmb_name": "vnbui-22222222-2222-4222-8222-222222222222",
+          "vmb_uid": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          "parent_checkpoint": null,
+          "checkpoint": "checkpoint-2",
+          "backup_type": "Full",
+          "finalize_intent_durable": true,
+          "vmb_absent": true
+        }
+      }
+    ]
+  },
+  "pointer": {
+    "protocol": "vnbui-storage-transaction/1",
+    "generation_id": "77777777-7777-4777-8777-777777777772",
+    "key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/generations/77777777-7777-4777-8777-777777777772.json",
+    "sha256": "8b38a44fb38bb44b4d95c2b1dfff80d6c03b0ab5241599ffef12bc6cc836ce93",
+    "version_id": null,
+    "etag": "\"fixture-generation-etag\"",
+    "deleted": false
+  },
+  "completion": {
+    "protocol": "vnbui-storage-transaction/1",
+    "backup_id": "22222222-2222-4222-8222-222222222222",
+    "status": "completed",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "receipt_sha256": "882e4e9ac2781a7c3822e613a8b62334ee9183f39da1aba56350d76eee1c575e",
+    "generation_id": "77777777-7777-4777-8777-777777777772",
+    "pointer_key": "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/chain.json",
+    "pointer_etag": "\"fixture-pointer-etag\"",
+    "checkpoint": "checkpoint-2",
+    "scrub_required": true
+  },
+  "initiation_metadata": {
+    "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_payload": {
+      "vnbui-protocol": "1",
+      "vnbui-org-id": "11111111-1111-4111-8111-111111111111",
+      "vnbui-backup-id": "22222222-2222-4222-8222-222222222222",
+      "vnbui-reservation-id": "33333333-3333-4333-8333-333333333332",
+      "vnbui-artifact-id": "d793ab19f539d39baf85945b86e85ffbfa3c006d00f46f4a7e440a450ef962d8",
+      "vnbui-plan-sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80"
+    },
+    "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f5ecc79dcbfc241aff4642e95423e1fcabb491ed4d01394ee22d23cbd25b0904/volume_manifest": {
+      "vnbui-protocol": "1",
+      "vnbui-org-id": "11111111-1111-4111-8111-111111111111",
+      "vnbui-backup-id": "22222222-2222-4222-8222-222222222222",
+      "vnbui-reservation-id": "33333333-3333-4333-8333-333333333332",
+      "vnbui-artifact-id": "006c7601b5a850f9684ed23b46e3bfab7b0fc1dc2910d3c42355c6508614765f",
+      "vnbui-plan-sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80"
+    },
+    "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_payload": {
+      "vnbui-protocol": "1",
+      "vnbui-org-id": "11111111-1111-4111-8111-111111111111",
+      "vnbui-backup-id": "22222222-2222-4222-8222-222222222222",
+      "vnbui-reservation-id": "33333333-3333-4333-8333-333333333332",
+      "vnbui-artifact-id": "008e1620f3bd0ac5589f4ef674e1755e2c9b9dd801d7e0b7ef60223bb60a41c2",
+      "vnbui-plan-sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80"
+    },
+    "vnbui-owned/v1/bd7662a5eeb41614e720d477abfcb2272e19a8a70a93b7e3bc8560d44ad326e9/b454f82c5857ebabf342b7258e5cf7def78b7cd975814119462973de9a38df10/payload/f9108c2ff9dbf2b8a353f84777a7db4f1c89b78e2519dda11b9dcdaa09ed040b/volume_manifest": {
+      "vnbui-protocol": "1",
+      "vnbui-org-id": "11111111-1111-4111-8111-111111111111",
+      "vnbui-backup-id": "22222222-2222-4222-8222-222222222222",
+      "vnbui-reservation-id": "33333333-3333-4333-8333-333333333332",
+      "vnbui-artifact-id": "1350860aafb07e0ff6cdc2e58199cd0c4d5df8323d5356d896f1e12491b8ecbc",
+      "vnbui-plan-sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80"
+    }
+  },
+  "dispatch_ack": {
+    "protocol": "vnbui-storage-transaction/1",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "plan_sha256": "32908a990fe29be98df3c845b683063500c015fe402d856f0abf86411cddec80",
+    "status": "accepted"
+  },
+  "checkpoint_ack": {
+    "protocol": "vnbui-storage-transaction/1",
+    "reservation_id": "33333333-3333-4333-8333-333333333332",
+    "status": "awaiting_manifest"
+  }
+}

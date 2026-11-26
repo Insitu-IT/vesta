@@ -1,0 +1,114 @@
+x-backend-build: &backend-build
+  context: ../../backend
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
+      VESTA_DATABASE: vesta
+      VESTA_OWNER_ROLE: vesta_owner
+      VESTA_RUNTIME_ROLE: vesta_runtime
+    secrets:
+      - postgres-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init.sh:/docker-entrypoint-initdb.d/01-vesta.sh:ro
+      - ../okd/postgres-init.sh:/bootstrap/postgres-init.sh:ro
+      - ./.local/owner-password:/bootstrap/OWNER_PASSWORD:ro
+      - ./.local/runtime-password:/bootstrap/RUNTIME_PASSWORD:ro
+    networks: [database]
+    healthcheck:
+      # The PostgreSQL image's bootstrap server listens on Unix sockets only.
+      test: [CMD, pg_isready, -h, 127.0.0.1, -U, vesta_owner, -d, vesta]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build: *backend-build
+    user: "10001:10001"
+    command: [python, /app/start-local.py, migrate]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    secrets:
+      - owner-password
+    volumes:
+      - ./start-local.py:/app/start-local.py:ro
+    networks: [database]
+
+  vesta-backend:
+    build: *backend-build
+    user: "10001:10001"
+    command: [python, /app/start-local.py, serve]
+    environment:
+      INITIAL_ADMIN_USERNAME: admin
+      INITIAL_ADMIN_PASSWORD_FILE: /run/secrets/admin-password
+      LICENSE_REGISTRATION_URL: ""
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    secrets:
+      - runtime-password
+      - jwt-secret
+      - fernet-key
+      - admin-password
+    volumes:
+      - ./start-local.py:/app/start-local.py:ro
+    networks:
+      database:
+      web:
+        # DNS compatibility for previously deployed frontend images.
+        aliases: [vnbui-backend]
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/ready', timeout=3).close()"
+      interval: 5s
+      timeout: 4s
+      retries: 20
+
+  frontend:
+    build:
+      context: ../../frontend
+    depends_on:
+      vesta-backend:
+        condition: service_healthy
+    networks: [web]
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+networks:
+  database:
+    internal: true
+  web:
+
+volumes:
+  postgres-data:
+
+secrets:
+  postgres-password:
+    file: ./.local/postgres-password
+  owner-password:
+    file: ./.local/owner-password
+  runtime-password:
+    file: ./.local/runtime-password
+  jwt-secret:
+    file: ./.local/jwt-secret
+  fernet-key:
+    file: ./.local/fernet-key
+  admin-password:
+    file: ./.local/admin-password

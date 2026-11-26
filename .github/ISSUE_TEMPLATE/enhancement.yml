@@ -1,0 +1,17 @@
+name: Enhancement
+description: Propose an improvement to Community code, tests or documentation.
+body:
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Current workflow
+      description: Describe the task and the friction or gap.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Proposed outcome
+      description: Describe the expected behavior and how someone could verify it.
+    validations:
+      required: true

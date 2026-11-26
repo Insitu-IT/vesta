@@ -1,0 +1,4 @@
+/*!
+ * lunr.TokenSet
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

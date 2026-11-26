@@ -1,0 +1,73 @@
+{
+  "source": "https://raw.githubusercontent.com/Redocly/redoc/7a9ec49624529bd882eba29847343f2f916d923a/package-lock.json",
+  "sha256": "f4e41904aae4ae76e5a6a7b97ac3385ea7567e612cbd1dd01560be704e80d31b",
+  "lockfileVersion": 2,
+  "package_version": "2.5.4",
+  "publisher_gitHead": "7a9ec49624529bd882eba29847343f2f916d923a",
+  "publisher_metadata_source": "https://registry.npmjs.org/redoc/2.5.4",
+  "publisher_metadata_sha256": "7423292b10e95d8186b5080b3248a015927264a2e4763121980118856d14ae3c",
+  "selected_nodes": {
+    "ieee754": {
+      "version": "1.2.1",
+      "resolved": "https://registry.npmjs.org/ieee754/-/ieee754-1.2.1.tgz",
+      "integrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==",
+      "dev": true,
+      "funding": [
+        {
+          "type": "github",
+          "url": "https://github.com/sponsors/feross"
+        },
+        {
+          "type": "patreon",
+          "url": "https://www.patreon.com/feross"
+        },
+        {
+          "type": "consulting",
+          "url": "https://feross.org/support"
+        }
+      ]
+    },
+    "dompurify": {
+      "version": "3.4.13",
+      "resolved": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.13.tgz",
+      "integrity": "sha512-2vmYIoqjze2d+kakP8S/nS5shfsl587kzwEjcGlTdiksUVgFHnFCsLYDVj/JNqJVOQZGSYBTmuycv0PodwmnMQ==",
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "optionalDependencies": {
+        "@types/trusted-types": "^2.0.7"
+      }
+    },
+    "stickyfill": {
+      "version": "1.1.1",
+      "resolved": "https://registry.npmjs.org/stickyfill/-/stickyfill-1.1.1.tgz",
+      "integrity": "sha1-OUE/7p0CXHSn5ZzuyyN4TMDxfwI="
+    },
+    "perfect-scrollbar": {
+      "version": "1.5.5",
+      "resolved": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-1.5.5.tgz",
+      "integrity": "sha512-dzalfutyP3e/FOpdlhVryN4AJ5XDVauVWxybSkLZmakFE2sS3y3pc4JnSprw8tGmHvkaG5Edr5T7LBTZ+WWU2g=="
+    },
+    "mark.js": {
+      "version": "8.11.1",
+      "resolved": "https://registry.npmjs.org/mark.js/-/mark.js-8.11.1.tgz",
+      "integrity": "sha1-GA8fnr74sOY45BZq1S24eb6y/8U="
+    },
+    "prismjs": {
+      "version": "1.30.0",
+      "resolved": "https://registry.npmjs.org/prismjs/-/prismjs-1.30.0.tgz",
+      "integrity": "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=6"
+      }
+    },
+    "lunr": {
+      "version": "2.3.9",
+      "resolved": "https://registry.npmjs.org/lunr/-/lunr-2.3.9.tgz",
+      "integrity": "sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow=="
+    }
+  },
+  "notice_review_provenance": {
+    "file": "redoc/banner-notice-provenance.json",
+    "sha256": "a45fe747066970319a95638544e653e085fb51608678974474a117385b00620c"
+  }
+}

@@ -1,0 +1,43 @@
+name: Bug report
+description: Report reproducible behavior in Vesta Community.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Follow the [security reporting procedure](https://github.com/Insitu-IT/vesta/blob/main/SECURITY.md) for suspected vulnerabilities. Keep
+        credentials, keys, backup contents and customer data out of this report.
+  - type: input
+    id: version
+    attributes:
+      label: Vesta version or public commit
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: VM provider
+      options:
+        - No agent or provider
+        - libvirt
+        - KubeVirt
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Include relevant operating system, provider, PostgreSQL and storage versions when applicable.
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Provide a minimal example using synthetic data.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and observed behavior
+      description: Include relevant sanitized diagnostics and error messages.
+    validations:
+      required: true

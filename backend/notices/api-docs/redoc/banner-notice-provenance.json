@@ -1,0 +1,753 @@
+{
+  "schema": "vesta-redoc-banner-notice-review/1",
+  "bundle_upstream_sha256": "dcaf76612bc4a3fbcc923a8966dee2f6146a5f32e5ce1b6f02dd60cbbf89500b",
+  "bundle_shipped_sha256": "d548603ac193fe10186a1bea1e0479e0a3541ded2bb76a677c3f00102895e033",
+  "bundle_archive_sha256": "44922df4d0eb45c1b066c09ec251e6bd9bd7ded16bc69e87613337b9d911a56e",
+  "scope": "Original terms for named actual publisher-extracted banners; candidate archives/source-map contents do not prove transformed emission or full dependency closure",
+  "banners": {
+    "redoc/redoc.standalone.js.LICENSE.txt": "eed602ec32e00b2b9df1984fbcc26a687b1b3193ec01961389c4b8439e6edf73",
+    "redoc/d87bcbdbea8f8f5aa26f.worker.js.LICENSE.txt": "aa1f7119b828e7ac26dd17359a30fd698a1672fba879215271960bbc88201ac2"
+  },
+  "worker_source_map": {
+    "archive_member": "package/bundles/d87bcbdbea8f8f5aa26f.worker.js.map",
+    "sha256": "a969f7c095772d224788022d81db5aa0d459bdfb22f3f50a6c5ffe0de21c4160",
+    "source_count": 6,
+    "correspondence": "Unqualified additional map input, not generated-coordinate or emitted-closure proof",
+    "embedded_blob": {
+      "container": "static/api-docs/redoc.standalone.js",
+      "upstream_container_sha256": "dcaf76612bc4a3fbcc923a8966dee2f6146a5f32e5ce1b6f02dd60cbbf89500b",
+      "shipped_container_sha256": "d548603ac193fe10186a1bea1e0479e0a3541ded2bb76a677c3f00102895e033",
+      "decoded_blob_bytes": 31605,
+      "decoded_blob_sha256": "2dd6e26aa4deb2cb9c06faeef3d0b37178de1d987f5ecd224da0030e55c86229",
+      "encoded_literal_bytes": 31645,
+      "literal_spans": {
+        "upstream": {
+          "start_byte": 262387,
+          "end_byte": 294032,
+          "literal_sha256": "3a32f99257c4228a5b565fccaae32887d0e76100d2195051c2044572115196fd"
+        },
+        "shipped": {
+          "start_byte": 262387,
+          "end_byte": 294032,
+          "literal_sha256": "3a32f99257c4228a5b565fccaae32887d0e76100d2195051c2044572115196fd"
+        }
+      },
+      "method": "JSON-decode publisher loader source content, then prove its entire canonical ASCII single-quoted literal occurs byte-exactly once as actual new Blob input in each original/shipped container; no JS evaluation",
+      "source_to_emitted_module_closure_certified": false
+    },
+    "coordinate_bounds_status": "coordinates-in-bounds-only; not correspondence certification"
+  },
+  "emitted_component_inventory_complete": false,
+  "entries": [
+    {
+      "name": "stickyfill",
+      "candidate_versions": [
+        "1.1.1"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "banner_marker": "Stickyfill --",
+      "notice_file": "redoc/stickyfill-1.1.1.LICENSE",
+      "notice_sha256": "82183d79743926de3202987112039cda376a447a07422d45de1392cd85e40d07",
+      "notice_disposition": "NEW_ORIGINAL_TERMS_ABSENT_FROM_COMBINED_SHIPPED_NOTICES",
+      "archives": [
+        {
+          "version": "1.1.1",
+          "metadata_url": "https://registry.npmjs.org/stickyfill/1.1.1",
+          "metadata_sha256": "60ac90122855f09b2dd15fb9313eefaa188f86bb1fe3caa06c3f26de5aea25f9",
+          "archive_url": "https://registry.npmjs.org/stickyfill/-/stickyfill-1.1.1.tgz",
+          "archive_sha256": "0b64ad4ba45dba7209cac8775457c4e3c1ec61d167b238fe1b9cd3c598bc8e9e",
+          "archive_bytes": 4539,
+          "registry_integrities_verified": [
+            "sha512-GCp7vHAfpao+Qh/3Flh9DXEJ/qSi0KJwJw6zYlZOtRYXWUIpMM6mC2rIep/dK8RQqwW0KxGJIllmjPIBOGN8AA=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "82183d79743926de3202987112039cda376a447a07422d45de1392cd85e40d07",
+              "bytes": 1115
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha1-OUE/7p0CXHSn5ZzuyyN4TMDxfwI="
+        }
+      ],
+      "published_map_content_matches": [
+        {
+          "name": "stickyfill",
+          "version": "1.1.1",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/stickyfill/index.js",
+          "member": "package/index.js",
+          "source_map_content_sha256": "a030b7f0a52ba31f29f53e9b22da5195a439bf0fdbf5ad8241bdb30e20ff329a",
+          "archive_source_sha256": "a030b7f0a52ba31f29f53e9b22da5195a439bf0fdbf5ad8241bdb30e20ff329a",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        }
+      ],
+      "emitted_version_status": "Candidate archive; exact transformed emitted-module/version correspondence remains unqualified"
+    },
+    {
+      "name": "perfect-scrollbar",
+      "candidate_versions": [
+        "1.5.5"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "banner_marker": "perfect-scrollbar v1.5.3",
+      "notice_file": "redoc/perfect-scrollbar-1.5.5.LICENSE",
+      "notice_sha256": "58ca49a0a0917f046518fd93f6415f197303a7fd06ae52a217d7ec0e7e07b76f",
+      "notice_disposition": "NEW_ORIGINAL_TERMS_ABSENT_FROM_COMBINED_SHIPPED_NOTICES",
+      "archives": [
+        {
+          "version": "1.5.5",
+          "metadata_url": "https://registry.npmjs.org/perfect-scrollbar/1.5.5",
+          "metadata_sha256": "5504d417b733fe436df43b8b876044d8f46bbb078a41ae982792fb3c89208941",
+          "archive_url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-1.5.5.tgz",
+          "archive_sha256": "5fbd1b7edd4e598a14c9b1a58484cad80be89ac17909f2a19e0035d2d292bd2c",
+          "archive_bytes": 100706,
+          "registry_integrities_verified": [
+            "sha512-dzalfutyP3e/FOpdlhVryN4AJ5XDVauVWxybSkLZmakFE2sS3y3pc4JnSprw8tGmHvkaG5Edr5T7LBTZ+WWU2g=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "58ca49a0a0917f046518fd93f6415f197303a7fd06ae52a217d7ec0e7e07b76f",
+              "bytes": 1122
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-dzalfutyP3e/FOpdlhVryN4AJ5XDVauVWxybSkLZmakFE2sS3y3pc4JnSprw8tGmHvkaG5Edr5T7LBTZ+WWU2g=="
+        }
+      ],
+      "published_map_content_matches": [
+        {
+          "name": "perfect-scrollbar",
+          "version": "1.5.5",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js",
+          "member": "package/dist/perfect-scrollbar.esm.js",
+          "source_map_content_sha256": "71ba45e1829ade725e4f70e800f85b649a391cb114d3e988619097cb2f1d3aea",
+          "archive_source_sha256": "71ba45e1829ade725e4f70e800f85b649a391cb114d3e988619097cb2f1d3aea",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        }
+      ],
+      "emitted_version_status": "Candidate archive; exact transformed emitted-module/version correspondence remains unqualified"
+    },
+    {
+      "name": "mark.js",
+      "candidate_versions": [
+        "8.11.1"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "banner_marker": "mark.js v8.11.1",
+      "notice_file": "redoc/mark.js-8.11.1.LICENSE",
+      "notice_sha256": "402936bcc8f1b6947750eb9193183d7d0c4dbca3c0ba06398571d94ee85c24be",
+      "notice_disposition": "NEW_ORIGINAL_TERMS_ABSENT_FROM_COMBINED_SHIPPED_NOTICES",
+      "archives": [
+        {
+          "version": "8.11.1",
+          "metadata_url": "https://registry.npmjs.org/mark.js/8.11.1",
+          "metadata_sha256": "4e2df2b895d8d3530920546b6d2384d54a92bdc42cad39cbbd4dc06182d8bd5d",
+          "archive_url": "https://registry.npmjs.org/mark.js/-/mark.js-8.11.1.tgz",
+          "archive_sha256": "694fa154d0f0e63fbc55cfd33e414bd7e4b21239cdf56b4e6b80f2ccc1f86994",
+          "archive_bytes": 105115,
+          "registry_integrities_verified": [
+            "sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "402936bcc8f1b6947750eb9193183d7d0c4dbca3c0ba06398571d94ee85c24be",
+              "bytes": 1088
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha1-GA8fnr74sOY45BZq1S24eb6y/8U="
+        }
+      ],
+      "published_map_content_matches": [
+        {
+          "name": "mark.js",
+          "version": "8.11.1",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/mark.js/dist/mark.js",
+          "member": "package/dist/mark.js",
+          "source_map_content_sha256": "2f257849e20bc385cdf0f59a03276a3abf290a9bfd45565b546c211ab727c7ee",
+          "archive_source_sha256": "2f257849e20bc385cdf0f59a03276a3abf290a9bfd45565b546c211ab727c7ee",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        }
+      ],
+      "emitted_version_status": "Candidate archive; exact transformed emitted-module/version correspondence remains unqualified"
+    },
+    {
+      "name": "prismjs",
+      "candidate_versions": [
+        "1.30.0"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "banner_marker": "Prism: Lightweight",
+      "notice_file": "redoc/prismjs-1.30.0.LICENSE",
+      "notice_sha256": "2b947f0901a7ffcf08a89957da9783c0e9c6e72cb6ce8e959f501ab5409e4d2b",
+      "notice_disposition": "NEW_ORIGINAL_TERMS_ABSENT_FROM_COMBINED_SHIPPED_NOTICES",
+      "archives": [
+        {
+          "version": "1.30.0",
+          "metadata_url": "https://registry.npmjs.org/prismjs/1.30.0",
+          "metadata_sha256": "f18fba1526cb210a08b4125d662c065b7c7807d68d574554c10d8cf23301c5d1",
+          "archive_url": "https://registry.npmjs.org/prismjs/-/prismjs-1.30.0.tgz",
+          "archive_sha256": "ac16a9106a28c53b6a6313993c816a3a02525fdfefd7614fc1703df915a9fc11",
+          "archive_bytes": 540286,
+          "registry_integrities_verified": [
+            "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "2b947f0901a7ffcf08a89957da9783c0e9c6e72cb6ce8e959f501ab5409e4d2b",
+              "bytes": 1066
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="
+        }
+      ],
+      "published_map_content_matches": [
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-bash.js",
+          "member": "package/components/prism-bash.js",
+          "source_map_content_sha256": "6c67db1a4c86269dc754b588d0ad3a0cdb295044fd466ea6f66bbf01dec306bd",
+          "archive_source_sha256": "6c67db1a4c86269dc754b588d0ad3a0cdb295044fd466ea6f66bbf01dec306bd",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-c.js",
+          "member": "package/components/prism-c.js",
+          "source_map_content_sha256": "326fe0f50c2f00c5c9cf741b693654e215017b5d16a86c1c7938455cc64b340b",
+          "archive_source_sha256": "326fe0f50c2f00c5c9cf741b693654e215017b5d16a86c1c7938455cc64b340b",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-clike.js",
+          "member": "package/components/prism-clike.js",
+          "source_map_content_sha256": "6a7e077bbcb4a2259bc3152e55681f804ec8a3c2b969f234bb220df0f2d79654",
+          "archive_source_sha256": "6a7e077bbcb4a2259bc3152e55681f804ec8a3c2b969f234bb220df0f2d79654",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-coffeescript.js",
+          "member": "package/components/prism-coffeescript.js",
+          "source_map_content_sha256": "15f8ce62c134689f224e597edd0cf6776cc8b558565977582722c482f4aaa561",
+          "archive_source_sha256": "15f8ce62c134689f224e597edd0cf6776cc8b558565977582722c482f4aaa561",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-cpp.js",
+          "member": "package/components/prism-cpp.js",
+          "source_map_content_sha256": "1f165e550a5545f8e6a32f82e5492273304b78b3495a5666101649d3585d6a0a",
+          "archive_source_sha256": "1f165e550a5545f8e6a32f82e5492273304b78b3495a5666101649d3585d6a0a",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-csharp.js",
+          "member": "package/components/prism-csharp.js",
+          "source_map_content_sha256": "c37f21bfb5e3599db2e4adcc87062a955f01b086f40841ab42f913320ad90702",
+          "archive_source_sha256": "c37f21bfb5e3599db2e4adcc87062a955f01b086f40841ab42f913320ad90702",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-csv.js",
+          "member": "package/components/prism-csv.js",
+          "source_map_content_sha256": "186b7dde33a59f3a801742514965335e0283b58f1aba40f410f89aa7481e6e99",
+          "archive_source_sha256": "186b7dde33a59f3a801742514965335e0283b58f1aba40f410f89aa7481e6e99",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-go.js",
+          "member": "package/components/prism-go.js",
+          "source_map_content_sha256": "a3fcbec67973ab43a7a7ec3cd8e447f254bc0213eed9e6842067da5082bcf60e",
+          "archive_source_sha256": "a3fcbec67973ab43a7a7ec3cd8e447f254bc0213eed9e6842067da5082bcf60e",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-http.js",
+          "member": "package/components/prism-http.js",
+          "source_map_content_sha256": "dfc736c14755f69f099a3f28214e50e9380c7333218e13f98aa1a6861ed83e7c",
+          "archive_source_sha256": "dfc736c14755f69f099a3f28214e50e9380c7333218e13f98aa1a6861ed83e7c",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-java.js",
+          "member": "package/components/prism-java.js",
+          "source_map_content_sha256": "b0cba68acd21aef9605a8ca71bf2fa4579b3b9db63af436ee659f0c727717a8e",
+          "archive_source_sha256": "b0cba68acd21aef9605a8ca71bf2fa4579b3b9db63af436ee659f0c727717a8e",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-lua.js",
+          "member": "package/components/prism-lua.js",
+          "source_map_content_sha256": "708066fde1a411d7affd4d623ccfb7a91c7b1ac85d00f9bf4bc9e87342992e85",
+          "archive_source_sha256": "708066fde1a411d7affd4d623ccfb7a91c7b1ac85d00f9bf4bc9e87342992e85",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-markup-templating.js",
+          "member": "package/components/prism-markup-templating.js",
+          "source_map_content_sha256": "b3bf3a8498fb379fcc3128195e10c85e7ddc382ce2e420239fa5012f05260235",
+          "archive_source_sha256": "b3bf3a8498fb379fcc3128195e10c85e7ddc382ce2e420239fa5012f05260235",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-markup.js",
+          "member": "package/components/prism-markup.js",
+          "source_map_content_sha256": "981ea1865e1dbe304b661196fac6a6103b4ab19080c58c5b5d8ef2767e905df4",
+          "archive_source_sha256": "981ea1865e1dbe304b661196fac6a6103b4ab19080c58c5b5d8ef2767e905df4",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-objectivec.js",
+          "member": "package/components/prism-objectivec.js",
+          "source_map_content_sha256": "a2bb4b6e0869cf092326a8a23c5dd2f4033e87e76b02994e31cf5ce05653986a",
+          "archive_source_sha256": "a2bb4b6e0869cf092326a8a23c5dd2f4033e87e76b02994e31cf5ce05653986a",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-perl.js",
+          "member": "package/components/prism-perl.js",
+          "source_map_content_sha256": "c79b516f2d0cc18936eda41a713b8f7cc542853df084c09e7560bb5599689761",
+          "archive_source_sha256": "c79b516f2d0cc18936eda41a713b8f7cc542853df084c09e7560bb5599689761",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-php.js",
+          "member": "package/components/prism-php.js",
+          "source_map_content_sha256": "7d5de689b6c8978dc97f44606fdd92ebdf52ac054e0a88ee078781e545ecaf2b",
+          "archive_source_sha256": "7d5de689b6c8978dc97f44606fdd92ebdf52ac054e0a88ee078781e545ecaf2b",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-python.js",
+          "member": "package/components/prism-python.js",
+          "source_map_content_sha256": "fd84d8bedf516b82f1b212fc059d280f8f2ca7230bef6408bea6b5ce4e8e68f4",
+          "archive_source_sha256": "fd84d8bedf516b82f1b212fc059d280f8f2ca7230bef6408bea6b5ce4e8e68f4",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-q.js",
+          "member": "package/components/prism-q.js",
+          "source_map_content_sha256": "3b889bb48af454757328e75aec895e6e970d6d5ac950b4974a86b640025dc604",
+          "archive_source_sha256": "3b889bb48af454757328e75aec895e6e970d6d5ac950b4974a86b640025dc604",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-ruby.js",
+          "member": "package/components/prism-ruby.js",
+          "source_map_content_sha256": "eeef7976dcc179797ef2d598f571b02f320e702a08acf54d86fa1c63e870ebb7",
+          "archive_source_sha256": "eeef7976dcc179797ef2d598f571b02f320e702a08acf54d86fa1c63e870ebb7",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-scala.js",
+          "member": "package/components/prism-scala.js",
+          "source_map_content_sha256": "50bf638b949278cfe05d634a7f66c6a92a05b307ed2e748e6c3b361564faf187",
+          "archive_source_sha256": "50bf638b949278cfe05d634a7f66c6a92a05b307ed2e748e6c3b361564faf187",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-sql.js",
+          "member": "package/components/prism-sql.js",
+          "source_map_content_sha256": "c208fdd212ff69c123c252290d5c325375bfefb0f6c26523b463909606cf3567",
+          "archive_source_sha256": "c208fdd212ff69c123c252290d5c325375bfefb0f6c26523b463909606cf3567",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-swift.js",
+          "member": "package/components/prism-swift.js",
+          "source_map_content_sha256": "e0388ce0b2c40de4254865c76c6bfeaaee61f5bbe8af9982b1190a1f1cd01703",
+          "archive_source_sha256": "e0388ce0b2c40de4254865c76c6bfeaaee61f5bbe8af9982b1190a1f1cd01703",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/components/prism-yaml.js",
+          "member": "package/components/prism-yaml.js",
+          "source_map_content_sha256": "907706b6b1ca4790755c50ca60f82f0273da640f8dacee5666099ba0bf91b038",
+          "archive_source_sha256": "907706b6b1ca4790755c50ca60f82f0273da640f8dacee5666099ba0bf91b038",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        },
+        {
+          "name": "prismjs",
+          "version": "1.30.0",
+          "map": "package/bundles/redoc.standalone.js.map",
+          "source": "webpack://Redoc/./node_modules/prismjs/prism.js",
+          "member": "package/prism.js",
+          "source_map_content_sha256": "b801451d9b4cbf1857715a97ecae442e26c111bab6e19fee0e83dfda70cc2900",
+          "archive_source_sha256": "b801451d9b4cbf1857715a97ecae442e26c111bab6e19fee0e83dfda70cc2900",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        }
+      ],
+      "emitted_version_status": "Candidate archive; exact transformed emitted-module/version correspondence remains unqualified"
+    },
+    {
+      "name": "lunr",
+      "candidate_versions": [
+        "2.3.9"
+      ],
+      "banner_file": "redoc/d87bcbdbea8f8f5aa26f.worker.js.LICENSE.txt",
+      "banner_marker": "lunr - http://lunrjs.com",
+      "notice_file": "redoc/lunr-2.3.9.LICENSE",
+      "notice_sha256": "ae33f5a0d538cd93de1136a052ffa734b59d6b28e7cfc19e03de1d8b5d9f40ea",
+      "notice_disposition": "NEW_ORIGINAL_TERMS_ABSENT_FROM_COMBINED_SHIPPED_NOTICES",
+      "archives": [
+        {
+          "version": "2.3.9",
+          "metadata_url": "https://registry.npmjs.org/lunr/2.3.9",
+          "metadata_sha256": "b86e792d9620362bff95a3075962bb5fb68e94d60042666af9860271a10a4816",
+          "archive_url": "https://registry.npmjs.org/lunr/-/lunr-2.3.9.tgz",
+          "archive_sha256": "d886e7dc4339a7ede2e5e7fe0e07e6a6feeb1b3bcca0adea836cf53c62699030",
+          "archive_bytes": 222403,
+          "registry_integrities_verified": [
+            "sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "ae33f5a0d538cd93de1136a052ffa734b59d6b28e7cfc19e03de1d8b5d9f40ea",
+              "bytes": 1065
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow=="
+        }
+      ],
+      "published_map_content_matches": [
+        {
+          "name": "lunr",
+          "version": "2.3.9",
+          "map": "package/bundles/d87bcbdbea8f8f5aa26f.worker.js.map",
+          "source": "webpack://Redoc/./node_modules/lunr/lunr.js",
+          "member": "package/lunr.js",
+          "source_map_content_sha256": "9431726f05c0eae2a6e54dc197709422869f25cad44f2430d2fb7ddae80cc717",
+          "archive_source_sha256": "9431726f05c0eae2a6e54dc197709422869f25cad44f2430d2fb7ddae80cc717",
+          "exact_source_content_match": true,
+          "scope": "Map input content only; not source-to-emitted code proof"
+        }
+      ],
+      "emitted_version_status": "Candidate archive; exact transformed emitted-module/version correspondence remains unqualified"
+    },
+    {
+      "name": "react",
+      "candidate_versions": [
+        "18.3.1"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "notice_file": "swagger-ui-dist/react-18.3.1.LICENSE",
+      "notice_sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "notice_disposition": "EXACT_ORIGINAL_ALREADY_SHIPPED_REUSED",
+      "archives": [
+        {
+          "version": "18.3.1",
+          "archive_url": "https://registry.npmjs.org/react/-/react-18.3.1.tgz",
+          "archive_sha256": "8d9bed01a672e7eaf387942d781ad47c6a43089a30a0306060f9fd5ac7870347",
+          "archive_bytes": 81751,
+          "publisher_lock_integrity_verified": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ==",
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+              "bytes": 1086
+            }
+          ]
+        }
+      ],
+      "emitted_version_status": "Candidate versions retained separately from actual banner attribution; no closure certified",
+      "banner_markers": [
+        "react.production.min.js"
+      ]
+    },
+    {
+      "name": "react-dom",
+      "candidate_versions": [
+        "18.3.1"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "notice_file": "swagger-ui-dist/react-dom-18.3.1.LICENSE",
+      "notice_sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "notice_disposition": "EXACT_ORIGINAL_ALREADY_SHIPPED_REUSED",
+      "archives": [
+        {
+          "version": "18.3.1",
+          "archive_url": "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz",
+          "archive_sha256": "031d4427a99f2f3f6cac18bbbf308594a67e4f47d10f4896fdec446505b040e0",
+          "archive_bytes": 1089001,
+          "publisher_lock_integrity_verified": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==",
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+              "bytes": 1086
+            }
+          ]
+        }
+      ],
+      "emitted_version_status": "Candidate versions retained separately from actual banner attribution; no closure certified",
+      "banner_markers": [
+        "react-dom.production.min.js"
+      ]
+    },
+    {
+      "name": "scheduler",
+      "candidate_versions": [
+        "0.23.2"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "notice_file": "swagger-ui-dist/scheduler-0.23.2.LICENSE",
+      "notice_sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "notice_disposition": "EXACT_ORIGINAL_ALREADY_SHIPPED_REUSED",
+      "archives": [
+        {
+          "version": "0.23.2",
+          "archive_url": "https://registry.npmjs.org/scheduler/-/scheduler-0.23.2.tgz",
+          "archive_sha256": "e4f1d8fe63a9ab93ef66c92b0ad1af9c1326adbf7f1bd5e9053cac0fee6f26ae",
+          "archive_bytes": 17726,
+          "publisher_lock_integrity_verified": "sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==",
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+              "bytes": 1086
+            }
+          ]
+        }
+      ],
+      "emitted_version_status": "Candidate versions retained separately from actual banner attribution; no closure certified",
+      "banner_markers": [
+        "scheduler.production.min.js"
+      ]
+    },
+    {
+      "name": "react-is",
+      "candidate_versions": [
+        "16.13.1",
+        "17.0.2"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "notice_file": "swagger-ui-dist/react-18.3.1.LICENSE",
+      "notice_sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+      "notice_disposition": "EXACT_ORIGINAL_ALREADY_SHIPPED_REUSED",
+      "archives": [
+        {
+          "version": "16.13.1",
+          "metadata_url": "https://registry.npmjs.org/react-is/16.13.1",
+          "metadata_sha256": "ac17ccfb2defc407a5dd96a847650541485e83cc5683681b0746b96431b5839f",
+          "archive_url": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+          "archive_sha256": "0bdbb5d473ddc13e850987f3937666e261b6a3a8fcaffddd8195953ff0faee8f",
+          "archive_bytes": 5463,
+          "registry_integrities_verified": [
+            "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+              "bytes": 1086
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
+        },
+        {
+          "version": "17.0.2",
+          "metadata_url": "https://registry.npmjs.org/react-is/17.0.2",
+          "metadata_sha256": "b265f28da6b3ea2f04129f4478bba9dcffcd7a7a87fb2613d2f2bb3647759999",
+          "archive_url": "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz",
+          "archive_sha256": "9b1850c05b4fc08e9b814a201281a103a7651ac46500dce7b6bedd0865963eb1",
+          "archive_bytes": 5785,
+          "registry_integrities_verified": [
+            "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+              "bytes": 1086
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="
+        }
+      ],
+      "emitted_version_status": "Candidate versions retained separately from actual banner attribution; no closure certified",
+      "banner_markers": [
+        "React v16.13.1",
+        "React v17.0.2"
+      ]
+    },
+    {
+      "name": "use-sync-external-store",
+      "candidate_versions": [
+        "1.5.0"
+      ],
+      "banner_file": "redoc/redoc.standalone.js.LICENSE.txt",
+      "notice_file": "swagger-ui-dist/use-sync-external-store-1.4.0.LICENSE",
+      "notice_sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "notice_disposition": "EXACT_ORIGINAL_ALREADY_SHIPPED_REUSED",
+      "archives": [
+        {
+          "version": "1.5.0",
+          "metadata_url": "https://registry.npmjs.org/use-sync-external-store/1.5.0",
+          "metadata_sha256": "04dbe6fc070970a1d6fa91cf5eb4d1818c01040c76dbb1bdf6395498681fe386",
+          "archive_url": "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz",
+          "archive_sha256": "88d1be1ef02572e63714617c6818fcb821a77b9cd3730689f8d00526fa895142",
+          "archive_bytes": 4198,
+          "registry_integrities_verified": [
+            "sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A=="
+          ],
+          "registry_sha1_verified": true,
+          "source_notice_members": [
+            {
+              "member": "package/LICENSE",
+              "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+              "bytes": 1088
+            }
+          ],
+          "publisher_lock_integrity_verified": "sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A=="
+        }
+      ],
+      "emitted_version_status": "Candidate versions retained separately from actual banner attribution; no closure certified",
+      "banner_markers": [
+        "use-sync-external-store-shim.production.js"
+      ]
+    }
+  ],
+  "perfect_scrollbar_comparison": {
+    "additional_archive": {
+      "version": "1.5.3",
+      "metadata_url": "https://registry.npmjs.org/perfect-scrollbar/1.5.3",
+      "metadata_sha256": "cf1a2cafc1da1c6b719776e17570f3ff044af1135d6da6295fb36f65ac1a40bb",
+      "archive_url": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-1.5.3.tgz",
+      "archive_sha256": "bc4e9f95d8b4c422f262a3c788a59981cef9e1d8c81134a1bfced149d560ef75",
+      "archive_bytes": 103761,
+      "registry_integrities_verified": [
+        "sha512-+Lo6t61lSuCY9ghpqh1NFMXOu8fNwlYGqPoUMOZ3HTFIL4g7+L7zD7hQCLW5yjkOZ6LGTw1m9+MfEew7cngtAQ=="
+      ],
+      "registry_sha1_verified": true,
+      "source_notice_members": [
+        {
+          "member": "package/LICENSE",
+          "sha256": "4f0d4e4d35e6298655729412dc3f3bdc986cafb5b24eb01d118cb169681da925",
+          "bytes": 1143
+        }
+      ]
+    },
+    "both_original_dist_headers": "perfect-scrollbar v1.5.3",
+    "license_difference": "CRLF versus LF only; shipped1.5.5 LICENSE remains byte-exact",
+    "conclusion": "Header1.5.3 is not a release discriminator: publisher1.5.5 archive also has it. Published map source matches1.5.5, not standalone emission proof",
+    "source_header_evidence": [
+      {
+        "archive_version": "1.5.3",
+        "source_member": "package/dist/perfect-scrollbar.esm.js",
+        "source_sha256": "6a35906cdbd102c8823fbc24a0c69eead1fea95624ce958cd3bf886bcbbc92fb",
+        "observed_banner": "perfect-scrollbar v1.5.3"
+      },
+      {
+        "archive_version": "1.5.5",
+        "source_member": "package/dist/perfect-scrollbar.esm.js",
+        "source_sha256": "71ba45e1829ade725e4f70e800f85b649a391cb114d3e988619097cb2f1d3aea",
+        "observed_banner": "perfect-scrollbar v1.5.3"
+      }
+    ]
+  }
+}

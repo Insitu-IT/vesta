@@ -1,0 +1,23 @@
+digraph Backup {
+  graph [rankdir=TB, bgcolor="#f7f8f2", pad="0.28", nodesep="0.38", ranksep="0.44", fontname="DejaVu Sans"];
+  node [shape=box, style="rounded,filled", color="#396153", fillcolor="#ffffff", fontcolor="#173e35", fontname="DejaVu Sans", fontsize=13, margin="0.16,0.10", penwidth=1.5];
+  edge [color="#477361", fontcolor="#314f46", fontname="DejaVu Sans", fontsize=10, arrowsize=0.72];
+  console [label="Operator\nConsole or CLI"];
+  api [label="Vesta API\nSchedules, catalog, keys"];
+  db [label="PostgreSQL\nCatalog and wrapped keys"];
+  vm [label="VM disks\nKubeVirt or libvirt"];
+  agent [label="Vesta agent\nCapture and optional encryption", fillcolor="#def0df"];
+  bucket [label="S3 bucket\nVersioned backup objects", fillcolor="#def0df"];
+  saved [label="Separately saved\nChain bundle and recovery keys", fillcolor="#faf0d5"];
+  reader [label="Recovery workstation\nReconstruct fresh raw disks", fillcolor="#faf0d5"];
+  {rank=same; console; api; db}
+  {rank=same; vm; agent; bucket}
+  {rank=same; saved; reader}
+  console -> api [label="HTTPS"];
+  api -> db [label="record"];
+  api -> agent [label="authorize"];
+  vm -> agent [label="disk extents", penwidth=2];
+  agent -> bucket [label="backup objects", penwidth=2];
+  bucket -> reader [label="read versions"];
+  saved -> reader [label="select and decrypt"];
+}

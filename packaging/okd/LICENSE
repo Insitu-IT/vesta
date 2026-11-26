@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vesta MMIT 1.1 and Community Eligibility Schedule</title>
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body><main class="panel"><article><h1>Vesta MMIT 1.1 and Community Eligibility Schedule</h1>
+<h2>1. Parties, scope and version</h2>
+<p>S2 Tikshuv Ltd, an Israeli limited company (the <strong>Licensor</strong>), offers the
+Covered Software under Vesta MMIT License version 1.1,
+together with the Eligibility Schedule identified for the copy of the Covered
+Software (together, this <strong>License</strong>).</p>
+<p><strong>Covered Software</strong> means the software and accompanying documentation in the
+identified release expressly designated as subject to this License, including
+the Licensor's covered portions retained in modified versions. It excludes
+third-party material governed by its own terms and separately licensed
+commercial implementations. A file's presence in the same repository, package
+or installation does not by itself place it under this License.</p>
+<p><strong>You</strong> means the individual or legal entity exercising the rights granted
+here. If acting for an organization, You means that organization, and the person
+accepting contractual obligations for it must have the necessary authority.</p>
+<p><strong>Operation</strong> means running or deploying the Covered Software, or arranging for
+another person to do so on Your behalf, to perform its functions. It includes
+production, testing and evaluation except where the Schedule expressly provides
+a narrower evaluation permission. Reading source alone is not Operation.</p>
+<p>The release must identify its Covered Software, License version and complete
+Schedule. An unfinished draft or an unfilled required parameter is not a
+published licence offer. The Schedule defines eligibility and administrative
+parameters; it cannot override third-party rights, the paid-only Managed
+Service Use rule, or the functional-continuity commitment below.</p>
+<h2>2. Copyright permission and downstream rights</h2>
+<p>Within the Licensor's authority to grant copyright permission, You may inspect,
+copy, build, modify, combine and redistribute the Covered Software in source or
+executable form, including charging for copies or services, subject to this
+License. Permission for Operation is separately limited by section 3.</p>
+<p>With every redistributed copy or substantial covered portion, retain the
+applicable copyright notices and supply this License and the exact Schedule
+applicable to that copy. Clearly identify that modifications were made and who
+made them; this notice does not require disclosure of modified source code
+unless another applicable licence requires it. Do not represent a modified
+distribution as an unmodified official release.</p>
+<p>Each recipient receives the Licensor's permission for the Licensor's covered
+material directly under these terms. You cannot waive the eligibility,
+registration or paid-use requirements for another recipient, or grant broader
+rights in that material by sublicensing, changing its name or embedding it in
+another product. A fee paid to a distributor is not a paid licence from the
+Licensor unless the distributor is authorized to issue that licence.</p>
+<p>You may choose separate terms for Your own original additions, provided those
+terms do not remove the rights granted here in the Licensor's covered material
+or restrict rights required by applicable third-party licences. This License
+does not require publication of Your modifications or independent additions.</p>
+<h2>3. Free and paid Operation</h2>
+<p>You may operate the Covered Software without a licence fee when:</p>
+<ol>
+<li>the Operation is Personal Use or Eligible Internal Use as defined in the
+   Schedule;</li>
+<li>it is not Managed Service Use; and</li>
+<li>You meet the registration obligations and applicable deadlines below,
+   subject to the notice and cure process in section 7. A missed registration
+   deadline alone does not automatically terminate an otherwise applicable
+   free grant.</li>
+</ol>
+<p><strong>Managed Service Use</strong> means operating the Covered Software, or making its
+backup, recovery or related operational functions available, as a service for
+an unaffiliated customer, whether an individual or organization. It includes
+continuous, periodic, episodic and one-off backup/recovery service operations,
+hosted and customer-site operation, use through subcontractors, and services
+supplied free, bundled with another offering or for a separate fee.
+Using only Community code, separate installations or a customer's infrastructure
+does not change the nature of the service.</p>
+<p><strong>Managed Service Use requires a separate paid commercial licence from the
+Licensor or its authorized licensing partner, regardless of the provider's or
+customer's revenue, usage level or registration status.</strong> Free registration
+cannot authorize Managed Service Use.</p>
+<p>An organization's employees operating solely for that organization are not
+providing a managed service to an external customer. Shared IT within one
+Control Group is assessed as that group's internal use. One-time installation,
+training or troubleshooting, without undertaking operation of the customer's
+backup/recovery service, is not by itself Managed Service Use. Those assisting another
+organization act within that organization's permission; they do not give it
+their own free eligibility. A Schedule rule may clarify genuine staff
+augmentation under the customer's sole operational control or permit a limited
+evaluation outside other free criteria. It cannot make actual Managed Service
+Use free. Protecting Your own infrastructure for a different business service
+is not by itself Managed Service Use merely because the data relates to Your
+customers; providing backup/recovery services for their workloads is.</p>
+<p>Operation outside the free eligibility or an expressly permitted non-MSP evaluation
+requires a separate paid commercial licence. An organization at or above the
+Schedule's revenue ceiling is outside the free revenue category. Personal Use
+does not cover operation for an employer, business or client merely because an
+individual owns the installation or account.</p>
+<p>A separate commercial agreement governs the rights it expressly grants and
+any commercial implementation it supplies. This License does not deliver
+absent modules or grant rights in separately licensed proprietary code.</p>
+<h2>4. Registration and self-declaration</h2>
+<p>Eligible free users whose usage triggers a Registration Rule in the Schedule
+must complete free registration within the specified deadline. Registration is
+a legal obligation under this License, although the software's response to
+licensing status is informational only.</p>
+<p>Registration requires an accurate declaration of eligibility and the minimal
+registration fields identified in the Schedule. Routine registration does not
+require financial statements, tax records, access to backup contents, encryption
+keys or continuous telemetry. Optional survey or marketing participation cannot
+be a condition of free registration. A paid route must be available separately
+for applicants outside free eligibility.</p>
+<p>The Licensor will make registration available without an issuance charge to
+eligible users through the published online and offline-request methods.
+Required renewals and change notices are limited to those stated in the fixed
+Schedule. Keeping a signed license file, acknowledging a banner or importing the
+file is not a substitute for an accurate declaration where one is required.</p>
+<p>A complete, timely declaration submitted through a published method satisfies
+the submission duty while the Licensor processes it. Eligible use may continue
+during that processing; delayed issuance of a receipt or signed license file does not
+make the applicant noncompliant. If all published submission methods are
+unavailable, retain a dated declaration and reasonable evidence of the outage,
+and submit within the Schedule's recovery period after a method becomes
+available. The same approach applies while all methods remain unavailable.</p>
+<p>These arrangements do not make an ineligible or managed-service operation free.
+Knowingly false declarations do not create eligibility. Registration data will
+be handled under the notice supplied with the registration process; the License
+does not authorize undisclosed collection or access to customer data.</p>
+<h2>5. Functional continuity and legal compliance</h2>
+<p>The Licensor will not use licensing status to disable, throttle, interrupt or
+otherwise restrict any functionality present in its installed Vesta editions,
+including installed MSP or Enterprise modules. Missing registration, a missing, invalid or expired
+signed license file, or a licensing dispute may result only in informational reminders
+or a banner. No remote activation, licensing kill switch, automatic data deletion
+or forced network connection is required by this License.</p>
+<p>This commitment concerns restrictions caused by licensing status. It does not
+remove ordinary authorization, security, safety or installation requirements,
+and does not promise that software is free from defects or outages. It does not
+grant permission for unlicensed Operation or waive legal obligations. Rights
+in separately licensed commercial code remain governed by its own agreement;
+the Licensor's functional-continuity commitment applies to its Vesta editions.</p>
+<h2>6. Changes in eligibility and fixed terms</h2>
+<p>Apply the Schedule's measurement rules and transition periods when revenue,
+group control, usage or the nature of Operation changes. Formerly eligible
+internal Operation remains authorized during the Schedule's expressly defined
+eligibility transition period, provided the other applicable duties continue
+to be met. After that period, obtain the required paid grant or cease activity
+requiring it, without a technical restriction caused by licensing status.
+Crossing a usage threshold can require free registration; it does not by itself create a paid
+licence requirement for an otherwise eligible user. Starting Managed Service
+Use requires paid permission before that service begins unless a separate
+commercial agreement expressly provides otherwise.</p>
+<p>The License and Schedule accompanying a copy remain the terms offered for that
+copy. A website update, new release, changed threshold, registration renewal or
+replacement license file does not automatically amend them. New terms require
+a separately identified offer applicable to a new copy or a validly agreed
+amendment. You cannot apply another release's more favorable Schedule to a copy
+unless the Licensor expressly permits it.</p>
+<p>These terms do not revoke a valid licence previously granted for material under
+different terms. They do not grant rights in another party's material that the
+Licensor lacks authority to license.</p>
+<h2>7. Breach, notice and cure</h2>
+<p>The free Operation grant is bounded by the eligibility rules. This section
+does not create interim permission for an operation that never qualified for
+the grant. A change from eligible to ineligible status has only the transition
+permission expressly stated in the Schedule.</p>
+<p>For a remediable breach of an obligation within an otherwise applicable grant,
+the Licensor will give reasonable written notice describing the breach and
+allow 30 calendar days after receipt to cure it. A timely
+cure preserves the grant. Registration failures use this process; a software
+licensing-status flag alone is not a termination notice.</p>
+<p>If the breach remains uncured, the Licensor may terminate the affected grant by
+written notice. On termination, cease activity requiring that grant, except as
+permitted by mandatory law, another valid licence or an express Schedule
+transition or recovery permission. Reinstatement follows
+written confirmation of reinstatement from S2. Termination does not authorize a technical interruption
+contrary to section 5 or the deletion of anyone's data. Independently compliant
+downstream recipients keep their direct grants.</p>
+<h2>8. Third-party material and mandatory rights</h2>
+<p>Third-party material remains under its applicable licences. The revenue,
+registration, managed-service and other restrictions here apply only to rights
+in the Covered Software granted by this License. They do not narrow upstream
+permissions, required source access, library replacement, permitted debugging
+or reverse engineering, or any other right required by a third-party licence
+or mandatory law. Where applicable, those rights prevail for that material.</p>
+<p>A component described as customer-provided is governed by the actual supply
+arrangement and its own terms. That label does not waive obligations for copies
+that the Licensor or another distributor actually supplies. Required notices
+and source information must accompany the relevant distribution or be provided
+through a route permitted by its licence.</p>
+<h2>9. Product identification and contributions</h2>
+<p>You may truthfully identify Vesta's origin and describe compatibility, subject
+to applicable law. You may replace product branding while retaining required
+legal notices. Do not imply sponsorship, certification or endorsement that has
+not been given. This License does not promise exclusive rights in the name or
+artwork, or grant another party's trademark rights.</p>
+<p>Submitting a contribution does not by itself transfer its ownership or give
+the Licensor rights beyond the applicable inbound terms. Separate published
+contribution terms govern any additional commercial reuse or relicensing grant.</p>
+<h2>10. Warranty and liability</h2>
+<p>Except for an express written commitment or a right that cannot lawfully be
+excluded, the Covered Software is supplied as available, without assurances of
+fitness, satisfactory quality, merchantability, uninterrupted operation or
+noninfringement. No support, update or service-level commitment arises solely
+from this License. Nothing in this section withdraws the express
+functional-continuity commitment in section 5.</p>
+<p>To the extent permitted by applicable law, the Licensor and other covered
+copyright holders are not liable under contract, tort or another legal theory
+for loss arising from the Covered Software, including lost data, profits,
+business interruption or consequential loss. This exclusion does not apply
+where mandatory law prohibits it, including applicable consumer remedies or
+liability that cannot be excluded for fraud, personal injury or other protected
+claims. Any separate agreed commercial warranty or remedy remains effective
+according to its terms.</p>
+<h2>11. Governing law and administration</h2>
+<p>This License is governed by the laws of the State of Israel, with disputes addressed in
+the competent courts in Haifa, Israel, subject to any mandatory law or forum available to You.
+It does not exclude nonwaivable consumer, interoperability or other statutory
+rights. The precise legal effect of a copyright condition and a contractual
+obligation remains subject to applicable law.</p>
+<p>If a provision cannot be enforced, the remaining provisions continue to the
+extent legally possible. No person other than the Licensor can amend the
+Licensor's offer for its covered material. Notices to the Licensor may be sent
+to the contact in the Schedule. Copyright notices for the covered release and
+other rights holders must be retained.</p>
+<h2>Vesta Community Eligibility Schedule</h2>
+<p>Schedule <code>community-usage-v2</code>, version 2, accompanies MMIT 1.1. It takes effect for a copy of Vesta Community when S2 Tikshuv Ltd expressly distributes that copy under these terms and identifies this Schedule as applicable to that release. The scope and third-party notices shipped with the copy identify the covered material. S2's written adoption record identifies the effective date and covered release. For formal notices, contact S2 Tikshuv Ltd, Israel, at <code>info@insitu.im</code> with the subject “Vesta licensing”.</p>
+<h3>Personal use, internal use and revenue</h3>
+<p>Personal use means an individual's own private, nonbusiness activity. Eligible internal use means a company's operation for itself or its control group whose consolidated annual revenue is strictly below USD 20,000,000. The control group includes entities directly or indirectly controlling, controlled by, or under common control with the company. Control means holding more than half the voting rights or having power to direct management.</p>
+<p>Use the latest completed financial year, with intragroup transactions eliminated. Use the USD figure in the ordinary consolidated accounts, or the documented exchange-rate basis used consistently to prepare those accounts. Reassess when new annual accounts are available or control changes. A new company without a completed financial year, or an organization whose legal category or accounting basis is uncertain, can request a written determination through the portal. Employees and contractors acting solely under an eligible company's operational control use that company's permission.</p>
+<p>At USD 20 million or above, internal operation requires commercial permission. Managed-service operation for a third party requires a paid license from its first use. Separately supplied commercial modules require their own grant. A party outside the free categories can request a written evaluation agreement before it operates the software. A change to paid use requires appropriate permission from the change date.</p>
+<h3>Free registration for one installation</h3>
+<p>An otherwise eligible installation needs free registration when it has <strong>more than 100 successful backups and either more than 20 managed VMs or more than 2 registered workload agents</strong>. The comparisons are strict. At 101 backups, 20 VMs and two agents, the installation is below the trigger. With the same 101 backups, a 21st VM or a third agent triggers free registration. When the installation is below the trigger, otherwise eligible internal or personal use may continue without a license file.</p>
+<p>Each installation has its own UUID. Count each distinct locally accepted successful backup once, including accepted backup points subsequently removed by retention. Retries of the same backup, unaccepted catalog imports and the S3 import placeholder contribute no additional count. Use the current managed VM inventory and registered workload-agent count for that installation at the time of assessment. Group revenue and managed-service status apply across the relevant organization. Moving or splitting an installation for the purpose of misrepresenting eligibility does not change the obligation to make a truthful declaration.</p>
+<h3>Declaration, renewal and disconnected sites</h3>
+<p>Submit when the installation first crosses the trigger. Use the <a href="https://vestabackup.com/portal/licensing">Vesta licensing portal</a> and verify the contact email with a one-time code. Enter the installation UUID, organization where applicable, end use, revenue category and local usage. Affirm the declaration, accept the identified MMIT and Eligibility Schedule and acknowledge the linked privacy notice. The issuer records the receipt and supplies a signed license file. A connected representative can transfer that license file to the installation and import it under <strong>Settings → Licensing</strong> using the release's separately verified issuer trust manifest. If the portal cannot be reached, contact <code>info@insitu.im</code> for a private submission route. During a service outage, retain a dated declaration and submit it within 30 days after service is restored.</p>
+<p>A signed free license file covers one installation. At initial registration it expires on the second UTC calendar anniversary of issuance. A 29 February anniversary falls on 28 February in a year without a leap day. If the registration trigger still applies, confirm the current declaration for the same installation and fixed Schedule and import the new signed license file. Renewal opens 30 days before expiry. Early renewal extends the term by two calendar years from the existing expiry. Following lapse the two-year term begins at issuance. Eligibility changes take effect under the rules above. A renewed declaration records the contact and document versions for that submission. The installed product continues backup and recovery after the license file expires.</p>
+<h3>Notice, cure and recovery</h3>
+<p>Notify S2 promptly of a material error or change in a declaration. A remediable breach within an otherwise eligible grant receives the 30-day written-notice cure procedure in section 7 of the MMIT. Reinstatement after termination requires written confirmation from S2. Following the end of a prior permission, S2 may agree in writing to a recovery-only transition of up to 30 days for already protected data. Mandatory rights remain available. New backup services for third parties require their applicable commercial permission.</p>
+<p>S2 handles licensing records under the linked <a href="/docs/legal/privacy/vesta-registration-privacy-1.0/">registration privacy notice</a>. Third-party material retains its original terms. Separately supplied commercial modules are covered by their own written grant.</p>
+</article></main></body>
+</html>

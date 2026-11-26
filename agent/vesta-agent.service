@@ -1,0 +1,36 @@
+[Unit]
+Description=Vesta KVM Backup Agent
+Documentation=https://github.com/Insitu-IT/vesta
+After=network.target virtqemud.socket
+Requires=virtqemud.socket
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=vesta-agent
+Group=vesta-agent
+UMask=0027
+WorkingDirectory=/opt/vesta-agent
+Environment=KEY_FILE_PATH=/var/lib/vesta/agent.key
+Environment=BACKUP_STORAGE_PATH=/var/lib/vesta/backups
+Environment=NATIVE_RESTORE_ROOT=/var/lib/vesta/restores
+EnvironmentFile=-/etc/vesta/agent-legacy.env
+EnvironmentFile=/etc/vesta/agent.env
+NoNewPrivileges=true
+CapabilityBoundingSet=
+PrivateTmp=true
+ProtectHome=true
+MemoryMax=512M
+CPUQuota=50%
+TasksMax=100
+ExecStart=/opt/vesta-agent/vesta-agent --provider=libvirt
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vesta-agent
+
+[Install]
+WantedBy=multi-user.target

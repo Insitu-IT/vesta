@@ -1,0 +1,3 @@
+/* Local HTTP fixture only: no trust, certificate, license issuance or customer evidence. */
+exports.status = (canManage = false, patch = {}) => ({schema_version: 1, status: 'not_required', reason_code: 'community_usage_below_threshold', notice_required: false, acknowledged: false, can_manage: canManage, registration_url: 'https://vestabackup.com/portal/licensing', notice_scope: 'a'.repeat(64), policy: {version: 'registration-v1', usage_rules_configured: true}, ...patch});
+exports.details = status => ({status, certificate: null, trust_store: {state: 'unprovisioned', key_ids: [], fingerprints: {}}, acknowledgement: null, installation_id: 'browser-installation-fixture'});

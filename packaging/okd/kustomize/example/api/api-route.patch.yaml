@@ -1,0 +1,3 @@
+- op: replace
+  path: /spec/host
+  value: backup-api.example.invalid

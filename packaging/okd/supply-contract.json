@@ -1,0 +1,163 @@
+{
+  "schema": "vesta-supply-policy/1",
+  "upstream_rights": "Vesta eligibility, revenue, registration or MSP terms never restrict upstream license rights or required source access. No runtime license gating.",
+  "profiles": {
+    "full": [
+      {
+        "id": "vesta-runtime-and-embedded-dependencies",
+        "supplier": "S2",
+        "origin": "Digest-pinned release images; S2 archives/caches/mirrors also supply copies",
+        "integrity": "Release manifest digest plus closed OCI graph including retained layers",
+        "notices": "Image license directory and frontend /licenses; verify exact release contents",
+        "source_fulfilment": "Release-specific upstream source, patches and build material or legally valid fulfilment route must be reviewed and retained before delivery",
+        "responsibility": {
+          "install": "Customer imports and installs reviewed kit",
+          "update": "S2 prepares tested images; customer schedules updates",
+          "support": "S2 supports Vesta and supplied integration; upstream rights remain available"
+        }
+      },
+      {
+        "id": "container-os-and-native-libraries",
+        "supplier": "S2",
+        "origin": "Base image and all retained OCI layers",
+        "integrity": "Exact final image digests and per-layer OS/native package inventory",
+        "notices": "Collect actual OS packages, wheel native contents and linked libraries; metadata labels alone are insufficient",
+        "source_fulfilment": "Exact base/native source packages, patches and build material for selected obligations; qualification pending",
+        "responsibility": {
+          "install": "Included in supplied images",
+          "update": "S2 prepares patched images; customer deploys",
+          "support": "S2 supplied image integration; customer host/platform responsibility separate"
+        }
+      },
+      {
+        "id": "postgresql",
+        "supplier": "S2",
+        "origin": "Digest-pinned postgres image in release manifest",
+        "integrity": "Release manifest postgres digest and OCI closure",
+        "notices": "PostgreSQL image licenses plus all OS-layer notices",
+        "source_fulfilment": "Release-specific PostgreSQL/base source and build provenance must be retained as applicable",
+        "responsibility": {
+          "install": "Customer installs kit database",
+          "update": "S2 prepares tested image; customer executes planned update",
+          "support": "Customer operates credentials, backup, restore and recovery; S2 owns Vesta schema migration software and compatibility"
+        }
+      },
+      {
+        "id": "customer-platform",
+        "supplier": "customer",
+        "origin": "Customer-approved Kubernetes/OpenShift, storage, S3, TLS/PKI and container runtime",
+        "integrity": "Customer vendor integrity and prerequisites checked by kit preflight",
+        "notices": "Customer/vendor platform notices",
+        "source_fulfilment": "Customer/vendor source route",
+        "responsibility": {
+          "install": "Customer",
+          "update": "Customer",
+          "support": "Customer platform operations; S2 supported Vesta integration"
+        }
+      }
+    ],
+    "customer-postgresql": [
+      {
+        "id": "vesta-runtime-and-embedded-dependencies",
+        "supplier": "S2",
+        "origin": "Digest-pinned release images; S2 archives/caches/mirrors also supply copies",
+        "integrity": "Release manifest digest plus closed OCI graph including retained layers",
+        "notices": "Image license directory and frontend /licenses; verify exact release contents",
+        "source_fulfilment": "Release-specific upstream source, patches and build material or legally valid fulfilment route must be reviewed and retained before delivery",
+        "responsibility": {
+          "install": "Customer imports and installs reviewed kit",
+          "update": "S2 prepares tested images; customer schedules updates",
+          "support": "S2 supports Vesta and supplied integration; upstream rights remain available"
+        }
+      },
+      {
+        "id": "container-os-and-native-libraries",
+        "supplier": "S2",
+        "origin": "Base image and all retained OCI layers",
+        "integrity": "Exact final image digests and per-layer OS/native package inventory",
+        "notices": "Collect actual OS packages, wheel native contents and linked libraries; metadata labels alone are insufficient",
+        "source_fulfilment": "Exact base/native source packages, patches and build material for selected obligations; qualification pending",
+        "responsibility": {
+          "install": "Included in supplied images",
+          "update": "S2 prepares patched images; customer deploys",
+          "support": "S2 supplied image integration; customer host/platform responsibility separate"
+        }
+      },
+      {
+        "id": "postgresql",
+        "supplier": "customer",
+        "origin": "Supported PostgreSQL 17 from customer-owned vendor repository/mirror or existing managed service; S2 does not transfer its image",
+        "integrity": "Customer verifies vendor signatures/digests and records server version; kit preflight validates compatibility and grants",
+        "notices": "Customer/vendor retains PostgreSQL and OS notices",
+        "source_fulfilment": "Customer/vendor obtains applicable source; S2 redistribution would require supplied profile reassessment",
+        "responsibility": {
+          "install": "Customer provisions TLS, endpoint, database, roles and extensions",
+          "update": "Customer patches database within supported compatibility; S2 supplies schema migrations",
+          "support": "Customer database availability, backups, restore and recovery; S2 Vesta schema migrations and supported integration"
+        }
+      },
+      {
+        "id": "customer-platform",
+        "supplier": "customer",
+        "origin": "Customer-approved Kubernetes/OpenShift, storage, S3, TLS/PKI and container runtime",
+        "integrity": "Customer vendor integrity and prerequisites checked by kit preflight",
+        "notices": "Customer/vendor platform notices",
+        "source_fulfilment": "Customer/vendor source route",
+        "responsibility": {
+          "install": "Customer",
+          "update": "Customer",
+          "support": "Customer platform operations; S2 supported Vesta integration"
+        }
+      }
+    ],
+    "native-rpm": [
+      {
+        "id": "native-agent-and-restore-binaries",
+        "supplier": "S2",
+        "origin": "Release native RPM including statically linked Go modules and dynamically linked library references",
+        "integrity": "Exact RPM sha256, rpm -qpl/-qpR, ELF NEEDED/static readelf and go version -m evidence",
+        "notices": "RPM %license LICENSE and third-party-notices; inspect exact payload",
+        "source_fulfilment": "Retain release Go/toolchain/module provenance and applicable full notices; assess native linkage obligations from actual RPM",
+        "responsibility": {
+          "install": "Customer RPM/YUM installation",
+          "update": "S2 prepares RPM; customer schedules update",
+          "support": "S2 native agent software; customer host services"
+        }
+      },
+      {
+        "id": "native-host-prerequisites",
+        "supplier": "customer",
+        "origin": "Customer-approved OS/vendor repositories: libvirt-daemon >=11.10.0, libvirt-daemon-driver-qemu >=11.10.0, python3-libvirt >=11.10.0, qemu-img >=10.1.0, acl, polkit, systemd, python3, util-linux, shadow-utils",
+        "integrity": "RPM dependency transaction plus actual host inventory/linkage acceptance",
+        "notices": "Customer/vendor notices for genuinely external host packages",
+        "source_fulfilment": "Customer/vendor source route; linked combination rights remain subject to actual RPM inspection",
+        "responsibility": {
+          "install": "Customer installs prerequisites; RPM does not vendor these packages",
+          "update": "Customer patches supported host versions",
+          "support": "Customer host/libvirt/QEMU operations; S2 native agent integration"
+        }
+      }
+    ]
+  },
+  "qualification_required": [
+    "Exact release image/OCI-layer OS package and native wheel inventory",
+    "Go build/module and browser embedded-component inventory",
+    "Exact native RPM contents, dependencies and ELF linkage",
+    "Complete applicable notices and release-specific source/patch/build material or reviewed valid fulfilment route",
+    "Record evidence digests and reviewer acceptance separately; pending contract is not legal qualification"
+  ],
+  "broader_app_only_assessment": {
+    "status": "assessment-only",
+    "tradeoff": "Compare customer preparation, pinning, compatibility, native linkage/replacement and support costs against maintaining compliant full images before adding a delivery profile. Install-time downloads or S2 caches do not erase upstream obligations."
+  },
+  "historical_scope": "Earlier deliveries require a bounded exact-artifact inventory; this policy makes no claim of historical noncompliance.",
+  "customer_postgresql": {
+    "major": 17,
+    "required_extensions": [
+      "plpgsql"
+    ],
+    "optional_customer_acquisition_reference": "docker.io/library/postgres@sha256:66aafa11cf15800a3c94763f7e11d1e7b2e37e5e84bc4ce027cb6e1e4bfaf4df",
+    "acquisition_owner": "Customer independently obtains and verifies from upstream/vendor or its own mirror. No PostgreSQL image transferred in this profile. An S2 mirror/cache/archive would supply copies and requires reassessment.",
+    "qualification": "pending exact PostgreSQL version, TLS/authentication, migration, backup/restore and recovery evidence"
+  }
+}

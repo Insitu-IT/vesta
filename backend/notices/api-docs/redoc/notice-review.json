@@ -1,0 +1,983 @@
+{
+  "schema": "vesta-api-doc-notice-review/1",
+  "bundle": "redoc",
+  "binding": {
+    "path": "backend/static/api-docs/redoc.standalone.js",
+    "sha256": "d548603ac193fe10186a1bea1e0479e0a3541ded2bb76a677c3f00102895e033",
+    "census_sha256": "5aa36365adcb4905ebcd9cd1a0526ed14d168479552d55731072d88730c8cac5",
+    "source_map_sha256": "2550d1c2e62c0640b2b4f4f49843433840fc291e001f3edb15ff66470e551476"
+  },
+  "review_date": "2026-11-10",
+  "scope": "Review baseline of required original bytes and applicable grants; changes require renewed attribution review, not automatic regeneration from a new manifest.",
+  "components": {
+    "@babel/runtime": {
+      "candidate_versions": [
+        "7.27.0"
+      ],
+      "required_original_sha256": [
+        "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76",
+        "51887a3d47051ac2fce1210562e5b9fe0830a8a8fabeb272c2d586eeb18a05fd",
+        "96653c82ad4d8595757d44fcdd1cd9029976e156eed06b3827116068d14bec2f"
+      ],
+      "full_grants_by_version": {
+        "7.27.0": [
+          "117da2af0d4ce0fe1c8e19b5cff9dcd806adf973d328d27b11d4448c4ff24f76",
+          "51887a3d47051ac2fce1210562e5b9fe0830a8a8fabeb272c2d586eeb18a05fd"
+        ]
+      }
+    },
+    "@emotion/is-prop-valid": {
+      "candidate_versions": [
+        "1.2.1"
+      ],
+      "required_original_sha256": [
+        "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+      ],
+      "full_grants_by_version": {
+        "1.2.1": [
+          "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+        ]
+      }
+    },
+    "@emotion/memoize": {
+      "candidate_versions": [
+        "0.8.1"
+      ],
+      "required_original_sha256": [
+        "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+      ],
+      "full_grants_by_version": {
+        "0.8.1": [
+          "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+        ]
+      }
+    },
+    "@emotion/stylis": {
+      "candidate_versions": [
+        "0.8.5"
+      ],
+      "required_original_sha256": [
+        "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+      ],
+      "full_grants_by_version": {
+        "0.8.5": [
+          "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+        ]
+      }
+    },
+    "@emotion/unitless": {
+      "candidate_versions": [
+        "0.7.5"
+      ],
+      "required_original_sha256": [
+        "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+      ],
+      "full_grants_by_version": {
+        "0.7.5": [
+          "6e8d23763cf7cb707ad8f6677aa502ebeca1dda447e6d6e57f6549c1625b9c4a"
+        ]
+      }
+    },
+    "@redocly/ajv": {
+      "candidate_versions": [
+        "8.11.2"
+      ],
+      "required_original_sha256": [
+        "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3"
+      ],
+      "full_grants_by_version": {
+        "8.11.2": [
+          "a05350a88e318e4f5f2c2a1ff1e2e88daa4dd38e6e78b71cccae422bdc762cc3"
+        ]
+      }
+    },
+    "@redocly/config": {
+      "candidate_versions": [
+        "0.22.0"
+      ],
+      "required_original_sha256": [
+        "92bb818822d131f7c4987ee5c4191eb3d73ea831b1f40904ea4f028b3cde1d64"
+      ],
+      "full_grants_by_version": {
+        "0.22.0": [
+          "92bb818822d131f7c4987ee5c4191eb3d73ea831b1f40904ea4f028b3cde1d64"
+        ]
+      }
+    },
+    "@redocly/openapi-core": {
+      "candidate_versions": [
+        "1.34.19"
+      ],
+      "required_original_sha256": [
+        "f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5"
+      ],
+      "full_grants_by_version": {
+        "1.34.19": [
+          "f6bf9ce4d84b47c1cdda9d8988ac977efc314f00ad65e498fc514ddf118440b5"
+        ]
+      }
+    },
+    "@redocly/workerize-loader": {
+      "candidate_versions": [
+        "1.3.1"
+      ],
+      "required_original_sha256": [
+        "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13",
+        "aba3793bb2ed49d996313d42303c8bd7d7a330f5efa92da5ca7913901b68397e",
+        "c06b587892173a82f6d923ce24bcefd49d2b4dd18f36afe2dc06b3aea1e6af76"
+      ],
+      "full_grants_by_version": {
+        "1.3.1": [
+          "a568830569a01ce0075873bba1637dc2b188939b87b11eb63a20df7cc3460e13"
+        ]
+      }
+    },
+    "balanced-match": {
+      "candidate_versions": [
+        "1.0.2"
+      ],
+      "required_original_sha256": [
+        "a1bd5deadb6a06dd74efa852c1b8b23f63b67f2214fbe9c8bd591da51da69268"
+      ],
+      "full_grants_by_version": {
+        "1.0.2": [
+          "a1bd5deadb6a06dd74efa852c1b8b23f63b67f2214fbe9c8bd591da51da69268"
+        ]
+      }
+    },
+    "brace-expansion": {
+      "candidate_versions": [
+        "2.1.4"
+      ],
+      "required_original_sha256": [
+        "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+      ],
+      "full_grants_by_version": {
+        "2.1.4": [
+          "68f12f6e2c33688699249c01d8f9623c534da20aa71989c57b061b7bc1676d14"
+        ]
+      }
+    },
+    "call-me-maybe": {
+      "candidate_versions": [
+        "1.0.2"
+      ],
+      "required_original_sha256": [
+        "b179d2c6f886021a86cfbc2a4dea4e0a83d8f7080f287df9e68c6e92ad94cb09"
+      ],
+      "full_grants_by_version": {
+        "1.0.2": [
+          "b179d2c6f886021a86cfbc2a4dea4e0a83d8f7080f287df9e68c6e92ad94cb09"
+        ]
+      }
+    },
+    "classnames": {
+      "candidate_versions": [
+        "2.3.2"
+      ],
+      "required_original_sha256": [
+        "0c1c24dcc129cb0c02ee9803cfa7a50061c236a3b59b36a714c27f3ade66d7be",
+        "11961cb68d95e8909ef8416638ca6e4e4e29203e49282bf7df55ab8c33f96720",
+        "1a467346af7806df4cbe62276c3e4924bfc16028cde283764743313e19410516"
+      ],
+      "full_grants_by_version": {
+        "2.3.2": [
+          "0c1c24dcc129cb0c02ee9803cfa7a50061c236a3b59b36a714c27f3ade66d7be"
+        ]
+      }
+    },
+    "clsx": {
+      "candidate_versions": [
+        "2.1.1"
+      ],
+      "required_original_sha256": [
+        "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97"
+      ],
+      "full_grants_by_version": {
+        "2.1.1": [
+          "9a9edad7baae52622bddf3c15b2ef8a33d2c89f2d25408ad13e8a7481c6b0c97"
+        ]
+      }
+    },
+    "core-js": {
+      "candidate_versions": [
+        "3.14.0"
+      ],
+      "required_original_sha256": [
+        "153d958ab424a0b0e01d39ca7d77a450541aa0dbf796693c7489cf5c05decfa4"
+      ],
+      "full_grants_by_version": {
+        "3.14.0": [
+          "153d958ab424a0b0e01d39ca7d77a450541aa0dbf796693c7489cf5c05decfa4"
+        ]
+      }
+    },
+    "css-loader": {
+      "candidate_versions": [
+        "5.2.6"
+      ],
+      "required_original_sha256": [
+        "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+      ],
+      "full_grants_by_version": {
+        "5.2.6": [
+          "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+        ]
+      }
+    },
+    "decko": {
+      "candidate_versions": [
+        "1.2.0"
+      ],
+      "required_original_sha256": [
+        "d20ef4c192faa3c560bc50bdd780f686804e355957d4146ddf8cbb58eb2e3dba"
+      ],
+      "full_grants_by_version": {
+        "1.2.0": [
+          "d20ef4c192faa3c560bc50bdd780f686804e355957d4146ddf8cbb58eb2e3dba"
+        ]
+      }
+    },
+    "dompurify": {
+      "candidate_versions": [
+        "3.4.13"
+      ],
+      "required_original_sha256": [
+        "5803fa925ae1703b9c752921c95a321570e6cabf06fcf2de895ddaf1687cebef",
+        "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+      ],
+      "full_grants_by_version": {
+        "3.4.13": [
+          "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        ]
+      }
+    },
+    "eventemitter3": {
+      "candidate_versions": [
+        "5.0.1"
+      ],
+      "required_original_sha256": [
+        "3aecc12b1cb28832b5f65ab64291de96568c3f236a74d646281b4491f7bcadbf"
+      ],
+      "full_grants_by_version": {
+        "5.0.1": [
+          "3aecc12b1cb28832b5f65ab64291de96568c3f236a74d646281b4491f7bcadbf"
+        ]
+      }
+    },
+    "fast-deep-equal": {
+      "candidate_versions": [
+        "3.1.3"
+      ],
+      "required_original_sha256": [
+        "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+      ],
+      "full_grants_by_version": {
+        "3.1.3": [
+          "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+        ]
+      }
+    },
+    "fast-safe-stringify": {
+      "candidate_versions": [
+        "2.1.1"
+      ],
+      "required_original_sha256": [
+        "f0ffe1359ba08038bb99f194c80fbb4f2aae216e749e97b2cd6b006d1861e27b"
+      ],
+      "full_grants_by_version": {
+        "2.1.1": [
+          "f0ffe1359ba08038bb99f194c80fbb4f2aae216e749e97b2cd6b006d1861e27b"
+        ]
+      }
+    },
+    "fast-xml-builder": {
+      "candidate_versions": [
+        "1.2.0"
+      ],
+      "required_original_sha256": [
+        "8e75fc0e776c62ccadb8178ece8d3daa9ba7601fb0a49b2dfb0ea9a7a5c0aa07"
+      ],
+      "full_grants_by_version": {
+        "1.2.0": [
+          "8e75fc0e776c62ccadb8178ece8d3daa9ba7601fb0a49b2dfb0ea9a7a5c0aa07"
+        ]
+      }
+    },
+    "fast-xml-parser": {
+      "candidate_versions": [
+        "5.8.0"
+      ],
+      "required_original_sha256": [
+        "7883225d5e84a6bbb9b170c3d891b4bf6d6259cee869c86bd86381a927071745"
+      ],
+      "full_grants_by_version": {
+        "5.8.0": [
+          "7883225d5e84a6bbb9b170c3d891b4bf6d6259cee869c86bd86381a927071745"
+        ]
+      }
+    },
+    "foreach": {
+      "candidate_versions": [
+        "2.0.5"
+      ],
+      "required_original_sha256": [
+        "fe099e449609c9615aa0ac1f55e47f7cd638f6fcb1efcfd5e6e2bc1b3919083d"
+      ],
+      "full_grants_by_version": {
+        "2.0.5": [
+          "fe099e449609c9615aa0ac1f55e47f7cd638f6fcb1efcfd5e6e2bc1b3919083d"
+        ]
+      }
+    },
+    "hoist-non-react-statics": {
+      "candidate_versions": [
+        "3.3.2"
+      ],
+      "required_original_sha256": [
+        "2f54f1a434183a5d194d23bb7e341e35855b165dd5c0831595f17075ab1157b7",
+        "93284045df0622dcb2c471daf4898251001ee005fa072a3848220d8c0719a83c",
+        "eb32ff0ec52b6ea86e3d3e06c6ad1b68ee03798b6729af13919f6d5c14b368f3"
+      ],
+      "full_grants_by_version": {
+        "3.3.2": [
+          "eb32ff0ec52b6ea86e3d3e06c6ad1b68ee03798b6729af13919f6d5c14b368f3"
+        ]
+      }
+    },
+    "js-yaml": {
+      "candidate_versions": [
+        "4.3.1"
+      ],
+      "required_original_sha256": [
+        "a07bc24468b9654ce76a547d47a2db282d07733b715db4c73a98bd63961f9550"
+      ],
+      "full_grants_by_version": {
+        "4.3.1": [
+          "a07bc24468b9654ce76a547d47a2db282d07733b715db4c73a98bd63961f9550"
+        ]
+      }
+    },
+    "json-pointer": {
+      "candidate_versions": [
+        "0.6.2"
+      ],
+      "required_original_sha256": [
+        "fafaa82d92febb4f5b12bcf39b78d51a9d0665855067b9fda394094b12d95875"
+      ],
+      "full_grants_by_version": {
+        "0.6.2": [
+          "fafaa82d92febb4f5b12bcf39b78d51a9d0665855067b9fda394094b12d95875"
+        ]
+      }
+    },
+    "json-schema-traverse": {
+      "candidate_versions": [
+        "1.0.0"
+      ],
+      "required_original_sha256": [
+        "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+      ],
+      "full_grants_by_version": {
+        "1.0.0": [
+          "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a"
+        ]
+      }
+    },
+    "lodash.noop": {
+      "candidate_versions": [
+        "3.0.1"
+      ],
+      "required_original_sha256": [
+        "25a399d4a42f419445101092a1fc3f9b4bfe06d614f84128222d79e3a2105fe7",
+        "461b9e56eb256549818d2f498bf93a6bdc1fabe7cebceaed5f710dd0c8fd2dcd"
+      ],
+      "full_grants_by_version": {
+        "3.0.1": [
+          "25a399d4a42f419445101092a1fc3f9b4bfe06d614f84128222d79e3a2105fe7"
+        ]
+      }
+    },
+    "mark.js": {
+      "candidate_versions": [
+        "8.11.1"
+      ],
+      "required_original_sha256": [
+        "402936bcc8f1b6947750eb9193183d7d0c4dbca3c0ba06398571d94ee85c24be",
+        "ea10980d615d7925e61f5742a32d839d6e12e90c0152bcb44a5da8851ce93006",
+        "fb76db7afaa2840d8d90524378a6d999de2575ea7fff8f2948ff0edada21b91e"
+      ],
+      "full_grants_by_version": {
+        "8.11.1": [
+          "402936bcc8f1b6947750eb9193183d7d0c4dbca3c0ba06398571d94ee85c24be"
+        ]
+      }
+    },
+    "marked": {
+      "candidate_versions": [
+        "4.3.0"
+      ],
+      "required_original_sha256": [
+        "5ee01858599fb1293e53fa43eb2ca798263a9d9e5dd5a17b1869e9e520315222",
+        "8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c",
+        "8ef022865ec6590dd408934a806333f65bf9c89b86a75d4e0e88ba5d428aade9"
+      ],
+      "full_grants_by_version": {
+        "4.3.0": [
+          "8e3a3f82f59a60958f56ca08f445647c32a4733dc7ca6c2c46f6eb898471ab9c"
+        ]
+      }
+    },
+    "minimatch": {
+      "candidate_versions": [
+        "5.1.9"
+      ],
+      "required_original_sha256": [
+        "d11323827fa4edeaafc437cc5b91b6971b335f0127efeeb42bf5122fe8657e8f"
+      ],
+      "full_grants_by_version": {
+        "5.1.9": [
+          "d11323827fa4edeaafc437cc5b91b6971b335f0127efeeb42bf5122fe8657e8f"
+        ]
+      }
+    },
+    "mobx": {
+      "candidate_versions": [
+        "6.10.2"
+      ],
+      "required_original_sha256": [
+        "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+      ],
+      "full_grants_by_version": {
+        "6.10.2": [
+          "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+        ]
+      }
+    },
+    "mobx-react": {
+      "candidate_versions": [
+        "9.2.0"
+      ],
+      "required_original_sha256": [
+        "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+      ],
+      "full_grants_by_version": {
+        "9.2.0": [
+          "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+        ]
+      }
+    },
+    "mobx-react-lite": {
+      "candidate_versions": [
+        "4.1.0"
+      ],
+      "required_original_sha256": [
+        "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+      ],
+      "full_grants_by_version": {
+        "4.1.0": [
+          "8fc7f323662b01cdbfcae37b82644cfb52dceb3101afb2ce8c50c78b0fb47d42"
+        ]
+      }
+    },
+    "oas-kit-common": {
+      "candidate_versions": [
+        "1.0.8"
+      ],
+      "required_original_sha256": [
+        "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+      ],
+      "full_grants_by_version": {
+        "1.0.8": [
+          "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+        ]
+      }
+    },
+    "oas-resolver": {
+      "candidate_versions": [
+        "2.5.6"
+      ],
+      "required_original_sha256": [
+        "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+      ],
+      "full_grants_by_version": {
+        "2.5.6": [
+          "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+        ]
+      }
+    },
+    "oas-schema-walker": {
+      "candidate_versions": [
+        "1.1.5"
+      ],
+      "required_original_sha256": [
+        "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+      ],
+      "full_grants_by_version": {
+        "1.1.5": [
+          "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+        ]
+      }
+    },
+    "openapi-sampler": {
+      "candidate_versions": [
+        "1.7.4"
+      ],
+      "required_original_sha256": [
+        "71dec8f995b875852014c7c645d796eb1bfdb32e496ff2f4d4dca5f609a5c48f",
+        "b574c6da74283ec753c0bc143764f4985a43576d2a1a1dcb65fbcd9d4aa7207e"
+      ],
+      "full_grants_by_version": {
+        "1.7.4": [
+          "71dec8f995b875852014c7c645d796eb1bfdb32e496ff2f4d4dca5f609a5c48f"
+        ]
+      }
+    },
+    "path-browserify": {
+      "candidate_versions": [
+        "1.0.1"
+      ],
+      "required_original_sha256": [
+        "2196d3c9a86bd2fb76fa4fa0f2d1df4aa8412143ab258b177c496bd458c8bf75",
+        "a22b9d5763f574e5db347c30acc0b33eaf4846767c03d2e27d012e864e79a824"
+      ],
+      "full_grants_by_version": {
+        "1.0.1": [
+          "a22b9d5763f574e5db347c30acc0b33eaf4846767c03d2e27d012e864e79a824"
+        ]
+      }
+    },
+    "path-expression-matcher": {
+      "candidate_versions": [
+        "1.5.0"
+      ],
+      "required_original_sha256": [
+        "75486ea0af9309140ca6e2c401d7e67bea8f4892344e5707f6394dc5e83dfc44"
+      ],
+      "full_grants_by_version": {
+        "1.5.0": [
+          "75486ea0af9309140ca6e2c401d7e67bea8f4892344e5707f6394dc5e83dfc44"
+        ]
+      }
+    },
+    "perfect-scrollbar": {
+      "candidate_versions": [
+        "1.5.5"
+      ],
+      "required_original_sha256": [
+        "58ca49a0a0917f046518fd93f6415f197303a7fd06ae52a217d7ec0e7e07b76f",
+        "69bae0e15479c31fb21f579afbf91038136ed64d2fa445333594000641653862"
+      ],
+      "full_grants_by_version": {
+        "1.5.5": [
+          "58ca49a0a0917f046518fd93f6415f197303a7fd06ae52a217d7ec0e7e07b76f"
+        ]
+      }
+    },
+    "pluralize": {
+      "candidate_versions": [
+        "8.0.0"
+      ],
+      "required_original_sha256": [
+        "5822e0d816e53e3537b306a4132cb7a70881897cf51bf483282148a602979076"
+      ],
+      "full_grants_by_version": {
+        "8.0.0": [
+          "5822e0d816e53e3537b306a4132cb7a70881897cf51bf483282148a602979076"
+        ]
+      }
+    },
+    "polished": {
+      "candidate_versions": [
+        "4.2.2"
+      ],
+      "required_original_sha256": [
+        "1d40661dea9c89039f9a6e22dc12e40823105275171286f6e27bf6ba9e079ec0"
+      ],
+      "full_grants_by_version": {
+        "4.2.2": [
+          "1d40661dea9c89039f9a6e22dc12e40823105275171286f6e27bf6ba9e079ec0"
+        ]
+      }
+    },
+    "prismjs": {
+      "candidate_versions": [
+        "1.30.0"
+      ],
+      "required_original_sha256": [
+        "2b947f0901a7ffcf08a89957da9783c0e9c6e72cb6ce8e959f501ab5409e4d2b"
+      ],
+      "full_grants_by_version": {
+        "1.30.0": [
+          "2b947f0901a7ffcf08a89957da9783c0e9c6e72cb6ce8e959f501ab5409e4d2b"
+        ]
+      }
+    },
+    "prop-types": {
+      "candidate_versions": [
+        "15.8.1"
+      ],
+      "required_original_sha256": [
+        "76f4a58f4698efba7c184fc3333267357bdbca6578f473df6b83870343090b1a",
+        "bcf33e0f820140c0aad115449359f48ca6f9c150b68c52161d889a8274b4425d",
+        "f1c5c4e2a3cf86bad482ae8523249b890972b4211b59a2e520875a7568b21abf",
+        "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce"
+      ],
+      "full_grants_by_version": {
+        "15.8.1": [
+          "f657f99d3fb9647db92628e96007aabb46e5f04f33e49999075aab8e250ca7ce"
+        ]
+      }
+    },
+    "react": {
+      "candidate_versions": [
+        "18.3.1"
+      ],
+      "required_original_sha256": [
+        "49b26a5dc1cc7188707ebc0e9c31b49a6941203027b4d993f2c38c9553b26b78",
+        "4f8f27a4ffe6fb282d9708019044a2cc39c8d8cf2683149e7e1f051d9245b298",
+        "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+        "533263beecd23be16d0179b6c39ecdff0eb22cfd3e56cdd909f8760f11f26826",
+        "80488d6de4db3169b1452b5b68c167a0f52143b7630ebb3aaa0c9d871bf3b6d1",
+        "9709e5c9cedb41ec9403945ea54b4111d4116f71613644fbeeecb71f7f92664f",
+        "a2857c65227be03a3a08cf5dd7d2e59caedf12235b914fb39bec91f27f8dc6fd",
+        "c9eaf801c7693afa7d4bf78c40b9bb8ec4eafdcffac8e492635534bd3e060a21",
+        "d27ecfad01e03e8561856f70bb53064da1baefbae59172573f16c5eae05b3616",
+        "e19243825fcf3fdd03677d633671e7df67e631b061d8fa2c52dc3d4f3cca4f5d",
+        "ebdadc548ab06311212c537b0bdf46c7a2e559b20648fe920f62a0d38d3f20f6",
+        "f93838ec59cf806e5df984fbdd7720c928503a4b640bf927ec0ef9c5fcdaa746"
+      ],
+      "full_grants_by_version": {
+        "18.3.1": [
+          "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        ]
+      }
+    },
+    "react-dom": {
+      "candidate_versions": [
+        "18.3.1"
+      ],
+      "required_original_sha256": [
+        "125f488dbdadcdad587f60e81facf0ce8bea9aea2612f8ec00e82d53b439e13e",
+        "2646ea46020c48bfecdbffe19630bd0185da085e45131146d338a6681247d980",
+        "2d9d9df9c6d9b0f6d1295f08ca90c5cd93ceab57bead3808f4b05044df328b71",
+        "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+        "5c7d4750fa779172c686174445f2d45cc5fb0eddc6c960fd40a3c141809eb263",
+        "61505713f616e5de8d7c3857afd47d2e2542fa66f6a516ce4d01b94f9eaf52cb",
+        "77e67e9645ac83264e813c257fbcde3cd6f6b65d50d287dce119cdaa1b5aeda3",
+        "9b1a04d8e1b76ce73e9857576497c458556a65c1beba9d875c25ac7c54749df2",
+        "a23925f305e4ee7432d21da0dfb26a4777865254bc90f6e1748b639d591095c5",
+        "a8608c0f00f58f53357eaad3c6994b9bf3b01fd69443abfc868af20a0fc41912",
+        "abe55865370941e7e484860ec3155611d82415119f053a2fe3a61d83dcf39314",
+        "bb71e1d85ab438ff3359dd1522a80aa8389122842a4b0b929de4077a3350cb64",
+        "d11d025d391be2db22c09a372d25f3f1ed742aeb1e0e1d9a9328aa0ec9f372ba",
+        "e1c25d90a81a13f7398c3bff1597f4a6db721f28abd125f71e0593f77eee5551"
+      ],
+      "full_grants_by_version": {
+        "18.3.1": [
+          "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        ]
+      }
+    },
+    "react-is": {
+      "candidate_versions": [
+        "16.13.1",
+        "17.0.2"
+      ],
+      "required_original_sha256": [
+        "3a35a3d47d64847d17815f387d791690086ca55dac0882d76837c62dee7640f9",
+        "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+        "76f4a58f4698efba7c184fc3333267357bdbca6578f473df6b83870343090b1a",
+        "bcf33e0f820140c0aad115449359f48ca6f9c150b68c52161d889a8274b4425d",
+        "c7657fa1bdc095b8f2aca02bdc36b3b1209ab3df3ac0e32e7d0a49f32ae22bf8"
+      ],
+      "full_grants_by_version": {
+        "16.13.1": [
+          "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        ],
+        "17.0.2": [
+          "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        ]
+      }
+    },
+    "react-tabs": {
+      "candidate_versions": [
+        "6.0.2"
+      ],
+      "required_original_sha256": [
+        "6ec568895e3e3c7bed6bb0bf7067ede6c743a40035db7a8bb1020edcfac34177"
+      ],
+      "full_grants_by_version": {
+        "6.0.2": [
+          "6ec568895e3e3c7bed6bb0bf7067ede6c743a40035db7a8bb1020edcfac34177"
+        ]
+      }
+    },
+    "reftools": {
+      "candidate_versions": [
+        "1.1.9"
+      ],
+      "required_original_sha256": [
+        "aa27efd0c9dc934f80a104d537cc0199d87179e55bcbac099d070497f20b70ed"
+      ],
+      "full_grants_by_version": {
+        "1.1.9": [
+          "aa27efd0c9dc934f80a104d537cc0199d87179e55bcbac099d070497f20b70ed"
+        ]
+      }
+    },
+    "scheduler": {
+      "candidate_versions": [
+        "0.23.2"
+      ],
+      "required_original_sha256": [
+        "11c4f2d049789136a7cd0810f458a828d93b2c1fa382db5dd146ed3cc5e549b0",
+        "3472733ec2a132cb13b7da0af3426844500a8c338c95df80491533886df12f21",
+        "4ed2b2399d3a6cc90035eb84f8b72e1b9f89a351dbf73e31d86c2263d0a9b3bf",
+        "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85",
+        "5433e1971af13c5601f30c96bcd49116bf113241fa8bacf1aedcd940736eb814",
+        "7edfac6840a300ebda7d39fde3f283a69730951a79bbf3c99424c7881abb945b",
+        "c416ee9ab80bf3a040bdc36da65993f7720c55599f631d560ec1c5fbf6c868c5",
+        "d052c74171ba7027b94f252485a53f326693ef729364ac90f499efb1a523d697"
+      ],
+      "full_grants_by_version": {
+        "0.23.2": [
+          "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
+        ]
+      }
+    },
+    "shallowequal": {
+      "candidate_versions": [
+        "1.1.0"
+      ],
+      "required_original_sha256": [
+        "709e45bb17277819ce27e9abe5dc8e56fe93081e54adb6e6385517f28aa11ac4"
+      ],
+      "full_grants_by_version": {
+        "1.1.0": [
+          "709e45bb17277819ce27e9abe5dc8e56fe93081e54adb6e6385517f28aa11ac4"
+        ]
+      }
+    },
+    "slugify": {
+      "candidate_versions": [
+        "1.4.7"
+      ],
+      "required_original_sha256": [
+        "8df3c23e3dfffa0d3d41c59fae5741ea3e2c50eb19c52a5d8912a68fdba554c2"
+      ],
+      "full_grants_by_version": {
+        "1.4.7": [
+          "8df3c23e3dfffa0d3d41c59fae5741ea3e2c50eb19c52a5d8912a68fdba554c2"
+        ]
+      }
+    },
+    "stickyfill": {
+      "candidate_versions": [
+        "1.1.1"
+      ],
+      "required_original_sha256": [
+        "6c547144d899c295defa986cd073c2c8d02c90d243b9cf8dd4ab064ac7c2d23e",
+        "82183d79743926de3202987112039cda376a447a07422d45de1392cd85e40d07"
+      ],
+      "full_grants_by_version": {
+        "1.1.1": [
+          "82183d79743926de3202987112039cda376a447a07422d45de1392cd85e40d07"
+        ]
+      }
+    },
+    "style-loader": {
+      "candidate_versions": [
+        "3.3.1"
+      ],
+      "required_original_sha256": [
+        "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+      ],
+      "full_grants_by_version": {
+        "3.3.1": [
+          "9068a8782d2fb4c6e432cfa25334efa56f722822180570802bf86e71b6003b1e"
+        ]
+      }
+    },
+    "styled-components": {
+      "candidate_versions": [
+        "5.3.11"
+      ],
+      "required_original_sha256": [
+        "5b893305a717230e5b0024ff5ca3eec1dc05ba600c9b140730488d97ce56f1e6",
+        "6e4a2266a3fd5e9b69ccadd0ed2b483654a304ed4f8f97e56e1e964664ca171a",
+        "ee4739e092f2d6fd2b2440f84143e62879e117485fb2788abe386e1844f2abbb"
+      ],
+      "full_grants_by_version": {
+        "5.3.11": [
+          "5b893305a717230e5b0024ff5ca3eec1dc05ba600c9b140730488d97ce56f1e6"
+        ]
+      }
+    },
+    "swagger2openapi": {
+      "candidate_versions": [
+        "7.0.8"
+      ],
+      "required_original_sha256": [
+        "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+      ],
+      "full_grants_by_version": {
+        "7.0.8": [
+          "5e84897c899173c794e8187d03e206dac13ed5d8ee0d4d48bbb3edcf4a1d20c6"
+        ]
+      }
+    },
+    "unfetch": {
+      "candidate_versions": [
+        "4.2.0"
+      ],
+      "required_original_sha256": [
+        "48847c33de7ee90f023d97dd90055cb8fe1e54edb7b956c90e19db852773ce18"
+      ],
+      "full_grants_by_version": {
+        "4.2.0": [
+          "48847c33de7ee90f023d97dd90055cb8fe1e54edb7b956c90e19db852773ce18"
+        ]
+      }
+    },
+    "uri-js-replace": {
+      "candidate_versions": [
+        "1.0.1"
+      ],
+      "required_original_sha256": [
+        "04ffc581c5b1fc6314bfc1b255b53d937406b2a9420183330fdc072616594d20",
+        "0af366eff4c01ec147c9c61ea9e8ffad64a4294754c9d79355f3fd1b97cb2fb9",
+        "5caace045044f8e3dd302d2a6789b9824c1dec992a3e94cc8f75f5c81bad699e",
+        "e49abe2aea152b0fff4810de37b26704e3380ec873d40486208d9462546aca4f"
+      ],
+      "full_grants_by_version": {
+        "1.0.1": [
+          "0af366eff4c01ec147c9c61ea9e8ffad64a4294754c9d79355f3fd1b97cb2fb9",
+          "5caace045044f8e3dd302d2a6789b9824c1dec992a3e94cc8f75f5c81bad699e"
+        ]
+      }
+    },
+    "url-template": {
+      "candidate_versions": [
+        "2.0.8"
+      ],
+      "required_original_sha256": [
+        "70723b90e3f26aa2808616e846cd8cd349fe33864fd328a91a5bb9d33e58e9d9"
+      ],
+      "full_grants_by_version": {
+        "2.0.8": [
+          "70723b90e3f26aa2808616e846cd8cd349fe33864fd328a91a5bb9d33e58e9d9"
+        ]
+      }
+    },
+    "use-sync-external-store": {
+      "candidate_versions": [
+        "1.5.0"
+      ],
+      "required_original_sha256": [
+        "1e3677f0ccca53fa21583e7df4fa7ebed81be7547f15247d7493e62af5a39194",
+        "43b85bd4d04a95407f9b9fe82191bf23c487ee57012b4e331522e65b78acf38d",
+        "4b53b89a18978c862fde5a71e19b881d389d1a3bc612bcd71040a3aea378dec9",
+        "6cc1fe93088718486eb67c3f2578891cdfd6b5bfa229521fac6340d068cc2d35",
+        "729286e83292b31bba7eed6a50098e0b9cfecfdd778dd9b3fa0f2874ca37f86c",
+        "84f8731766a6baecbe74bf5d8f323bfdb27efe4fc8de29d1680bcfbe91301f05",
+        "96fc8fdf441022199e72ac4697462ecda49dc973cdb48537edf93626ff733ac8",
+        "bdc77ae504b520a2a68adfc28ab9d4dcf99e56f2b2d54153397e0ed4e7d55aee",
+        "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+        "e8cf9ee30093af1aa1853ce5012478e306e305532e5b1e72b3a6394a9fe0ba31",
+        "f5f8195a4c6a62984c549d58207012124acee0152786d82a855e23e827928ac8"
+      ],
+      "full_grants_by_version": {
+        "1.5.0": [
+          "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+        ]
+      }
+    },
+    "xml-naming": {
+      "candidate_versions": [
+        "0.1.0"
+      ],
+      "required_original_sha256": [
+        "8e75fc0e776c62ccadb8178ece8d3daa9ba7601fb0a49b2dfb0ea9a7a5c0aa07"
+      ],
+      "full_grants_by_version": {
+        "0.1.0": [
+          "8e75fc0e776c62ccadb8178ece8d3daa9ba7601fb0a49b2dfb0ea9a7a5c0aa07"
+        ]
+      }
+    },
+    "lunr": {
+      "candidate_versions": [
+        "2.3.9"
+      ],
+      "required_original_sha256": [
+        "008c41d0266e9aa1698190c4708bec27adfe87c2d7bf5d0dbac91d6a1d651a17",
+        "01ef293f3ed7a8f536360ba12435942420f123d7cd2154cae21b3c5e1e463048",
+        "0db06b548f8a9c9ec9253ae660c76b6c5389e7703a8dba934c656f1f10c526de",
+        "0e2aaf1e8c1ba8ff29361580fab26ef174707423e06bc4ac9dca0585f7cb316c",
+        "12034c047231d060a70a29949a3ab04a2283c00a821d446b36a9ba7ac37cd8e1",
+        "18cca442df08369bd89a130a13c9b282ebc94e66f171979d8f80f1be745c1600",
+        "1f783a5087c72e690f925ed5ee5c75ab2891085838ee47e3c8ede6647972d3e0",
+        "2196d3c9a86bd2fb76fa4fa0f2d1df4aa8412143ab258b177c496bd458c8bf75",
+        "245812cc571a1b05279bdf62b2e55ff5dca9cf7beb5b99723dc26f143b209be2",
+        "24e5579d00825f14abf143419b25ef24cff7cf969bb848dbe437245e19030cd4",
+        "2afde1afc9a7e7498f09c2a9ae510de0d7eae446c1561a93bb5e95afbf9ce1a0",
+        "2da6523c3727671bdd95a825ecabc55eee5c67d15a643bda4bd3bcf2a0a4afba",
+        "34be729e124a14d0804b98d09ef9a5648d3dc9f579c95a77dc6ccfbc35769f7b",
+        "3a0f4300c72d2c9d9e67415d1382523a2ad34ee4e32f931912f5f0ddc7c62e10",
+        "3af50bf250e6a1d55bd949be72b1d3dd258c49e65420e95f4cc8ac3deab5b8b0",
+        "3d8089f02f54d341cba6a41cb1b89e731ff38bf976405a2635f6268ed0a2c2b7",
+        "4489b97be7b301a6395e54facbbf747a2ad6ced73f97e468e1ff030e7a845da0",
+        "453217c289c5da94fb534fe8adf0ca0e9296f9d9dbaaabdcbb4919e1fa38b614",
+        "4c5e74d99750371d6dcd0304d9ab86053aee67218b3e952e9796190fbde910fe",
+        "5e46a999d00372686bc20cd62357cfd106b546da30d84e0049e822a398b6a359",
+        "5fe2094bd04b6c0f77f04973b90185d0bfcb90c9d79c1dd2bec2b7dcf052d869",
+        "621d383317ca28b27e7b5556850b9944cdb91695a22bebc01388bbc85137dea2",
+        "62e0781ce34e16dcc343079d1ed50111ce3326770bf0e72c3ab39232164b0be5",
+        "64503cdb38041a68a9c52bcbbed1c29f17730422d039cf81847e52a63ce90d47",
+        "6912638e463b76162680a8195f2e61b2423538e98f88724a1fdedf98eeca2c4c",
+        "6ca2425f0931f907fdb1149c4f705be4aaf816c3a99cdb776c13ac30a18f1595",
+        "71eb272a4a41a26622c4dbe8606ba6c7a784f54cafcec74ce093845016d96a2e",
+        "73f77030a5486ac2e3bb1bf2fbc8338d415820974c66f3269f55b0256190cfb0",
+        "761d6b43a01775544f08e67e65b317b4196ca95ec745bfde0582c42eb74ba691",
+        "7738980db3ab78983270e7e74d7f64fb5dfafc103af8113cef92c153fecc9dee",
+        "7ad067802e50d7f1241ec28a9a0e63f95095534f0e41ce5540abd83e1a816f08",
+        "7d1f0cf6728ac7b256173dba5fd02e514906c3ea1714c87ade13ec53fa4aaf1f",
+        "7e7c4cdb356f046c6f9c20b33518101f54ae38456aa9e21348121ce59f6e53d5",
+        "7ed50a53f0c7fc5876a2d9f801ad4d3929765ab97f1d8d4a6d60b3cf26b23f53",
+        "8b61e40db82a7aa931bd2ef493807d7709d3b5cbcba489c6d2c481c7a0d367fe",
+        "8bd623c186427b7ed53a386784f6e04257f4ae301fe62322c71f30e7b58b4a32",
+        "8d6a8854d0bb2a88367124ee869f2db99b28f53450c207cd5eab5b9e854b87cf",
+        "9419df71802b6c4ae0366d2496aef4aec6087fc5fbf5d092c462b84151bf61a4",
+        "9700ff5214f9ca13244a3676c4f5803445f60df066996d718341618c347f9298",
+        "9923b95437cba19df937e689ae32e8abba09de0498baa0c19309d762218a850e",
+        "9b79e789a94b80712803895da7ad03aeef04691de74c3580e8ef35064b433d65",
+        "a298d98916408a5241ceb077162fba3cd632c61c4d30a5dccbe02b2b996cfe6a",
+        "a3f7e75f588c1b6b3b440498619d32290dadb2dd2ad9cbd39273cef8b571a524",
+        "ac7651ebd8dab5dce35438e939aa7432ecc282622fe5068431a3fdd0b227bc25",
+        "ae33f5a0d538cd93de1136a052ffa734b59d6b28e7cfc19e03de1d8b5d9f40ea",
+        "b4b921ba79b61f16ba34d92ada42449c72f1995fac9f68dda63d7801b672a872",
+        "b8926dd74b7ea0cb1fd119d980cc93f694e29bf84b185a8e8f9e7f20f772f151",
+        "bf7fbcc367753fcfecd1c64de0252cc43c089851bfe26d7755611f043cbe2f1e",
+        "c4434446fbae50731f6889bcae175f1d3b5ec9c575c3f817ebbba0178baaeaba",
+        "c4d5af2df01a5e59395b04b6d5b496557825c58c9cf2fcfd5f5c226743b414d7",
+        "c8e0254c0cd49c9b7dd16e573f594da0776f1be9a13358fbcf5952d85b2c9321",
+        "cb5c429e717814a981a41da7b5ca0f543f797f953c1a2faea38238f2cef9002f",
+        "cdfc50201a519d508e0f8fc0ab434e84687e1516247ebcd94db75928b046145a",
+        "d2826beeaa02c1592808242a7d76e575da8da4a92196f241d4e7f682029734e0",
+        "d3f092e23e3e8c0ac0a06c405d40f888aae8ea125e5804581415584b3d710f1c",
+        "d8214f30aa2398878f3a4d8f49441440449d4d892c83578586c36ee20d696253",
+        "d96d5f6c2d86575c0d0d2b00ee4b808ab5eee0447bd01b3ce8161148584e9457",
+        "dda1f7b5819391be8db3e5a61e7ae050d15da522f8b490dbca0cf588e07e771b",
+        "e77434db29ca26264357944d7d43c8ee2c6202628544e756b0c43317f329f104",
+        "eb0040441509f50b21656b328b02ea26c6091dd96a4474824f169dc797c063e6",
+        "ebc504b6ae83a1497b6a8020eb95b467f86a3af3442b97d92627586b7c59833f"
+      ],
+      "full_grants_by_version": {
+        "2.3.9": [
+          "ae33f5a0d538cd93de1136a052ffa734b59d6b28e7cfc19e03de1d8b5d9f40ea"
+        ]
+      }
+    }
+  }
+}

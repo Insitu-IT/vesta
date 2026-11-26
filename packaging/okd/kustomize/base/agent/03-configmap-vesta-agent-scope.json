@@ -1,0 +1,14 @@
+{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "vesta-agent-scope",
+    "namespace": "vesta-agent",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "data": {
+    "policy.json": "{\"default_selected_namespaces\": [\"protected-vms\"], \"restore_namespaces\": [\"protected-vms\"], \"scratch_pvcs\": {\"protected-vms\": \"vesta-scratch\"}, \"source_namespaces\": [\"protected-vms\"]}"
+  }
+}

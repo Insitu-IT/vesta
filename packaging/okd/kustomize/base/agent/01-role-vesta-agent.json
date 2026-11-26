@@ -1,0 +1,167 @@
+{
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "kind": "Role",
+  "metadata": {
+    "name": "vesta-agent",
+    "namespace": "protected-vms",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "rules": [
+    {
+      "apiGroups": [
+        "kubevirt.io"
+      ],
+      "resources": [
+        "virtualmachines"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch"
+      ]
+    },
+    {
+      "apiGroups": [
+        "kubevirt.io"
+      ],
+      "resources": [
+        "virtualmachineinstances"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch"
+      ]
+    },
+    {
+      "apiGroups": [
+        "backup.kubevirt.io"
+      ],
+      "resources": [
+        "virtualmachinebackups",
+        "virtualmachinebackuptrackers"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch",
+        "create",
+        "delete",
+        "patch",
+        "update"
+      ]
+    },
+    {
+      "apiGroups": [
+        "export.kubevirt.io"
+      ],
+      "resources": [
+        "virtualmachineexports"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch",
+        "create",
+        "delete"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "persistentvolumeclaims",
+        "secrets"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch",
+        "create",
+        "delete"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "services",
+        "configmaps"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "pods"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch",
+        "create",
+        "delete"
+      ]
+    },
+    {
+      "apiGroups": [
+        ""
+      ],
+      "resources": [
+        "pods/log"
+      ],
+      "verbs": [
+        "get"
+      ]
+    },
+    {
+      "apiGroups": [
+        "coordination.k8s.io"
+      ],
+      "resources": [
+        "leases"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch",
+        "create",
+        "delete"
+      ]
+    },
+    {
+      "apiGroups": [
+        "discovery.k8s.io"
+      ],
+      "resources": [
+        "endpointslices"
+      ],
+      "verbs": [
+        "get",
+        "list",
+        "watch"
+      ]
+    },
+    {
+      "apiGroups": [
+        "k8s.cni.cncf.io"
+      ],
+      "resources": [
+        "network-attachment-definitions"
+      ],
+      "verbs": [
+        "get"
+      ]
+    }
+  ]
+}

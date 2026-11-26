@@ -1,0 +1,30 @@
+Swagger UI 5.34.1: additional original notices for named bundled components
+
+The shipped swagger-ui-bundle.js and extracted LICENSE.txt are byte-identical to
+the npm swagger-ui-dist5.34.1 publisher archive. The extracted banner expressly
+names buffer, safe-buffer, repeat-string, fast-json-patch, React, ReactDOM,
+scheduler, use-sync-external-store and regenerator-runtime, but its corresponding
+entries abbreviate or point elsewhere for the complete license text.
+
+The accompanying original notice files supplement those entries. Their candidate
+package versions come from the publisher gitHead package lock. Each exact npm
+archive was independently verified against official registry integrity and SHA1;
+where the gitHead lock contains integrity/resolved fields, those also match.
+Archive package.json versions and preserved notice bytes were checked. Detailed
+archive URLs, hashes, notice hashes and actual banner offsets are recorded in
+banner-notice-provenance.json. These supplements preserve original copyrights,
+including package copyrights differing from the abbreviated banner; the complete
+publisher-extracted banner is retained as well.
+
+This review does not use unqualified source-map paths to identify emitted modules.
+Banner evidence names components but does not prove their precise emitted version;
+the publisher lock is build-context evidence rather than a reproducible-build
+attestation. Matching source diagnostics provide limited corroboration for some
+packages and are not a full byte-proven emitted dependency inventory.
+
+Control: deep-extend0.6.0 and immutable5.1.9 exact archive MIT license text is
+already present in full in the extracted banner after comment/whitespace
+normalization, so duplicate notice files were not added for them. Separate
+neotraverse and other notice work is reconciled by the owning inventory. No
+complete emitted closure, source-map reconciliation or legal release acceptance
+is claimed by this bounded set of repairs. Runtime JavaScript is unchanged.

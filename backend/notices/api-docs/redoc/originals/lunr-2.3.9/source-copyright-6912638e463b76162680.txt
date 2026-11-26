@@ -1,0 +1,4 @@
+/*!
+ * lunr.Set
+ * Copyright (C) 2020 Oliver Nightingale
+ */

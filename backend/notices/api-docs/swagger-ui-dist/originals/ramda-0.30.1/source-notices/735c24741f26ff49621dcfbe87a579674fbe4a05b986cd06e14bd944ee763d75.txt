@@ -1,0 +1,4 @@
+//  Ramda v0.30.1
+//  https://github.com/ramda/ramda
+//  (c) 2013-2024 Scott Sauyet, Michael Hurley, and David Chambers
+//  Ramda may be freely distributed under the MIT license.

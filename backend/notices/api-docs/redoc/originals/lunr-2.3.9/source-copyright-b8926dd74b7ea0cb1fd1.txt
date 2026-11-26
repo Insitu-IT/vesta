@@ -1,0 +1,4 @@
+/*!
+ * lunr.Index
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

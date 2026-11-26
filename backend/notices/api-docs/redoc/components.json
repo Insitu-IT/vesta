@@ -1,0 +1,2003 @@
+{
+  "schema": "vesta-api-doc-components/1",
+  "bundle": "redoc",
+  "bundle_upstream_sha256": "dcaf76612bc4a3fbcc923a8966dee2f6146a5f32e5ce1b6f02dd60cbbf89500b",
+  "archive_sha256": "44922df4d0eb45c1b066c09ec251e6bd9bd7ded16bc69e87613337b9d911a56e",
+  "source_map": {
+    "archive_member": "package/bundles/redoc.standalone.js.map",
+    "sha256": "2550d1c2e62c0640b2b4f4f49843433840fc291e001f3edb15ff66470e551476",
+    "coordinate_evidence": "notices/api-docs/redoc/source-map-coordinates.json",
+    "correspondence_status": "unqualified; coordinate bounds do not establish source-to-bundle correspondence"
+  },
+  "scope": "Unqualified standalone-map package-path census plus a separately identified Lunr embedded-worker banner/runtime entry; not an accepted inventory of actually emitted components. Publisher-lock nodes and published map source contents remain separate provenance inputs; Lunr is not attributed to the standalone source-map census.",
+  "components": [
+    {
+      "name": "@babel/runtime",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/extends.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/isNativeReflectConstruct.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/wrapNativeSuper.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/isNativeFunction.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/construct.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js",
+        "webpack://Redoc/./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "7.27.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@babel/runtime",
+          "version": "7.27.0",
+          "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.27.0.tgz",
+          "integrity": "sha512-VtPOkrdPHZsKc/clNqyi9WUA8TINkZ4cGk63UUE3u4pmB2k+ZMQRDuIOagv8UVd6j7k0T3+RRIb7beKTebNbcw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "7.27.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@emotion/is-prop-valid",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@emotion/is-prop-valid/dist/emotion-is-prop-valid.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.2.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@emotion/is-prop-valid",
+          "version": "1.2.1",
+          "resolved": "https://registry.npmjs.org/@emotion/is-prop-valid/-/is-prop-valid-1.2.1.tgz",
+          "integrity": "sha512-61Mf7Ufx4aDxx1xlDeOm8aFFigGHE4z+0sKCa+IHCeZKiyP9RLD0Mmx7m8b9/Cf37f7NAvQOOJAbQQGVr5uERw=="
+        }
+      ],
+      "versions": [
+        "1.2.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@emotion/memoize",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@emotion/memoize/dist/emotion-memoize.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.8.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@emotion/memoize",
+          "version": "0.8.1",
+          "resolved": "https://registry.npmjs.org/@emotion/memoize/-/memoize-0.8.1.tgz",
+          "integrity": "sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA=="
+        }
+      ],
+      "versions": [
+        "0.8.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@emotion/stylis",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@emotion/stylis/dist/stylis.browser.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.8.5",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@emotion/stylis",
+          "version": "0.8.5",
+          "resolved": "https://registry.npmjs.org/@emotion/stylis/-/stylis-0.8.5.tgz",
+          "integrity": "sha512-h6KtPihKFn3T9fuIrwvXXUOwlx3rfUvfZIcP5a6rh8Y7zjE3O06hT5Ss4S/YI1AYhuZ1kjaE/5EaOOI2NqSylQ=="
+        }
+      ],
+      "versions": [
+        "0.8.5"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@emotion/unitless",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@emotion/unitless/dist/unitless.browser.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.7.5",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@emotion/unitless",
+          "version": "0.7.5",
+          "resolved": "https://registry.npmjs.org/@emotion/unitless/-/unitless-0.7.5.tgz",
+          "integrity": "sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg=="
+        }
+      ],
+      "versions": [
+        "0.7.5"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@redocly/ajv",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/2020.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/codegen/code.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/codegen/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/codegen/scope.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/errors.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/names.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/ref_error.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/resolve.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/rules.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/util.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/applicability.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/boolSchema.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/dataType.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/defaults.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/keyword.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/compile/validate/subschema.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/core.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/refs/json-schema-2020-12/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/runtime/equal.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/runtime/ucs2length.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/runtime/uri.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/runtime/validation_error.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/additionalItems.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/additionalProperties.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/allOf.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/anyOf.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/contains.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/dependencies.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/dependentSchemas.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/if.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/items.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/items2020.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/not.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/oneOf.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/patternProperties.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/prefixItems.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/properties.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/propertyNames.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/applicator/thenElse.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/code.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/core/id.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/core/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/core/ref.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/discriminator/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/discriminator/types.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/draft2020.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/dynamic/dynamicAnchor.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/dynamic/dynamicRef.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/dynamic/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/dynamic/recursiveAnchor.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/dynamic/recursiveRef.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/format/format.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/format/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/metadata.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/next.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/unevaluated/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/unevaluated/unevaluatedItems.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/unevaluated/unevaluatedProperties.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/const.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/dependentRequired.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/enum.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/index.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/limitContains.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/limitItems.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/limitLength.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/limitNumber.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/limitProperties.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/multipleOf.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/pattern.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/required.js",
+        "webpack://Redoc/./node_modules/@redocly/ajv/dist/vocabularies/validation/uniqueItems.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "8.11.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/ajv",
+          "version": "8.11.2",
+          "resolved": "https://registry.npmjs.org/@redocly/ajv/-/ajv-8.11.2.tgz",
+          "integrity": "sha512-io1JpnwtIcvojV7QKDUSIuMN/ikdOUd1ReEnUnMKGfDVridQZ31J0MmIuqwuRjWDZfmvr+Q0MqCcfHM2gTivOg==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "8.11.2"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@redocly/config",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/feedback-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/graphql-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/redoc-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/reference-docs-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/ex-theme-config-schemas.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/default-theme-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/constants.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/reunite-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/root-config-schema.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/remove-property-recursively.js",
+        "webpack://Redoc/./node_modules/@redocly/config/lib-esm/product-override-schema.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.22.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/config",
+          "version": "0.22.0",
+          "resolved": "https://registry.npmjs.org/@redocly/config/-/config-0.22.0.tgz",
+          "integrity": "sha512-gAy93Ddo01Z3bHuVdPWfCwzgfaYgMdaZPcfL7JZ7hWJoK9V0lXDbigTWkhiPFAaLWzbOJ+kbUQG1+XwIm0KRGQ==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "0.22.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@redocly/openapi-core",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/bundle.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/config/config.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/config/rules.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/config/utils.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/decorators/oas2/remove-unused-components.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/decorators/oas3/remove-unused-components.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/env.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/js-yaml/index.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/logger.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/oas-types.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/redocly/domains.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/ref-utils.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/resolve.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/rules/no-unresolved-refs.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/arazzo.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/asyncapi2.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/asyncapi3.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/index.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/json-schema-adapter.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/oas2.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/oas3.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/oas3_1.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/overlay.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/types/redocly-yaml.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/typings/arazzo.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/utils.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/visitors.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/lib/walk.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.34.19",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/openapi-core",
+          "version": "1.34.19",
+          "resolved": "https://registry.npmjs.org/@redocly/openapi-core/-/openapi-core-1.34.19.tgz",
+          "integrity": "sha512-o/0VgsBXgwcY1lyeqcVtSGdTQAPnVggo0fbFVPlxl5XVDKUcVH0OLRqt3CbkwByT5FU305E0iE0O7MzThjDblw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.34.19"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "@redocly/workerize-loader",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/workerize-loader/dist/rpc-wrapper.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.3.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/workerize-loader",
+          "version": "1.3.1",
+          "resolved": "https://registry.npmjs.org/@redocly/workerize-loader/-/workerize-loader-1.3.1.tgz",
+          "integrity": "sha512-WVzDeBhmzzfRT6IIz2nKD6p80wHNupi+hVVvYZCTAzYsYDui+39AxhyrF8n7UeCLwZU3On4tQx+d6d6bgG4CIw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.3.1"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "balanced-match",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/balanced-match/index.js"
+      ],
+      "notice_files": [
+        "redoc/balanced-match-1.0.2.LICENSE"
+      ],
+      "version": "1.0.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/balanced-match",
+          "version": "1.0.2",
+          "resolved": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
+          "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw=="
+        }
+      ],
+      "versions": [
+        "1.0.2"
+      ],
+      "notice_supplement": {
+        "archive_sha256": "d854f7abdd0c7a8120cf381e0ad5f972cbd0255f5d987424bd672c8c4fcebcc1",
+        "original_license_member": "package/LICENSE.md",
+        "original_license_sha256": "a1bd5deadb6a06dd74efa852c1b8b23f63b67f2214fbe9c8bd591da51da69268",
+        "reason": "Original complete package grant/attribution absent or abbreviated in extracted upstream bundle notices",
+        "source_map_module_byte_match": {
+          "archive_member": "package/index.js",
+          "sha256": "06e4d0037715251cb3be2b2db063662f555b3538d9e30a9c517a54374d941cbc"
+        }
+      },
+      "notice_review_status": "targeted-original-document-supplied"
+    },
+    {
+      "name": "brace-expansion",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/node_modules/brace-expansion/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.1.4",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/openapi-core/node_modules/brace-expansion",
+          "version": "2.1.4",
+          "resolved": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.4.tgz",
+          "integrity": "sha512-hGfVzPxthbf3+2yjg/RBs60cB0FhqBS/zvdV/4wn4/BmN0bNMMHPc4V/BbFieqf1TKAGGAHnY4eSjajCl0f2Xg==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "2.1.4"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "call-me-maybe",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/call-me-maybe/src/maybe.js",
+        "webpack://Redoc/./node_modules/call-me-maybe/src/next.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.0.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/call-me-maybe",
+          "version": "1.0.2",
+          "resolved": "https://registry.npmjs.org/call-me-maybe/-/call-me-maybe-1.0.2.tgz",
+          "integrity": "sha512-HpX65o1Hnr9HH25ojC1YGs7HCQLq0GCOibSaWER0eNpgJ/Z1MZv2mTc7+xh6WOPxbRVcmgbv4hGU+uSQ/2xFZQ=="
+        }
+      ],
+      "versions": [
+        "1.0.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "classnames",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/classnames/index.js"
+      ],
+      "notice_files": [
+        "redoc/classnames-2.3.2.LICENSE"
+      ],
+      "version": "2.3.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/classnames",
+          "version": "2.3.2",
+          "resolved": "https://registry.npmjs.org/classnames/-/classnames-2.3.2.tgz",
+          "integrity": "sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw=="
+        }
+      ],
+      "versions": [
+        "2.3.2"
+      ],
+      "notice_supplement": {
+        "archive_sha256": "1efe6ad1b89dada842896e1eef0e1caebfbef1e62aeeb080d3b963289cec1bab",
+        "original_license_member": "package/LICENSE",
+        "original_license_sha256": "0c1c24dcc129cb0c02ee9803cfa7a50061c236a3b59b36a714c27f3ade66d7be",
+        "reason": "Original complete package grant/attribution absent or abbreviated in extracted upstream bundle notices",
+        "source_map_module_byte_match": {
+          "archive_member": "package/index.js",
+          "sha256": "9997ccd7f07de3c5ef309d5a7a29c938ce8dd4873c669dadfc1c9ee02faadc07"
+        }
+      },
+      "notice_review_status": "targeted-original-document-supplied"
+    },
+    {
+      "name": "clsx",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/clsx/dist/clsx.mjs"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.1.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/clsx",
+          "version": "2.1.1",
+          "resolved": "https://registry.npmjs.org/clsx/-/clsx-2.1.1.tgz",
+          "integrity": "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA=="
+        }
+      ],
+      "versions": [
+        "2.1.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "core-js",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/core-js/es/symbol/index.js",
+        "webpack://Redoc/./node_modules/core-js/internals/a-function.js",
+        "webpack://Redoc/./node_modules/core-js/internals/an-object.js",
+        "webpack://Redoc/./node_modules/core-js/internals/array-includes.js",
+        "webpack://Redoc/./node_modules/core-js/internals/array-iteration.js",
+        "webpack://Redoc/./node_modules/core-js/internals/array-method-has-species-support.js",
+        "webpack://Redoc/./node_modules/core-js/internals/array-species-create.js",
+        "webpack://Redoc/./node_modules/core-js/internals/classof-raw.js",
+        "webpack://Redoc/./node_modules/core-js/internals/classof.js",
+        "webpack://Redoc/./node_modules/core-js/internals/copy-constructor-properties.js",
+        "webpack://Redoc/./node_modules/core-js/internals/create-non-enumerable-property.js",
+        "webpack://Redoc/./node_modules/core-js/internals/create-property-descriptor.js",
+        "webpack://Redoc/./node_modules/core-js/internals/create-property.js",
+        "webpack://Redoc/./node_modules/core-js/internals/define-well-known-symbol.js",
+        "webpack://Redoc/./node_modules/core-js/internals/descriptors.js",
+        "webpack://Redoc/./node_modules/core-js/internals/document-create-element.js",
+        "webpack://Redoc/./node_modules/core-js/internals/engine-user-agent.js",
+        "webpack://Redoc/./node_modules/core-js/internals/engine-v8-version.js",
+        "webpack://Redoc/./node_modules/core-js/internals/enum-bug-keys.js",
+        "webpack://Redoc/./node_modules/core-js/internals/export.js",
+        "webpack://Redoc/./node_modules/core-js/internals/fails.js",
+        "webpack://Redoc/./node_modules/core-js/internals/function-bind-context.js",
+        "webpack://Redoc/./node_modules/core-js/internals/get-built-in.js",
+        "webpack://Redoc/./node_modules/core-js/internals/global.js",
+        "webpack://Redoc/./node_modules/core-js/internals/has.js",
+        "webpack://Redoc/./node_modules/core-js/internals/hidden-keys.js",
+        "webpack://Redoc/./node_modules/core-js/internals/html.js",
+        "webpack://Redoc/./node_modules/core-js/internals/ie8-dom-define.js",
+        "webpack://Redoc/./node_modules/core-js/internals/indexed-object.js",
+        "webpack://Redoc/./node_modules/core-js/internals/inspect-source.js",
+        "webpack://Redoc/./node_modules/core-js/internals/internal-state.js",
+        "webpack://Redoc/./node_modules/core-js/internals/is-array.js",
+        "webpack://Redoc/./node_modules/core-js/internals/is-forced.js",
+        "webpack://Redoc/./node_modules/core-js/internals/is-object.js",
+        "webpack://Redoc/./node_modules/core-js/internals/is-pure.js",
+        "webpack://Redoc/./node_modules/core-js/internals/native-symbol.js",
+        "webpack://Redoc/./node_modules/core-js/internals/native-weak-map.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-create.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-define-properties.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-define-property.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-get-own-property-descriptor.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-get-own-property-names-external.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-get-own-property-names.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-get-own-property-symbols.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-keys-internal.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-keys.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-property-is-enumerable.js",
+        "webpack://Redoc/./node_modules/core-js/internals/object-to-string.js",
+        "webpack://Redoc/./node_modules/core-js/internals/own-keys.js",
+        "webpack://Redoc/./node_modules/core-js/internals/path.js",
+        "webpack://Redoc/./node_modules/core-js/internals/redefine.js",
+        "webpack://Redoc/./node_modules/core-js/internals/require-object-coercible.js",
+        "webpack://Redoc/./node_modules/core-js/internals/set-global.js",
+        "webpack://Redoc/./node_modules/core-js/internals/set-to-string-tag.js",
+        "webpack://Redoc/./node_modules/core-js/internals/shared-key.js",
+        "webpack://Redoc/./node_modules/core-js/internals/shared-store.js",
+        "webpack://Redoc/./node_modules/core-js/internals/shared.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-absolute-index.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-indexed-object.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-integer.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-length.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-object.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-primitive.js",
+        "webpack://Redoc/./node_modules/core-js/internals/to-string-tag-support.js",
+        "webpack://Redoc/./node_modules/core-js/internals/uid.js",
+        "webpack://Redoc/./node_modules/core-js/internals/use-symbol-as-uid.js",
+        "webpack://Redoc/./node_modules/core-js/internals/well-known-symbol-wrapped.js",
+        "webpack://Redoc/./node_modules/core-js/internals/well-known-symbol.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.array.concat.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.json.to-string-tag.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.math.to-string-tag.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.object.to-string.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.reflect.to-string-tag.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.async-iterator.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.description.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.has-instance.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.is-concat-spreadable.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.iterator.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.match-all.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.match.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.replace.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.search.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.species.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.split.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.to-primitive.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.to-string-tag.js",
+        "webpack://Redoc/./node_modules/core-js/modules/es.symbol.unscopables.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "3.14.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/core-js",
+          "version": "3.14.0",
+          "resolved": "https://registry.npmjs.org/core-js/-/core-js-3.14.0.tgz",
+          "integrity": "sha512-3s+ed8er9ahK+zJpp9ZtuVcDoFzHNiZsPbNAAE4KXgrRHbjSqqNN6xGSXq6bq7TZIbKj4NLrLb6bJ5i+vSVjHA=="
+        }
+      ],
+      "versions": [
+        "3.14.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "css-loader",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/css-loader/dist/runtime/api.js",
+        "webpack://Redoc/./node_modules/css-loader/dist/runtime/cssWithMappingToString.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "5.2.6",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/css-loader",
+          "version": "5.2.6",
+          "resolved": "https://registry.npmjs.org/css-loader/-/css-loader-5.2.6.tgz",
+          "integrity": "sha512-0wyN5vXMQZu6BvjbrPdUJvkCzGEO24HC7IS7nW4llc6BBFC+zwR9CKtYGv63Puzsg10L/o12inMY5/2ByzfD6w=="
+        }
+      ],
+      "versions": [
+        "5.2.6"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "decko",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/decko/dist/decko.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.2.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/decko",
+          "version": "1.2.0",
+          "resolved": "https://registry.npmjs.org/decko/-/decko-1.2.0.tgz",
+          "integrity": "sha1-/UPHNelnuAEzBohKVvvmZZlraBc="
+        }
+      ],
+      "versions": [
+        "1.2.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "dompurify",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/dompurify/dist/purify.es.mjs"
+      ],
+      "notice_files": [
+        "redoc/DOMPurify-3.4.13.LICENSE",
+        "redoc/DOMPurify-3.4.13.NOTICE"
+      ],
+      "version": "3.4.13",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "declared_license": "(MPL-2.0 OR Apache-2.0)",
+      "selected_license": "Apache-2.0",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/dompurify",
+          "version": "3.4.13",
+          "resolved": "https://registry.npmjs.org/dompurify/-/dompurify-3.4.13.tgz",
+          "integrity": "sha512-2vmYIoqjze2d+kakP8S/nS5shfsl587kzwEjcGlTdiksUVgFHnFCsLYDVj/JNqJVOQZGSYBTmuycv0PodwmnMQ==",
+          "license": "(MPL-2.0 OR Apache-2.0)"
+        }
+      ],
+      "versions": [
+        "3.4.13"
+      ],
+      "notice_review_status": "targeted-original-document-supplied"
+    },
+    {
+      "name": "eventemitter3",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/eventemitter3/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "5.0.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/eventemitter3",
+          "version": "5.0.1",
+          "resolved": "https://registry.npmjs.org/eventemitter3/-/eventemitter3-5.0.1.tgz",
+          "integrity": "sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA=="
+        }
+      ],
+      "versions": [
+        "5.0.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "fast-deep-equal",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/fast-deep-equal/index.js"
+      ],
+      "notice_files": [
+        "redoc/fast-deep-equal-3.1.3.LICENSE"
+      ],
+      "version": "3.1.3",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/fast-deep-equal",
+          "version": "3.1.3",
+          "resolved": "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz",
+          "integrity": "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="
+        }
+      ],
+      "versions": [
+        "3.1.3"
+      ],
+      "notice_supplement": {
+        "archive_sha256": "b019a0980f27638dc3f85836b0e478f188e00d7a6e5852c0819fa86f56e47b8f",
+        "original_license_member": "package/LICENSE",
+        "original_license_sha256": "7bf9b2de73a6b356761c948d0e9eeb4be6c1270bd04c79cd489c1e400ffdfc1a",
+        "reason": "Original complete package grant/attribution absent or abbreviated in extracted upstream bundle notices",
+        "source_map_module_byte_match": {
+          "archive_member": "package/index.js",
+          "sha256": "eb469e206280321a3878f2335ec98aa2104a155079d8ed83a23029098dccd215"
+        }
+      },
+      "notice_review_status": "targeted-original-document-supplied"
+    },
+    {
+      "name": "fast-safe-stringify",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/fast-safe-stringify/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.1.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/fast-safe-stringify",
+          "version": "2.1.1",
+          "resolved": "https://registry.npmjs.org/fast-safe-stringify/-/fast-safe-stringify-2.1.1.tgz",
+          "integrity": "sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA=="
+        }
+      ],
+      "versions": [
+        "2.1.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "fast-xml-builder",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/fast-xml-builder/src/util.js",
+        "webpack://Redoc/./node_modules/fast-xml-builder/src/orderedJs2Xml.js",
+        "webpack://Redoc/./node_modules/fast-xml-builder/src/fxb.js",
+        "webpack://Redoc/./node_modules/fast-xml-builder/src/ignoreAttributes.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.2.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/fast-xml-builder",
+          "version": "1.2.0",
+          "resolved": "https://registry.npmjs.org/fast-xml-builder/-/fast-xml-builder-1.2.0.tgz",
+          "integrity": "sha512-00aAWieqff+ZJhsXA4g1g7M8k+7AYoMUUHF+/zFb5U6Uv/P0Vl4QZo84/IcufzYalLuEj9928bXN9PbbFzMF0Q==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.2.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "fast-xml-parser",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "5.8.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/fast-xml-parser",
+          "version": "5.8.0",
+          "resolved": "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-5.8.0.tgz",
+          "integrity": "sha512-6bIM7fsJxeo3uXv7OncQYsBAMPJ7V16Slahl/6M98C/i2q+vB1+4a0MtrvYwDFEUrwDSbAmeLDRXsOBwrL7yAg==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "5.8.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "foreach",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/foreach/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.0.5",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/foreach",
+          "version": "2.0.5",
+          "resolved": "https://registry.npmjs.org/foreach/-/foreach-2.0.5.tgz",
+          "integrity": "sha1-C+4AUBiusmDQo6865ljdATbsG5k="
+        }
+      ],
+      "versions": [
+        "2.0.5"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "hoist-non-react-statics",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "3.3.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/hoist-non-react-statics",
+          "version": "3.3.2",
+          "resolved": "https://registry.npmjs.org/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz",
+          "integrity": "sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw=="
+        }
+      ],
+      "versions": [
+        "3.3.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "js-yaml",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/js-yaml/index.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/common.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/dumper.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/exception.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/loader.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/schema.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/schema/core.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/schema/default.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/schema/failsafe.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/schema/json.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/snippet.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/binary.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/bool.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/float.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/int.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/map.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/merge.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/null.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/omap.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/pairs.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/seq.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/set.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/str.js",
+        "webpack://Redoc/./node_modules/js-yaml/lib/type/timestamp.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "4.3.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/js-yaml",
+          "version": "4.3.1",
+          "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.1.tgz",
+          "integrity": "sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "4.3.1"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "json-pointer",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/json-pointer/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.6.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/json-pointer",
+          "version": "0.6.2",
+          "resolved": "https://registry.npmjs.org/json-pointer/-/json-pointer-0.6.2.tgz",
+          "integrity": "sha512-vLWcKbOaXlO+jvRy4qNd+TI1QUPZzfJj1tpJ3vAXDych5XJf93ftpUKe5pKCrzyIIwgBJcOcCVRUfqQP25afBw=="
+        }
+      ],
+      "versions": [
+        "0.6.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "json-schema-traverse",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/ajv/node_modules/json-schema-traverse/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.0.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/ajv/node_modules/json-schema-traverse",
+          "version": "1.0.0",
+          "resolved": "https://registry.npmjs.org/json-schema-traverse/-/json-schema-traverse-1.0.0.tgz",
+          "integrity": "sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.0.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "lodash.noop",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/lodash.noop/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "3.0.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/lodash.noop",
+          "version": "3.0.1",
+          "resolved": "https://registry.npmjs.org/lodash.noop/-/lodash.noop-3.0.1.tgz",
+          "integrity": "sha1-OBiPTWUKOkdCWEObluxFsyYXEzw="
+        }
+      ],
+      "versions": [
+        "3.0.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "mark.js",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/mark.js/dist/mark.js"
+      ],
+      "notice_files": [
+        "redoc/mark.js-8.11.1.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "8.11.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Complete unmodified original package grant supplements named abbreviated publisher banner; candidate source comparison does not certify emitted closure",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/mark.js",
+          "version": "8.11.1",
+          "resolved": "https://registry.npmjs.org/mark.js/-/mark.js-8.11.1.tgz",
+          "integrity": "sha1-GA8fnr74sOY45BZq1S24eb6y/8U="
+        }
+      ],
+      "versions": [
+        "8.11.1"
+      ],
+      "notice_review_status": "original-package-notice-retained-for-banner-named-component",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "marked",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/marked/lib/marked.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "4.3.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/marked",
+          "version": "4.3.0",
+          "resolved": "https://registry.npmjs.org/marked/-/marked-4.3.0.tgz",
+          "integrity": "sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A=="
+        }
+      ],
+      "versions": [
+        "4.3.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "minimatch",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/node_modules/minimatch/lib/path.js",
+        "webpack://Redoc/./node_modules/@redocly/openapi-core/node_modules/minimatch/minimatch.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "5.1.9",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/@redocly/openapi-core/node_modules/minimatch",
+          "version": "5.1.9",
+          "resolved": "https://registry.npmjs.org/minimatch/-/minimatch-5.1.9.tgz",
+          "integrity": "sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==",
+          "license": "ISC"
+        }
+      ],
+      "versions": [
+        "5.1.9"
+      ],
+      "declared_license": "ISC",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "mobx",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/mobx/dist/mobx.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "6.10.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/mobx",
+          "version": "6.10.2",
+          "resolved": "https://registry.npmjs.org/mobx/-/mobx-6.10.2.tgz",
+          "integrity": "sha512-B1UGC3ieK3boCjnMEcZSwxqRDMdzX65H/8zOHbuTY8ZhvrIjTUoLRR2TP2bPqIgYRfb3+dUigu8yMZufNjn0LQ=="
+        }
+      ],
+      "versions": [
+        "6.10.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "mobx-react",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/mobx-react/dist/mobxreact.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "9.2.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/mobx-react",
+          "version": "9.2.0",
+          "resolved": "https://registry.npmjs.org/mobx-react/-/mobx-react-9.2.0.tgz",
+          "integrity": "sha512-dkGWCx+S0/1mfiuFfHRH8D9cplmwhxOV5CkXMp38u6rQGG2Pv3FWYztS0M7ncR6TyPRQKaTG/pnitInoYE9Vrw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "9.2.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "mobx-react-lite",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/utils/assertEnvironment.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/utils/observerBatching.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/utils/printDebugValue.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/utils/UniversalFinalizationRegistry.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/observer.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/utils/observerFinalizationRegistry.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/useObserver.js",
+        "webpack://Redoc/./node_modules/mobx-react-lite/es/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "4.1.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/mobx-react-lite",
+          "version": "4.1.0",
+          "resolved": "https://registry.npmjs.org/mobx-react-lite/-/mobx-react-lite-4.1.0.tgz",
+          "integrity": "sha512-QEP10dpHHBeQNv1pks3WnHRCem2Zp636lq54M2nKO2Sarr13pL4u6diQXf65yzXUn0mkk18SyIDCm9UOJYTi1w==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "4.1.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "oas-kit-common",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/oas-kit-common/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.0.8",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/oas-kit-common",
+          "version": "1.0.8",
+          "resolved": "https://registry.npmjs.org/oas-kit-common/-/oas-kit-common-1.0.8.tgz",
+          "integrity": "sha512-pJTS2+T0oGIwgjGpw7sIRU8RQMcUoKCDWFLdBqKB2BNmGpbBMH2sdqAaOXUg8OzonZHU0L7vfJu1mJFEiYDWOQ=="
+        }
+      ],
+      "versions": [
+        "1.0.8"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "oas-resolver",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/oas-resolver/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.5.6",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/oas-resolver",
+          "version": "2.5.6",
+          "resolved": "https://registry.npmjs.org/oas-resolver/-/oas-resolver-2.5.6.tgz",
+          "integrity": "sha512-Yx5PWQNZomfEhPPOphFbZKi9W93CocQj18NlD2Pa4GWZzdZpSJvYwoiuurRI7m3SpcChrnO08hkuQDL3FGsVFQ=="
+        }
+      ],
+      "versions": [
+        "2.5.6"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "oas-schema-walker",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/oas-schema-walker/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.1.5",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/oas-schema-walker",
+          "version": "1.1.5",
+          "resolved": "https://registry.npmjs.org/oas-schema-walker/-/oas-schema-walker-1.1.5.tgz",
+          "integrity": "sha512-2yucenq1a9YPmeNExoUa9Qwrt9RFkjqaMAA1X+U7sbb0AqBeTIdMHky9SQQ6iN94bO5NW0W4TRYXerG+BdAvAQ=="
+        }
+      ],
+      "versions": [
+        "1.1.5"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "openapi-sampler",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/openapi-sampler/src/utils.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/infer.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/traverse.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/allOf.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/number.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/string-regex.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/string.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/openapi-sampler.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/array.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/boolean.js",
+        "webpack://Redoc/./node_modules/openapi-sampler/src/samplers/object.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.7.4",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/openapi-sampler",
+          "version": "1.7.4",
+          "resolved": "https://registry.npmjs.org/openapi-sampler/-/openapi-sampler-1.7.4.tgz",
+          "integrity": "sha512-CKS/rd5ucPCuEDbJnjGDXZTsuGWcmv53aCmQx7soZlPEONUGN4af0/dY5+THRFZraSEjeA78nlfzdFswC/N5SA==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.7.4"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "path-browserify",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/path-browserify/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.0.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/path-browserify",
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/path-browserify/-/path-browserify-1.0.1.tgz",
+          "integrity": "sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g=="
+        }
+      ],
+      "versions": [
+        "1.0.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "path-expression-matcher",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/path-expression-matcher/src/Expression.js",
+        "webpack://Redoc/./node_modules/path-expression-matcher/src/Matcher.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.5.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/path-expression-matcher",
+          "version": "1.5.0",
+          "resolved": "https://registry.npmjs.org/path-expression-matcher/-/path-expression-matcher-1.5.0.tgz",
+          "integrity": "sha512-cbrerZV+6rvdQrrD+iGMcZFEiiSrbv9Tfdkvnusy6y0x0GKBXREFg/Y65GhIfm0tnLntThhzCnfKwp1WRjeCyQ==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.5.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "perfect-scrollbar",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
+        "webpack://Redoc/./node_modules/perfect-scrollbar/css/perfect-scrollbar.css?aae9",
+        "webpack://Redoc/./node_modules/perfect-scrollbar/dist/perfect-scrollbar.esm.js"
+      ],
+      "notice_files": [
+        "redoc/perfect-scrollbar-1.5.5.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.5.5",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Complete unmodified original package grant supplements named abbreviated publisher banner; candidate source comparison does not certify emitted closure",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/perfect-scrollbar",
+          "version": "1.5.5",
+          "resolved": "https://registry.npmjs.org/perfect-scrollbar/-/perfect-scrollbar-1.5.5.tgz",
+          "integrity": "sha512-dzalfutyP3e/FOpdlhVryN4AJ5XDVauVWxybSkLZmakFE2sS3y3pc4JnSprw8tGmHvkaG5Edr5T7LBTZ+WWU2g=="
+        }
+      ],
+      "versions": [
+        "1.5.5"
+      ],
+      "notice_review_status": "original-package-notice-retained-for-banner-named-component",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "pluralize",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/pluralize/pluralize.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "8.0.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/pluralize",
+          "version": "8.0.0",
+          "resolved": "https://registry.npmjs.org/pluralize/-/pluralize-8.0.0.tgz",
+          "integrity": "sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA=="
+        }
+      ],
+      "versions": [
+        "8.0.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "polished",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/polished/dist/polished.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "4.2.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/polished",
+          "version": "4.2.2",
+          "resolved": "https://registry.npmjs.org/polished/-/polished-4.2.2.tgz",
+          "integrity": "sha512-Sz2Lkdxz6F2Pgnpi9U5Ng/WdWAUZxmHrNPoVlm3aAemxoy2Qy7LGjQg4uf8qKelDAUW94F4np3iH2YPf2qefcQ=="
+        }
+      ],
+      "versions": [
+        "4.2.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "prismjs",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/prismjs/components/prism-bash.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-c.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-clike.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-coffeescript.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-cpp.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-csharp.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-csv.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-go.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-http.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-java.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-lua.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-markup-templating.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-markup.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-objectivec.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-perl.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-php.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-python.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-q.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-ruby.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-scala.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-sql.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-swift.js",
+        "webpack://Redoc/./node_modules/prismjs/components/prism-yaml.js",
+        "webpack://Redoc/./node_modules/prismjs/prism.js"
+      ],
+      "notice_files": [
+        "redoc/prismjs-1.30.0.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.30.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Complete unmodified original package grant supplements named abbreviated publisher banner; candidate source comparison does not certify emitted closure",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/prismjs",
+          "version": "1.30.0",
+          "resolved": "https://registry.npmjs.org/prismjs/-/prismjs-1.30.0.tgz",
+          "integrity": "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.30.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-retained-for-banner-named-component",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "prop-types",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/prop-types/factoryWithThrowingShims.js",
+        "webpack://Redoc/./node_modules/prop-types/index.js",
+        "webpack://Redoc/./node_modules/prop-types/lib/ReactPropTypesSecret.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "15.8.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/prop-types",
+          "version": "15.8.1",
+          "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+          "integrity": "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
+        }
+      ],
+      "versions": [
+        "15.8.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "react",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/react/cjs/react.production.min.js",
+        "webpack://Redoc/./node_modules/react/index.js"
+      ],
+      "notice_files": [
+        "swagger-ui-dist/react-18.3.1.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "18.3.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Exact original LICENSE bytes are already shipped in the combined API-doc notice bundle; shared association avoids duplicate terms files",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/react",
+          "version": "18.3.1",
+          "resolved": "https://registry.npmjs.org/react/-/react-18.3.1.tgz",
+          "integrity": "sha512-wS+hAgJShR0KhEvPJArfuPVN1+Hz1t0Y6n5jLrGQbkb4urgPE/0Rve+1kMB1v/oWgHgm4WIcV+i7F2pTVj+2iQ=="
+        }
+      ],
+      "versions": [
+        "18.3.1"
+      ],
+      "notice_review_status": "original-package-terms-already-in-combined-bundle",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "react-dom",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/react-dom/cjs/react-dom.production.min.js",
+        "webpack://Redoc/./node_modules/react-dom/client.js",
+        "webpack://Redoc/./node_modules/react-dom/index.js"
+      ],
+      "notice_files": [
+        "swagger-ui-dist/react-dom-18.3.1.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "18.3.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Exact original LICENSE bytes are already shipped in the combined API-doc notice bundle; shared association avoids duplicate terms files",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/react-dom",
+          "version": "18.3.1",
+          "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-18.3.1.tgz",
+          "integrity": "sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw=="
+        }
+      ],
+      "versions": [
+        "18.3.1"
+      ],
+      "notice_review_status": "original-package-terms-already-in-combined-bundle",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "react-is",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/hoist-non-react-statics/node_modules/react-is/cjs/react-is.production.min.js",
+        "webpack://Redoc/./node_modules/hoist-non-react-statics/node_modules/react-is/index.js",
+        "webpack://Redoc/./node_modules/react-is/cjs/react-is.production.min.js",
+        "webpack://Redoc/./node_modules/react-is/index.js"
+      ],
+      "notice_files": [
+        "swagger-ui-dist/react-18.3.1.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": null,
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Exact original LICENSE bytes are already shipped in the combined API-doc notice bundle; shared association avoids duplicate terms files",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/hoist-non-react-statics/node_modules/react-is",
+          "version": "16.13.1",
+          "resolved": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+          "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="
+        },
+        {
+          "path": "node_modules/react-is",
+          "version": "17.0.2",
+          "resolved": "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz",
+          "integrity": "sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w=="
+        }
+      ],
+      "versions": [
+        "16.13.1",
+        "17.0.2"
+      ],
+      "notice_review_status": "original-package-terms-already-in-combined-bundle",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "react-tabs",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/react-tabs/esm/helpers/elementTypes.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/helpers/childrenDeepMap.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/helpers/count.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/components/UncontrolledTabs.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/components/Tabs.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/components/TabList.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/components/Tab.js",
+        "webpack://Redoc/./node_modules/react-tabs/esm/components/TabPanel.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "6.0.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/react-tabs",
+          "version": "6.0.2",
+          "resolved": "https://registry.npmjs.org/react-tabs/-/react-tabs-6.0.2.tgz",
+          "integrity": "sha512-aQXTKolnM28k3KguGDBSAbJvcowOQr23A+CUJdzJtOSDOtTwzEaJA+1U4KwhNL9+Obe+jFS7geuvA7ICQPXOnQ=="
+        }
+      ],
+      "versions": [
+        "6.0.2"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "reftools",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/reftools/lib/clone.js",
+        "webpack://Redoc/./node_modules/reftools/lib/dereference.js",
+        "webpack://Redoc/./node_modules/reftools/lib/isref.js",
+        "webpack://Redoc/./node_modules/reftools/lib/jptr.js",
+        "webpack://Redoc/./node_modules/reftools/lib/recurse.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.1.9",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/reftools",
+          "version": "1.1.9",
+          "resolved": "https://registry.npmjs.org/reftools/-/reftools-1.1.9.tgz",
+          "integrity": "sha512-OVede/NQE13xBQ+ob5CKd5KyeJYU2YInb1bmV4nRoOfquZPkAkxuOXicSe1PvqIuZZ4kD13sPKBbR7UFDmli6w=="
+        }
+      ],
+      "versions": [
+        "1.1.9"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "scheduler",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/react-dom/node_modules/scheduler/cjs/scheduler.production.min.js",
+        "webpack://Redoc/./node_modules/react-dom/node_modules/scheduler/index.js"
+      ],
+      "notice_files": [
+        "swagger-ui-dist/scheduler-0.23.2.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.23.2",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Exact original LICENSE bytes are already shipped in the combined API-doc notice bundle; shared association avoids duplicate terms files",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/react-dom/node_modules/scheduler",
+          "version": "0.23.2",
+          "resolved": "https://registry.npmjs.org/scheduler/-/scheduler-0.23.2.tgz",
+          "integrity": "sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ=="
+        }
+      ],
+      "versions": [
+        "0.23.2"
+      ],
+      "notice_review_status": "original-package-terms-already-in-combined-bundle",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "shallowequal",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/shallowequal/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.1.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/shallowequal",
+          "version": "1.1.0",
+          "resolved": "https://registry.npmjs.org/shallowequal/-/shallowequal-1.1.0.tgz",
+          "integrity": "sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ=="
+        }
+      ],
+      "versions": [
+        "1.1.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "slugify",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/slugify/slugify.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.4.7",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/slugify",
+          "version": "1.4.7",
+          "resolved": "https://registry.npmjs.org/slugify/-/slugify-1.4.7.tgz",
+          "integrity": "sha512-tf+h5W1IrjNm/9rKKj0JU2MDMruiopx0jjVA5zCdBtcGjfp0+c5rHw/zADLC3IeKlGHtVbHtpfzvYA0OYT+HKg=="
+        }
+      ],
+      "versions": [
+        "1.4.7"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "stickyfill",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/stickyfill/index.js"
+      ],
+      "notice_files": [
+        "redoc/stickyfill-1.1.1.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.1.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Complete unmodified original package grant supplements named abbreviated publisher banner; candidate source comparison does not certify emitted closure",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/stickyfill",
+          "version": "1.1.1",
+          "resolved": "https://registry.npmjs.org/stickyfill/-/stickyfill-1.1.1.tgz",
+          "integrity": "sha1-OUE/7p0CXHSn5ZzuyyN4TMDxfwI="
+        }
+      ],
+      "versions": [
+        "1.1.1"
+      ],
+      "notice_review_status": "original-package-notice-retained-for-banner-named-component",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "style-loader",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js",
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/insertBySelector.js",
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/insertStyleElement.js",
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js",
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/styleDomAPI.js",
+        "webpack://Redoc/./node_modules/style-loader/dist/runtime/styleTagTransform.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "3.3.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/style-loader",
+          "version": "3.3.1",
+          "resolved": "https://registry.npmjs.org/style-loader/-/style-loader-3.3.1.tgz",
+          "integrity": "sha512-GPcQ+LDJbrcxHORTRes6Jy2sfvK2kS6hpSfI/fXhPt+spVzxF6LJ1dHLN9zIGmVaaP044YKaIatFaufENRiDoQ=="
+        }
+      ],
+      "versions": [
+        "3.3.1"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "styled-components",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/styled-components/dist/styled-components.browser.esm.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "5.3.11",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/styled-components",
+          "version": "5.3.11",
+          "resolved": "https://registry.npmjs.org/styled-components/-/styled-components-5.3.11.tgz",
+          "integrity": "sha512-uuzIIfnVkagcVHv9nE0VPlHPSCmXIUGKfJ42LNjxCCTDTL5sgnJ8Z7GZBq0EnLYGln77tPpEpExt2+qa+cZqSw=="
+        }
+      ],
+      "versions": [
+        "5.3.11"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "swagger2openapi",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/swagger2openapi/index.js",
+        "webpack://Redoc/./node_modules/swagger2openapi/lib/statusCodes.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "7.0.8",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/swagger2openapi",
+          "version": "7.0.8",
+          "resolved": "https://registry.npmjs.org/swagger2openapi/-/swagger2openapi-7.0.8.tgz",
+          "integrity": "sha512-upi/0ZGkYgEcLeGieoz8gT74oWHA0E7JivX7aN9mAf+Tc7BQoRBvnIGHoPDw+f9TXTW4s6kGYCZJtauP6OYp7g=="
+        }
+      ],
+      "versions": [
+        "7.0.8"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "unfetch",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/unfetch/polyfill/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "4.2.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/unfetch",
+          "version": "4.2.0",
+          "resolved": "https://registry.npmjs.org/unfetch/-/unfetch-4.2.0.tgz",
+          "integrity": "sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA=="
+        }
+      ],
+      "versions": [
+        "4.2.0"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "uri-js-replace",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/uri-js-replace/dist/Parse.js",
+        "webpack://Redoc/./node_modules/uri-js-replace/dist/Resolve.js",
+        "webpack://Redoc/./node_modules/uri-js-replace/dist/Serialize.js",
+        "webpack://Redoc/./node_modules/uri-js-replace/dist/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.0.1",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/uri-js-replace",
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/uri-js-replace/-/uri-js-replace-1.0.1.tgz",
+          "integrity": "sha512-W+C9NWNLFOoBI2QWDp4UT9pv65r2w5Cx+3sTYFvtMdDBxkKt1syCqsUdSFAChbEe1uK5TfS04wt/nGwmaeIQ0g==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.0.1"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "url-template",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/url-template/lib/url-template.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "2.0.8",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/url-template",
+          "version": "2.0.8",
+          "resolved": "https://registry.npmjs.org/url-template/-/url-template-2.0.8.tgz",
+          "integrity": "sha512-XdVKMF4SJ0nP/O7XIPB0JwAEuT9lDIYnNsK8yGVe43y0AWoKeJNdv3ZNWh7ksJ6KqQFjOO6ox/VEitLnaVNufw=="
+        }
+      ],
+      "versions": [
+        "2.0.8"
+      ],
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "use-sync-external-store",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/use-sync-external-store/cjs/use-sync-external-store-shim.production.js",
+        "webpack://Redoc/./node_modules/use-sync-external-store/shim/index.js"
+      ],
+      "notice_files": [
+        "swagger-ui-dist/use-sync-external-store-1.4.0.LICENSE",
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "1.5.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Exact original LICENSE bytes are already shipped in the combined API-doc notice bundle; shared association avoids duplicate terms files",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/use-sync-external-store",
+          "version": "1.5.0",
+          "resolved": "https://registry.npmjs.org/use-sync-external-store/-/use-sync-external-store-1.5.0.tgz",
+          "integrity": "sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "1.5.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-terms-already-in-combined-bundle",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    },
+    {
+      "name": "xml-naming",
+      "source_paths": [
+        "webpack://Redoc/./node_modules/xml-naming/src/index.js"
+      ],
+      "notice_files": [
+        "redoc/redoc.standalone.js.LICENSE.txt"
+      ],
+      "version": "0.1.0",
+      "version_evidence": "Candidate publisher-lock node by source-map path; not independent verification of emitted component/version",
+      "notice_association": "Retained upstream extracted bundle notices; package labels alone do not establish complete terms",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/xml-naming",
+          "version": "0.1.0",
+          "resolved": "https://registry.npmjs.org/xml-naming/-/xml-naming-0.1.0.tgz",
+          "integrity": "sha512-k8KO9hrMyNk6tUWqUfkTEZbezRRpONVOzUTnc97VnCvyj6Tf9lyUR9EDAIeiVLv56jsMcoXEwjW8Kv5yPY52lw==",
+          "license": "MIT"
+        }
+      ],
+      "versions": [
+        "0.1.0"
+      ],
+      "declared_license": "MIT",
+      "notice_review_status": "original-package-notice-reconciliation-required"
+    },
+    {
+      "name": "lunr",
+      "source_paths": [],
+      "published_worker_source_paths": [
+        "webpack://Redoc/./node_modules/lunr/lunr.js"
+      ],
+      "version": "2.3.9",
+      "versions": [
+        "2.3.9"
+      ],
+      "declared_license": "MIT",
+      "resolved_build_nodes": [
+        {
+          "path": "node_modules/lunr",
+          "version": "2.3.9",
+          "resolved": "https://registry.npmjs.org/lunr/-/lunr-2.3.9.tgz",
+          "integrity": "sha512-zTU3DaZaF3Rt9rhN3uBMGQD3dD2/vFQqnvZCDv4dl5iOzq2IZQqTxu90r4E5J+nP70J3ilqVCrbho2eWaeW8Ow=="
+        }
+      ],
+      "version_evidence": "Actual embedded worker version literal and extracted worker banner both state2.3.9; whole worker-literal bytes are pinned separately. Archive-to-transformed-module reconstruction and full emitted closure remain unqualified.",
+      "emitted_evidence": {
+        "runtime_literal": ".version=\"2.3.9\"",
+        "runtime_bundle_sha256": "d548603ac193fe10186a1bea1e0479e0a3541ded2bb76a677c3f00102895e033",
+        "publisher_worker_banner": "redoc/d87bcbdbea8f8f5aa26f.worker.js.LICENSE.txt",
+        "embedded_worker_blob_sha256": "2dd6e26aa4deb2cb9c06faeef3d0b37178de1d987f5ecd224da0030e55c86229",
+        "embedded_worker_blob_bytes": 31605,
+        "publisher_worker_map_sha256": "a969f7c095772d224788022d81db5aa0d459bdfb22f3f50a6c5ffe0de21c4160"
+      },
+      "notice_files": [
+        "redoc/lunr-2.3.9.LICENSE",
+        "redoc/d87bcbdbea8f8f5aa26f.worker.js.LICENSE.txt"
+      ],
+      "notice_association": "Complete unmodified original package grant supplements named abbreviated publisher banner; candidate source comparison does not certify emitted closure",
+      "notice_review_status": "original-package-notice-retained-for-banner-named-component",
+      "notice_supplement_provenance": "redoc/banner-notice-provenance.json"
+    }
+  ],
+  "publisher_gitHead": "7a9ec49624529bd882eba29847343f2f916d923a",
+  "build_lock": {
+    "source": "https://raw.githubusercontent.com/Redocly/redoc/7a9ec49624529bd882eba29847343f2f916d923a/package-lock.json",
+    "sha256": "f4e41904aae4ae76e5a6a7b97ac3385ea7567e612cbd1dd01560be704e80d31b",
+    "lockfileVersion": 2
+  },
+  "worker_source_map": {
+    "archive_member": "package/bundles/d87bcbdbea8f8f5aa26f.worker.js.map",
+    "sha256": "a969f7c095772d224788022d81db5aa0d459bdfb22f3f50a6c5ffe0de21c4160",
+    "source_count": 6,
+    "correspondence": "Unqualified additional map input, not generated-coordinate or emitted-closure proof",
+    "embedded_blob": {
+      "container": "static/api-docs/redoc.standalone.js",
+      "upstream_container_sha256": "dcaf76612bc4a3fbcc923a8966dee2f6146a5f32e5ce1b6f02dd60cbbf89500b",
+      "shipped_container_sha256": "d548603ac193fe10186a1bea1e0479e0a3541ded2bb76a677c3f00102895e033",
+      "decoded_blob_bytes": 31605,
+      "decoded_blob_sha256": "2dd6e26aa4deb2cb9c06faeef3d0b37178de1d987f5ecd224da0030e55c86229",
+      "encoded_literal_bytes": 31645,
+      "literal_spans": {
+        "upstream": {
+          "start_byte": 262387,
+          "end_byte": 294032,
+          "literal_sha256": "3a32f99257c4228a5b565fccaae32887d0e76100d2195051c2044572115196fd"
+        },
+        "shipped": {
+          "start_byte": 262387,
+          "end_byte": 294032,
+          "literal_sha256": "3a32f99257c4228a5b565fccaae32887d0e76100d2195051c2044572115196fd"
+        }
+      },
+      "method": "JSON-decode publisher loader source content, then prove its entire canonical ASCII single-quoted literal occurs byte-exactly once as actual new Blob input in each original/shipped container; no JS evaluation",
+      "source_to_emitted_module_closure_certified": false
+    },
+    "coordinate_bounds_status": "coordinates-in-bounds-only; not correspondence certification"
+  }
+}

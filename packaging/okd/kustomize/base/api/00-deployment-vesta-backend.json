@@ -1,0 +1,321 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "vesta-backend",
+    "namespace": "vesta",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "strategy": {
+      "type": "Recreate"
+    },
+    "selector": {
+      "matchLabels": {
+        "app": "vesta-backend"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "vesta-backend",
+          "app.kubernetes.io/part-of": "vesta"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "securityContext": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "backend",
+            "image": "registry.invalid/vesta/backend@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "imagePullPolicy": "IfNotPresent",
+            "resources": {
+              "requests": {
+                "cpu": "250m",
+                "memory": "512Mi"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi"
+              }
+            },
+            "securityContext": {
+              "runAsNonRoot": true,
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp",
+                "readOnly": false
+              },
+              {
+                "name": "tls",
+                "mountPath": "/tls",
+                "readOnly": true
+              },
+              {
+                "name": "trust",
+                "mountPath": "/trust",
+                "readOnly": true
+              },
+              {
+                "name": "admin",
+                "mountPath": "/admin",
+                "readOnly": true
+              }
+            ],
+            "ports": [
+              {
+                "name": "https",
+                "containerPort": 8000
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8000,
+                "scheme": "HTTPS"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/ready",
+                "port": 8000,
+                "scheme": "HTTPS"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "env": [
+              {
+                "name": "VESTA_EDITION",
+                "value": "community"
+              },
+              {
+                "name": "VNBUI_EDITION",
+                "value": "$(VESTA_EDITION)"
+              },
+              {
+                "name": "VESTA_AUTH_MODE",
+                "value": "single_organization"
+              },
+              {
+                "name": "VNBUI_AUTH_MODE",
+                "value": "$(VESTA_AUTH_MODE)"
+              },
+              {
+                "name": "VESTA_ENABLED_MODULES",
+                "value": "[]"
+              },
+              {
+                "name": "VNBUI_ENABLED_MODULES",
+                "value": "$(VESTA_ENABLED_MODULES)"
+              },
+              {
+                "name": "DATABASE_URL",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-db-runtime",
+                    "key": "DATABASE_URL"
+                  }
+                }
+              },
+              {
+                "name": "JWT_SECRET",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-application",
+                    "key": "JWT_SECRET"
+                  }
+                }
+              },
+              {
+                "name": "VESTA_ENCRYPTION_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-application",
+                    "key": "VESTA_ENCRYPTION_KEY"
+                  }
+                }
+              },
+              {
+                "name": "VNBUI_ENCRYPTION_KEY",
+                "value": "$(VESTA_ENCRYPTION_KEY)"
+              },
+              {
+                "name": "ORCHESTRATOR_TO_AGENT_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-application",
+                    "key": "ORCHESTRATOR_TO_AGENT_KEY"
+                  }
+                }
+              },
+              {
+                "name": "ENVIRONMENT",
+                "value": "production"
+              },
+              {
+                "name": "PYTHONDONTWRITEBYTECODE",
+                "value": "1"
+              },
+              {
+                "name": "USE_REAL_BACKUP_EXECUTOR",
+                "value": "true"
+              },
+              {
+                "name": "AGENT_TLS_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "AGENT_VERIFY_SSL",
+                "value": "true"
+              },
+              {
+                "name": "ENABLE_ENCRYPTION",
+                "value": "true"
+              },
+              {
+                "name": "REQUIRE_MTLS",
+                "value": "false"
+              },
+              {
+                "name": "ALLOWED_ORIGINS",
+                "value": "https://vesta.example.org"
+              },
+              {
+                "name": "INITIAL_ADMIN_USERNAME",
+                "value": "installation-admin"
+              },
+              {
+                "name": "INITIAL_ADMIN_PASSWORD_FILE",
+                "value": "/admin/password"
+              },
+              {
+                "name": "BACKEND_TLS_CERT_FILE",
+                "value": "/tls/tls.crt"
+              },
+              {
+                "name": "BACKEND_TLS_KEY_FILE",
+                "value": "/tls/tls.key"
+              },
+              {
+                "name": "AGENT_CA_CERT",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "AGENT_KEY_ROTATION_TTL_HOURS",
+                "value": "24"
+              },
+              {
+                "name": "OPERATION_TIME_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_NO_PROGRESS_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_OBSERVATION_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_SCRATCH_COEFFICIENT",
+                "value": "1.2"
+              },
+              {
+                "name": "OPERATION_BOOTSTRAP_BYTES_PER_SECOND",
+                "value": "8388608"
+              },
+              {
+                "name": "OPERATION_PREPARATION_ESTIMATE_SECONDS",
+                "value": "180"
+              },
+              {
+                "name": "OPERATION_CONTROL_ESTIMATE_SECONDS",
+                "value": "60"
+              },
+              {
+                "name": "METRICS_ENABLED",
+                "value": "false"
+              },
+              {
+                "name": "STORAGE_CAPABILITY_PROFILE",
+                "value": "db-rooted-consumer-verified/1"
+              },
+              {
+                "name": "KUBEVIRT_TRANSFER_PROFILE",
+                "value": "kubevirt-32m/1"
+              },
+              {
+                "name": "AWS_CA_BUNDLE",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "SSL_CERT_FILE",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "PGSSLMODE",
+                "value": "verify-full"
+              },
+              {
+                "name": "PGSSLROOTCERT",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "KUBEVIRT_RESOURCE_PREFIX",
+                "value": "vesta"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {}
+          },
+          {
+            "name": "tls",
+            "secret": {
+              "secretName": "vesta-backend-tls",
+              "defaultMode": 288
+            }
+          },
+          {
+            "name": "trust",
+            "secret": {
+              "secretName": "vesta-trust",
+              "defaultMode": 288
+            }
+          },
+          {
+            "name": "admin",
+            "secret": {
+              "secretName": "vesta-initial-admin",
+              "defaultMode": 288
+            }
+          }
+        ]
+      }
+    }
+  }
+}

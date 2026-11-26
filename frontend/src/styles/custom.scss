@@ -1,0 +1,519 @@
+// Import variables
+@import 'variables';
+
+// Custom utility classes
+.vnbui-status {
+  &-running {
+    color: $info;
+  }
+
+  &-completed {
+    color: $success;
+  }
+
+  &-failed {
+    color: $danger;
+  }
+
+  &-pending {
+    color: $warning;
+  }
+}
+
+// Component overrides
+.card {
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Backup progress bar
+.backup-progress {
+  position: relative;
+
+  .progress-bar {
+    transition: width 0.6s ease;
+  }
+
+  .progress-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #fff;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+// Loading states
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+  border-radius: $border-radius;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Empty states
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+
+  svg {
+    width: 120px;
+    height: 120px;
+    opacity: 0.3;
+    margin-bottom: 1rem;
+  }
+
+  .empty-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-subtitle {
+    color: $text-secondary;
+  }
+}
+
+// Data table improvements
+.table-responsive {
+  // Allow dropdowns to overflow outside the table container
+  overflow: visible !important;
+
+  .table {
+    th {
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  // Ensure dropdown menus display properly
+  .dropdown-menu {
+    position: absolute;
+    z-index: 1050;
+  }
+}
+
+// Badge enhancements - fix visibility
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+
+  // Ensure white text on all colored badges
+  &.bg-success,
+  &.bg-primary,
+  &.bg-danger,
+  &.bg-warning,
+  &.bg-info {
+    color: #fff !important;
+  }
+
+  // Secondary badges
+  &.bg-secondary {
+    background-color: #6c757d !important;
+    color: #fff !important;
+  }
+}
+
+// Status badges - ensure visibility
+.badge.bg-success {
+  background-color: var(--tblr-success) !important;
+  color: var(--tblr-success-fg) !important;
+}
+
+.badge.bg-primary {
+  background-color: var(--tblr-primary) !important;
+  color: var(--tblr-primary-fg) !important;
+}
+
+.badge.bg-danger {
+  background-color: var(--tblr-danger) !important;
+  color: var(--tblr-danger-fg) !important;
+}
+
+.badge.bg-warning {
+  background-color: var(--tblr-warning) !important;
+  color: var(--tblr-warning-fg) !important;
+}
+
+.badge.bg-info {
+  background-color: $info !important;
+  color: #fff !important;
+}
+
+// Modal improvements
+.modal-content {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+// Form improvements
+.form-control:focus {
+  border-color: $primary;
+  box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+}
+
+// Navbar improvements
+.navbar {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+// Page header improvements
+.page-header {
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+// Layout: widen container for large monitors (Tabler default 1320px wastes space)
+.page-wrapper .container-xl {
+  max-width: 1680px;
+}
+
+// Layout: page fills viewport (prevents blank gap at bottom)
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-body {
+  flex: 1;
+}
+
+// Sidebar: visible active state (Tabler only changes text opacity — too subtle)
+.navbar-vertical .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: $border-radius;
+}
+
+// Sort indicators for data tables (shared, not per-page inline styles)
+th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  &.sorting-asc::after {
+    content: ' \25B2';
+    font-size: 0.7em;
+  }
+
+  &.sorting-desc::after {
+    content: ' \25BC';
+    font-size: 0.7em;
+  }
+}
+
+// Settings page: constrain form cards on wide screens
+// Applied only to form-based tabs; encryption/certificates/api tabs have
+// tables that need full width and are intentionally excluded here.
+#settings-general,
+#settings-backup,
+#settings-storage,
+#settings-notifications,
+#settings-security {
+  .card {
+    max-width: 860px;
+  }
+}
+
+// Responsive utilities
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+// RTL support
+[dir="rtl"] {
+  // ── Sidebar: flip to right side ──
+  // Tabler positions .navbar-vertical on the left via left/border-right.
+  // Mirror it for RTL.
+  @media (min-width: 992px) {
+    .navbar-vertical {
+      left: auto;
+      right: 0;
+      border-right: none;
+      border-left: var(--tblr-navbar-border-width, 1px) solid var(--tblr-navbar-border-color, rgba(98, 105, 118, 0.16));
+    }
+
+    // Page wrapper margin: Tabler sets margin-left for the sidebar width.
+    // Flip to margin-right.
+    .navbar-vertical ~ .page-wrapper {
+      margin-left: 0;
+      margin-right: 15rem; // Tabler sidebar width
+    }
+  }
+
+  // Sidebar nav alignment
+  .navbar-nav .nav-link {
+    text-align: right;
+  }
+
+  // Fix icon spacing (swap margin-right → margin-left)
+  .nav-link-icon + .nav-link-title,
+  .ti + span,
+  .icon + span {
+    margin-right: 0;
+    margin-left: 0;
+    margin-inline-start: 0.5rem;
+  }
+
+  // ── Content area padding ──
+  .page-body .container-xl {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  // Toast positioning
+  .toast-container {
+    right: auto;
+    left: 1rem;
+  }
+
+  // Dropdown alignment
+  .dropdown-menu {
+    text-align: right;
+  }
+
+  // Dropdown positioned at end: flip for RTL
+  .dropdown-menu-end {
+    --bs-position: ;
+    right: auto;
+    left: 0;
+  }
+
+  // Table text alignment
+  .table th,
+  .table td {
+    text-align: right;
+  }
+
+  // Badge spacing inside buttons
+  .btn .badge {
+    margin-left: 0;
+    margin-right: 0.25rem;
+  }
+
+  // Form label alignment
+  .form-label {
+    text-align: right;
+  }
+
+  // Input group (prepend/append icons)
+  .input-group > :not(:first-child) {
+    border-top-left-radius: var(--tblr-border-radius);
+    border-bottom-left-radius: var(--tblr-border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  .input-group > :not(:last-child) {
+    border-top-right-radius: var(--tblr-border-radius);
+    border-bottom-right-radius: var(--tblr-border-radius);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  // Page header
+  .page-header {
+    text-align: right;
+  }
+
+  // Close button position in modals
+  .btn-close {
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  // Progress label centering (already centered, but ensure)
+  .backup-progress .progress-label {
+    direction: ltr; // Keep numbers LTR
+  }
+
+  // Pagination
+  .pagination {
+    direction: ltr; // Keep page numbers in natural order
+  }
+
+  // Skeleton loading animation direction
+  .skeleton {
+    background: linear-gradient(270deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  }
+
+  // ── Card actions / button groups ──
+  .card-actions {
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+
+// Logical spacing shared by both writing directions. Keep dropdown item gaps.
+.btn:not(.btn-icon) { gap: .5rem; }
+.btn > .icon, .btn > .ti { margin-inline: 0 !important; }
+.dropdown-item { gap: .5rem; }
+.dropdown-item > .dropdown-item-icon { margin-inline: 0; }
+[dir="rtl"] .form-select {
+  background-position: left .75rem center;
+  padding-right: .75rem;
+  padding-left: 2.25rem;
+}
+.verification-actions { display: flex; gap: .75rem; align-items: center; }
+.verification-actions .form-select { min-width: 0; flex: 1; max-width: 32rem; }
+.verification-actions .btn { flex-shrink: 0; }
+@media (max-width: 575.98px) {
+  .verification-actions { flex-direction: column; align-items: stretch; }
+  .verification-actions .form-select { max-width: none; }
+}
+.dashboard-chart-layout { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5rem; }
+.dashboard-chart-canvas { position: relative; width: 11rem; height: 11rem; flex-shrink: 0; }
+.dashboard-chart-legend { flex: 1; min-inline-size: 9rem; max-inline-size: 15rem; align-self: center; inline-size: 100%; }
+.dashboard-chart-swatch { display: inline-block; width: .75rem; height: .75rem; border-radius: 50%; margin-inline-end: .5rem; }
+@media (max-width: 767.98px) {
+  .dashboard-chart-layout { flex-direction: column; align-items: stretch; }
+  .dashboard-chart-canvas { align-self: center; }
+}
+
+[data-density="compact"] .card-body { --tblr-card-spacer-y: .75rem; }
+[data-density="compact"] .table > :not(caption) > * > * { padding-block: .5rem; }
+
+// Bootstrap's distributed LTR utilities use physical sides. Preserve paired
+// start/end classes while making their effective sides follow document dir.
+@each $step, $space in (0: 0, 1: .25rem, 2: .5rem, 3: 1rem, 4: 1.5rem, 5: 3rem) {
+  .ms-#{$step} { margin-inline-start: $space !important; }
+  .me-#{$step} { margin-inline-end: $space !important; }
+  .ps-#{$step} { padding-inline-start: $space !important; }
+  .pe-#{$step} { padding-inline-end: $space !important; }
+  [dir="rtl"] {
+    .ms-#{$step}:not([class*="me-"]) { margin-left: 0 !important; }
+    .me-#{$step}:not([class*="ms-"]) { margin-right: 0 !important; }
+    .ps-#{$step}:not([class*="pe-"]) { padding-left: 0 !important; }
+    .pe-#{$step}:not([class*="ps-"]) { padding-right: 0 !important; }
+  }
+}
+.ms-auto { margin-inline-start: auto !important; }
+.me-auto { margin-inline-end: auto !important; }
+[dir="rtl"] .ms-auto:not([class*="me-"]) { margin-left: 0 !important; }
+[dir="rtl"] .me-auto:not([class*="ms-"]) { margin-right: 0 !important; }
+
+.navbar-vertical .navbar-brand { min-inline-size: 0; max-inline-size: 100%; }
+.navbar-vertical .navbar-brand a { display: flex; align-items: center; gap: .5rem; min-inline-size: 0; white-space: normal; }
+.navbar-vertical .navbar-brand-image { flex-shrink: 0; }
+.navbar-vertical .brand-name { min-inline-size: 0; overflow-wrap: anywhere; }
+@media (max-width: 991.98px) {
+  .navbar-vertical .navbar-brand { flex: 1; justify-content: center; }
+}
+
+@media (max-width: 991.98px) {
+  // Preserve the page width; long tables scroll within their cards. Dynamic
+  // dropdowns use fixed Popper positioning to escape the scroll container.
+  .table-responsive { overflow-x: auto !important; max-inline-size: 100%; }
+}
+
+// A single perimeter avoids Tabler's physical left/right flat-group assumptions.
+.search-control {
+  inline-size: 15rem;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  flex-wrap: nowrap;
+  border: var(--tblr-border-width, 1px) solid var(--tblr-border-color);
+  border-radius: var(--tblr-border-radius);
+  background: var(--tblr-bg-forms, var(--tblr-bg-surface));
+  &:focus-within { border-color: var(--tblr-primary); box-shadow: 0 0 0 .25rem rgba(var(--tblr-primary-rgb), .15); }
+  > .form-control, > .input-group-text {
+    border: 0;
+    border-radius: inherit !important;
+    background: transparent;
+    margin: 0;
+    padding-block: .4375rem;
+    padding-inline: .75rem;
+    min-block-size: 2.25rem;
+    box-shadow: none;
+  }
+  > .form-control { min-inline-size: 0; padding-inline-end: .25rem; }
+  > .input-group-text { padding-inline-start: .5rem; flex: 0 0 2.5rem; justify-content: center; }
+  .icon { inline-size: 1.25rem; block-size: 1.25rem; font-size: 1.25rem; }
+}
+.card-header:has(.search-control) { flex-wrap: wrap; gap: .75rem; }
+.inventory-filters { max-inline-size: 100%; min-inline-size: 0; }
+.inventory-filters > .form-select { max-inline-size: 100%; }
+.disk-summary { overflow-wrap: anywhere; max-inline-size: 18rem; }
+.context-help {
+  position: relative; display: inline-block; margin-inline-start: .35rem; vertical-align: middle;
+  > summary { cursor: pointer; list-style: none; display: inline-flex; color: var(--tblr-secondary); border-radius: .25rem; }
+  > summary::-webkit-details-marker { display: none; }
+  > summary:focus-visible { outline: 2px solid var(--tblr-primary); outline-offset: 2px; }
+  .context-help-copy { display: none; position: absolute; inset-inline-end: 0; inset-block-start: 100%; z-index: 1080; inline-size: 18rem; max-inline-size: 75vw; white-space: normal; font-size: .875rem; font-weight: normal; line-height: 1.5; padding: .75rem; border: 1px solid var(--tblr-border-color); border-radius: var(--tblr-border-radius); background: var(--tblr-bg-surface); color: var(--tblr-body-color); box-shadow: var(--tblr-box-shadow); }
+  &[open] .context-help-copy, &:hover .context-help-copy, &:focus-within .context-help-copy { display: block; }
+}
+@media (max-width: 575.98px) {
+  .card-header:has(.search-control) > .ms-auto { margin-inline-start: 0 !important; inline-size: 100%; }
+  .search-control { flex: 1 1 12rem; inline-size: 100%; }
+  .btn-group:has([name="backup-filter"]) { flex-wrap: wrap; }
+}
+
+.context-help.context-help-dismissed .context-help-copy { display: none; }
+
+// Tabler owns dark surfaces/forms/tables; these custom effects follow its tokens.
+[data-bs-theme="dark"] .skeleton { background: linear-gradient(90deg, var(--tblr-bg-surface) 25%, var(--tblr-bg-surface-secondary) 50%, var(--tblr-bg-surface) 75%); background-size: 200% 100%; }
+[data-bs-theme="dark"] ::-webkit-scrollbar-track { background: var(--tblr-bg-surface); }
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--tblr-border-color); }
+.navbar-brand-image { filter: none !important; }
+.theme-toggle { flex-shrink: 0; }

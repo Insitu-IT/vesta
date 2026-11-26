@@ -1,0 +1,25 @@
+{
+  "apiVersion": "route.openshift.io/v1",
+  "kind": "Route",
+  "metadata": {
+    "name": "vesta-backend",
+    "namespace": "vesta",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "spec": {
+    "host": "vesta-api.example.org",
+    "to": {
+      "kind": "Service",
+      "name": "vesta-backend"
+    },
+    "port": {
+      "targetPort": "https"
+    },
+    "tls": {
+      "termination": "passthrough",
+      "insecureEdgeTerminationPolicy": "Redirect"
+    }
+  }
+}

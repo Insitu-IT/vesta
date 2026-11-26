@@ -1,0 +1,834 @@
+[
+  {
+    "name": "valid_incremental_binding",
+    "accepted": true,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_backup_id_1",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_root_backup_id_2",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "not-uuid",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_generation_id_3",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "newer",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_receipt_sha256_4",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_tracker_uid_5",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "../tracker",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_checkpoint_6",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": ""
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_backup_id_7",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "33333333-3333-4333-8333-333333333333",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "checkpoint-current"
+        }
+      }
+    ]
+  },
+  {
+    "name": "incremental_parent_checkpoint_8",
+    "accepted": false,
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      },
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "66666666-6666-4666-8666-666666666666",
+          "root_backup_id": "66666666-6666-4666-8666-666666666666",
+          "generation_id": "77777777-7777-4777-8777-777777777777",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tracker_uid": "tracker-original",
+          "checkpoint": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      }
+    ]
+  },
+  {
+    "name": "foreign_agent",
+    "changes": [
+      {
+        "path": "agent_id",
+        "value": "66666666-6666-4666-8666-666666666666"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "foreign_org_key_binding",
+    "changes": [
+      {
+        "path": "org_id",
+        "value": "66666666-6666-4666-8666-666666666666"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "foreign_backup_key_binding",
+    "changes": [
+      {
+        "path": "backup_id",
+        "value": "66666666-6666-4666-8666-666666666666"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "reservation_attempt_binding",
+    "changes": [
+      {
+        "path": "reservation_id",
+        "value": "66666666-6666-4666-8666-666666666666"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "invalid_uuid",
+    "changes": [
+      {
+        "path": "org_id",
+        "value": "not-a-uuid"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "empty_vm_uid",
+    "changes": [
+      {
+        "path": "plan.source.vm_uid",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "uid_path",
+    "changes": [
+      {
+        "path": "plan.source.vm_uid",
+        "value": "../uid"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "empty_vmi",
+    "changes": [
+      {
+        "path": "plan.source.vmi_uid",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "empty_namespace",
+    "changes": [
+      {
+        "path": "plan.source.namespace",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "namespace_long",
+    "changes": [
+      {
+        "path": "plan.source.namespace",
+        "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "vm_name_path",
+    "changes": [
+      {
+        "path": "plan.vm_name",
+        "value": "../vm"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "credential_ref",
+    "changes": [
+      {
+        "path": "plan.credential_ref",
+        "value": "foreign/secret"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "checksum",
+    "changes": [
+      {
+        "path": "plan.checksum_policy",
+        "value": "etag"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "http",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "http://store.invalid"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "url_user",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://user:secret@store.invalid"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "url_path",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid/path"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "url_query",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid?key=x"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "url_fragment",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid#x"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "port_zero",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid:0"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "port_large",
+    "changes": [
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid:65536"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "bucket_path",
+    "changes": [
+      {
+        "path": "plan.target.bucket",
+        "value": "other/bucket"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "bucket_empty",
+    "changes": [
+      {
+        "path": "plan.target.bucket",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "prefix_parent",
+    "changes": [
+      {
+        "path": "plan.target.configuration_prefix",
+        "value": "../other"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "prefix_absolute",
+    "changes": [
+      {
+        "path": "plan.target.configuration_prefix",
+        "value": "/other"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "prefix_control",
+    "changes": [
+      {
+        "path": "plan.target.configuration_prefix",
+        "value": "abc\n"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "empty_volumes",
+    "changes": [
+      {
+        "path": "plan.source.volumes",
+        "value": []
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "capacity_zero",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.capacity_bytes",
+        "value": 0
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "capacity_negative",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.capacity_bytes",
+        "value": -1
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "rv_empty",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.pvc_resource_version",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "rv_malformed",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.pvc_resource_version",
+        "value": "-1"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "mapping_foreign",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.mapping.disk_name",
+        "value": "other"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "mapping_device",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.mapping.device",
+        "value": "cdrom"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "mapping_bus",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.mapping.bus",
+        "value": "unknown"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "serial_empty",
+    "changes": [
+      {
+        "path": "plan.source.volumes.0.mapping.serial",
+        "value": ""
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "exclusion_selected",
+    "changes": [
+      {
+        "path": "plan.exclusions",
+        "value": [
+          "data"
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "exclusion_duplicate",
+    "changes": [
+      {
+        "path": "plan.exclusions",
+        "value": [
+          "boot",
+          "boot"
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "exclusion_unordered",
+    "changes": [
+      {
+        "path": "plan.exclusions",
+        "value": [
+          "z",
+          "a"
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "exclusion_path",
+    "changes": [
+      {
+        "path": "plan.exclusions",
+        "value": [
+          "../boot"
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "missing_artifact",
+    "changes": [
+      {
+        "path": "plan.artifacts",
+        "value": [
+          {
+            "volume_id": "pvc-uid",
+            "role": "volume_manifest",
+            "key": "vnbui-owned/v1/f1d11edf5c5cbe84bc60d6c543d0d5938a5bd3a833381499af7549ddc4933a23/f6222a1106eefe4f6b25302a9d963cfaba14bedfefacc2c311967e41c61cffe4/payload/55555555-5555-4555-8555-555555555555/4520bc6f2100d28ce1f4fda52722c69e27523880229275696aaaa26954a19460/volume_manifest",
+            "plaintext_min": 0,
+            "plaintext_max": 16777216,
+            "ciphertext_min": 0,
+            "ciphertext_max": 16777216
+          }
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "duplicate_artifact",
+    "changes": [
+      {
+        "path": "plan.artifacts",
+        "value": [
+          {
+            "volume_id": "pvc-uid",
+            "role": "volume_manifest",
+            "key": "vnbui-owned/v1/f1d11edf5c5cbe84bc60d6c543d0d5938a5bd3a833381499af7549ddc4933a23/f6222a1106eefe4f6b25302a9d963cfaba14bedfefacc2c311967e41c61cffe4/payload/55555555-5555-4555-8555-555555555555/4520bc6f2100d28ce1f4fda52722c69e27523880229275696aaaa26954a19460/volume_manifest",
+            "plaintext_min": 0,
+            "plaintext_max": 16777216,
+            "ciphertext_min": 0,
+            "ciphertext_max": 16777216
+          },
+          {
+            "volume_id": "pvc-uid",
+            "role": "volume_manifest",
+            "key": "vnbui-owned/v1/f1d11edf5c5cbe84bc60d6c543d0d5938a5bd3a833381499af7549ddc4933a23/f6222a1106eefe4f6b25302a9d963cfaba14bedfefacc2c311967e41c61cffe4/payload/55555555-5555-4555-8555-555555555555/4520bc6f2100d28ce1f4fda52722c69e27523880229275696aaaa26954a19460/volume_manifest",
+            "plaintext_min": 0,
+            "plaintext_max": 16777216,
+            "ciphertext_min": 0,
+            "ciphertext_max": 16777216
+          }
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "duplicate_volume",
+    "changes": [
+      {
+        "path": "plan.source.volumes",
+        "value": [
+          {
+            "name": "data",
+            "pvc_name": "pvc",
+            "pvc_uid": "pvc-uid",
+            "pvc_resource_version": "1",
+            "capacity_bytes": 1048576,
+            "mapping": {
+              "disk_name": "data",
+              "device": "disk",
+              "bus": "virtio",
+              "serial": null
+            }
+          },
+          {
+            "name": "data",
+            "pvc_name": "pvc",
+            "pvc_uid": "pvc-uid",
+            "pvc_resource_version": "1",
+            "capacity_bytes": 1048576,
+            "mapping": {
+              "disk_name": "data",
+              "device": "disk",
+              "bus": "virtio",
+              "serial": null
+            }
+          }
+        ]
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "foreign_volume",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.volume_id",
+        "value": "foreign"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "unknown_role",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.role",
+        "value": "other"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "foreign_key",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.key",
+        "value": "other/key"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "key_traversal",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.key",
+        "value": "vnbui-owned/v1/f1d11edf5c5cbe84bc60d6c543d0d5938a5bd3a833381499af7549ddc4933a23/f6222a1106eefe4f6b25302a9d963cfaba14bedfefacc2c311967e41c61cffe4/payload/55555555-5555-4555-8555-555555555555/4520bc6f2100d28ce1f4fda52722c69e27523880229275696aaaa26954a19460/volume_manifest/../foreign"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "positive_min",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.plaintext_min",
+        "value": 1
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "negative_min",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.ciphertext_min",
+        "value": -1
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "underbound",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.plaintext_max",
+        "value": 1
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "overbound",
+    "changes": [
+      {
+        "path": "plan.artifacts.0.ciphertext_max",
+        "value": 16777217
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "unencrypted_key",
+    "changes": [
+      {
+        "path": "plan.encryption.key_ref",
+        "value": "key-reference"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "unsupported_encryption",
+    "changes": [
+      {
+        "path": "plan.encryption.format",
+        "value": "aes-256-gcm"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "incremental_without_parent",
+    "changes": [
+      {
+        "path": "plan.backup_type",
+        "value": "incremental"
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "full_parent",
+    "changes": [
+      {
+        "path": "plan.parent",
+        "value": {
+          "backup_id": "33333333-3333-4333-8333-333333333333",
+          "root_backup_id": "33333333-3333-4333-8333-333333333333",
+          "receipt_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "generation_id": "55555555-5555-4555-8555-555555555555",
+          "tracker_uid": "tracker",
+          "checkpoint": "checkpoint"
+        }
+      }
+    ],
+    "accepted": false
+  },
+  {
+    "name": "valid_exclusion_and_https_port",
+    "accepted": true,
+    "changes": [
+      {
+        "path": "plan.exclusions",
+        "value": [
+          "boot"
+        ]
+      },
+      {
+        "path": "plan.target.endpoint",
+        "value": "https://store.invalid:443"
+      }
+    ]
+  },
+  {
+    "name": "encrypted_vnbu_full",
+    "accepted": true,
+    "changes": [
+      {"path": "plan.encryption", "value": {"format": "vnbu1-aes256gcm-chunk5242880", "key_ref": "kek:66666666-6666-4666-8666-666666666666:aaaaaaaaaaaaaaaa"}},
+      {"path": "plan.artifacts.1.ciphertext_min", "value": 5},
+      {"path": "plan.artifacts.1.ciphertext_max", "value": 1048613}
+    ]
+  },
+  {
+    "name": "encrypted_missing_key",
+    "accepted": false,
+    "changes": [{"path": "plan.encryption", "value": {"format": "vnbu1-aes256gcm-chunk5242880", "key_ref": null}}]
+  },
+  {
+    "name": "encrypted_omitted_framing",
+    "accepted": false,
+    "changes": [{"path": "plan.encryption", "value": {"format": "vnbu1-aes256gcm-chunk5242880", "key_ref": "kek:66666666-6666-4666-8666-666666666666:aaaaaaaaaaaaaaaa"}}]
+  },
+  {
+    "name": "encrypted_material_not_reference",
+    "accepted": false,
+    "changes": [{"path": "plan.encryption", "value": {"format": "vnbu1-aes256gcm-chunk5242880", "key_ref": "not-a-key-reference"}}]
+  }
+]

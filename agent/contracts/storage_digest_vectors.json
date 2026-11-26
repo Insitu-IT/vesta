@@ -1,0 +1,5 @@
+[
+  {"value":{"z":null,"a":[1,9223372036854775807,0]},"sha256":"4d6d9cd5ed9d94a769893bb5e406584bde1f941a5014e19603625d4b084f51df"},
+  {"value":{"text":"<>& / \u05e9\u05dc\u05d5\u05dd \ud83d\ude00\u2028\u2029\u0000\b\f\n\r\t\"\\"},"sha256":"4b1282c1d5f24606058ca9d5d5e101326138b8c9588ecd1c9a66c240a043f7a4"},
+  {"value":{"\u05d0":{"z":2,"a":1},"\ud83d\ude00":[],"a":{"nested":[null,{"v":-1}]}},"sha256":"bb64af9408b058505a01efa99653fda08a162dae59eddf67e7f3ab2b00b8ecd3"}
+]

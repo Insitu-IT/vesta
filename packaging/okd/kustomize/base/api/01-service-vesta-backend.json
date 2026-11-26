@@ -1,0 +1,23 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "vesta-backend",
+    "namespace": "vesta",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "spec": {
+    "selector": {
+      "app": "vesta-backend"
+    },
+    "ports": [
+      {
+        "name": "https",
+        "port": 8000,
+        "targetPort": 8000
+      }
+    ]
+  }
+}

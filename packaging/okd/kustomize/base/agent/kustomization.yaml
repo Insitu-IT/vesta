@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-serviceaccount-vesta-agent.json
+  - 01-role-vesta-agent.json
+  - 02-rolebinding-vesta-agent-vesta-agent.json
+  - 03-configmap-vesta-agent-scope.json
+  - 04-persistentvolumeclaim-vesta-journal.json
+  - 05-persistentvolumeclaim-vesta-scratch.json
+  - 06-deployment-vesta-agent.json
+  - 07-service-vesta-agent.json
+  - 08-serviceaccount-vesta-restore-worker.json
+  - 09-role-vesta-restore.json
+  - 10-rolebinding-vesta-restore-vesta-agent.json
+  - 11-rolebinding-vesta-restore-worker-scc.json

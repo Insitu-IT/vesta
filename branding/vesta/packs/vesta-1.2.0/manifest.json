@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "vesta",
+  "version": "1.2.0",
+  "name": "Vesta approved visual assets",
+  "type": "theme",
+  "assets": {
+    "brand-logo": {
+      "label": "Vesta",
+      "content_type": "image/svg+xml",
+      "variants": {
+        "oss/light": "summer-light.svg",
+        "oss/dark": "summer-dark.svg",
+        "commercial/light": "commercial-light.svg",
+        "commercial/dark": "commercial-dark.svg"
+      },
+      "default": "summer-light.svg"
+    },
+    "brand-favicon": {
+      "label": "Vesta",
+      "content_type": "image/svg+xml",
+      "variants": {
+        "oss/light": "summer-light.svg",
+        "oss/dark": "summer-dark.svg",
+        "commercial/light": "commercial-light.svg",
+        "commercial/dark": "commercial-dark.svg"
+      },
+      "default": "summer-light.svg"
+    },
+    "stat-vms": {
+      "label": "Virtual machines",
+      "file": "stat-vms.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-backups": {
+      "label": "Backups",
+      "file": "stat-backups.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-agents": {
+      "label": "Agents",
+      "file": "stat-agents.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-running": {
+      "label": "Running backups",
+      "file": "stat-running.svg",
+      "content_type": "image/svg+xml"
+    },
+    "empty-state": {
+      "label": "No items yet",
+      "file": "empty-state.svg",
+      "content_type": "image/svg+xml"
+    }
+  },
+  "meta": {
+    "vnbui": {
+      "schema_version": 2,
+      "product_name": "Vesta",
+      "colors": {
+        "primary": "#526B3D",
+        "success": "#49704A",
+        "warning": "#8A620F",
+        "danger": "#A5483E",
+        "body-bg": "#FAFAF2",
+        "body-color": "#303B28"
+      },
+      "font_family": "system",
+      "density": "comfortable",
+      "theme_colors": {
+        "light": {
+          "primary": "#526B3D",
+          "success": "#49704A",
+          "warning": "#8A620F",
+          "danger": "#A5483E",
+          "body-bg": "#FAFAF2",
+          "body-color": "#303B28"
+        },
+        "dark": {
+          "primary": "#8FC96B",
+          "success": "#7DBD72",
+          "warning": "#E6B84A",
+          "danger": "#EF8585",
+          "body-bg": "#182433",
+          "body-color": "#E8EDF3"
+        }
+      }
+    }
+  },
+  "description": "Approved Vesta artwork with explicit light and dark UI palettes",
+  "variant_schema": {
+    "edition": {
+      "label": "Edition",
+      "values": [
+        "oss",
+        "commercial"
+      ],
+      "default": "oss"
+    },
+    "theme": {
+      "label": "Theme",
+      "values": [
+        "light",
+        "dark"
+      ],
+      "default": "light"
+    }
+  }
+}

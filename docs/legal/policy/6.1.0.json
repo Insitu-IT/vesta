@@ -1,0 +1,20 @@
+{
+  "release": "6.1.0",
+  "schedule": "community-usage-v2",
+  "free_validity": "two_calendar_years",
+  "terms": {
+    "version": "mmit-1.1",
+    "url": "/docs/legal/terms/mmit-1.1/",
+    "sha256": "2f698b1a5a6fcff91cb469cdf81568b3b62ead0ff28069ef452a956fd2d207f3"
+  },
+  "eligibility": {
+    "version": "community-usage-v2",
+    "url": "/docs/legal/eligibility/community-usage-v2/",
+    "sha256": "75d69f0f5053748c4de178e34cdef4df5aff3dcc76e76854c33a1b104e551216"
+  },
+  "privacy": {
+    "version": "vesta-registration-privacy-1.0",
+    "url": "/docs/legal/privacy/vesta-registration-privacy-1.0/",
+    "sha256": "a816586f47a975e3a68ff0385d2f2fbd0c00e3d8792c12d07c34267d3aecc700"
+  }
+}

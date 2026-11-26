@@ -1,0 +1,5 @@
+/**
+ * SPDX-FileCopyrightText: Copyright (c) 2015 James Messinger
+ *
+ * SPDX-License-Identifier: MIT
+ */

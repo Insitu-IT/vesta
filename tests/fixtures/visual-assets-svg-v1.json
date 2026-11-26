@@ -1,0 +1,613 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "name": "unqualified",
+      "accepted": false,
+      "xml": "<svg><path d=\"M0 0\"/></svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "default-namespace",
+      "accepted": true,
+      "xml": "<svg xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0\"/></svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-root",
+      "accepted": true,
+      "xml": "<svg:svg xmlns:svg=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\"><svg:path d=\"M0 0h24v24z\"/></svg:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [
+          {
+            "localName": "width",
+            "namespaceURI": "",
+            "value": "24"
+          },
+          {
+            "localName": "height",
+            "namespaceURI": "",
+            "value": "24"
+          }
+        ],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0h24v24z"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "local-gradient",
+      "accepted": true,
+      "xml": "<svg xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0\" fill=\"url(#gradient)\"/></svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              },
+              {
+                "localName": "fill",
+                "namespaceURI": "",
+                "value": "url(#gradient)"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-gradient",
+      "accepted": true,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:defs><s:linearGradient id=\"gradient\"><s:stop offset=\"0\" stop-color=\"#206bc4\"/></s:linearGradient></s:defs><s:path d=\"M0 0\" fill=\"url(#gradient)\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "defs",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": [
+              {
+                "localName": "linearGradient",
+                "namespaceURI": "http://www.w3.org/2000/svg",
+                "attributes": [
+                  {
+                    "localName": "id",
+                    "namespaceURI": "",
+                    "value": "gradient"
+                  }
+                ],
+                "children": [
+                  {
+                    "localName": "stop",
+                    "namespaceURI": "http://www.w3.org/2000/svg",
+                    "attributes": [
+                      {
+                        "localName": "offset",
+                        "namespaceURI": "",
+                        "value": "0"
+                      },
+                      {
+                        "localName": "stop-color",
+                        "namespaceURI": "",
+                        "value": "#206bc4"
+                      }
+                    ],
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              },
+              {
+                "localName": "fill",
+                "namespaceURI": "",
+                "value": "url(#gradient)"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-xlink-fragment",
+      "accepted": true,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xml:space=\"preserve\" xml:lang=\"en\"><s:defs><s:path id=\"shape\" d=\"M0 0\"/></s:defs><s:use xlink:href=\"#shape\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [
+          {
+            "localName": "space",
+            "namespaceURI": "http://www.w3.org/XML/1998/namespace",
+            "value": "preserve"
+          },
+          {
+            "localName": "lang",
+            "namespaceURI": "http://www.w3.org/XML/1998/namespace",
+            "value": "en"
+          }
+        ],
+        "children": [
+          {
+            "localName": "defs",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": [
+              {
+                "localName": "path",
+                "namespaceURI": "http://www.w3.org/2000/svg",
+                "attributes": [
+                  {
+                    "localName": "id",
+                    "namespaceURI": "",
+                    "value": "shape"
+                  },
+                  {
+                    "localName": "d",
+                    "namespaceURI": "",
+                    "value": "M0 0"
+                  }
+                ],
+                "children": []
+              }
+            ]
+          },
+          {
+            "localName": "use",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "href",
+                "namespaceURI": "http://www.w3.org/1999/xlink",
+                "value": "#shape"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "passive-text-entities",
+      "accepted": true,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:title>A &amp; B</s:title><s:desc>https://example.invalid is descriptive text</s:desc></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "title",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": []
+          },
+          {
+            "localName": "desc",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-script",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:script>alert(1)</s:script></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "script",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-foreign-object",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:foreignObject><div xmlns=\"http://www.w3.org/1999/xhtml\">x</div></s:foreignObject></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "foreignObject",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [],
+            "children": [
+              {
+                "localName": "div",
+                "namespaceURI": "http://www.w3.org/1999/xhtml",
+                "attributes": [],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "foreign-namespace-element",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" xmlns:evil=\"urn:foreign\"><evil:path d=\"M0 0\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "urn:foreign",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "foreign-namespace-root",
+      "accepted": false,
+      "xml": "<svg xmlns=\"urn:foreign\"><path d=\"M0 0\"/></svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "urn:foreign",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "urn:foreign",
+            "attributes": [
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "rebound-prefix",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:g xmlns:s=\"urn:foreign\"><s:path d=\"M0 0\"/></s:g></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "g",
+            "namespaceURI": "urn:foreign",
+            "attributes": [],
+            "children": [
+              {
+                "localName": "path",
+                "namespaceURI": "urn:foreign",
+                "attributes": [
+                  {
+                    "localName": "d",
+                    "namespaceURI": "",
+                    "value": "M0 0"
+                  }
+                ],
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "foreign-namespace-attribute",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" xmlns:evil=\"urn:foreign\"><s:path evil:fill=\"red\" d=\"M0 0\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "fill",
+                "namespaceURI": "urn:foreign",
+                "value": "red"
+              },
+              {
+                "localName": "d",
+                "namespaceURI": "",
+                "value": "M0 0"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "prefixed-event",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" s:onload=\"alert(1)\"/>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [
+          {
+            "localName": "onload",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "value": "alert(1)"
+          }
+        ],
+        "children": []
+      }
+    },
+    {
+      "name": "encoded-external-reference",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><s:use xlink:href=\"&#x68;ttps://example.invalid/remote.svg#shape\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "use",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "href",
+                "namespaceURI": "http://www.w3.org/1999/xlink",
+                "value": "https://example.invalid/remote.svg#shape"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "relative-external-reference",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:use href=\"../remote.svg#shape\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "use",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "href",
+                "namespaceURI": "",
+                "value": "../remote.svg#shape"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "xml-base-external-reference",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\" xml:base=\"../remote.svg\"><s:use href=\"#shape\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [
+          {
+            "localName": "base",
+            "namespaceURI": "http://www.w3.org/XML/1998/namespace",
+            "value": "../remote.svg"
+          }
+        ],
+        "children": [
+          {
+            "localName": "use",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "href",
+                "namespaceURI": "",
+                "value": "#shape"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "external-paint-server",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:path fill=\"url(../remote.svg#gradient)\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "fill",
+                "namespaceURI": "",
+                "value": "url(../remote.svg#gradient)"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "style-attribute",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:path style=\"fill:red\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "style",
+                "namespaceURI": "",
+                "value": "fill:red"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "namespace-style-attribute",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:path s:style=\"fill:red\"/></s:svg>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": [
+          {
+            "localName": "path",
+            "namespaceURI": "http://www.w3.org/2000/svg",
+            "attributes": [
+              {
+                "localName": "style",
+                "namespaceURI": "http://www.w3.org/2000/svg",
+                "value": "fill:red"
+              }
+            ],
+            "children": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-document",
+      "accepted": false,
+      "xml": "<s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><s:path></s:svg>",
+      "parsed_document": null
+    },
+    {
+      "name": "undeclared-prefix",
+      "accepted": false,
+      "xml": "<s:svg><s:path/></s:svg>",
+      "parsed_document": null
+    },
+    {
+      "name": "processing-instruction",
+      "accepted": false,
+      "xml": "<?xml version=\"1.0\"?><s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/>",
+      "parsed_document": {
+        "localName": "svg",
+        "namespaceURI": "http://www.w3.org/2000/svg",
+        "attributes": [],
+        "children": []
+      }
+    },
+    {
+      "name": "external-entity-declaration",
+      "accepted": false,
+      "xml": "<!DOCTYPE svg [<!ENTITY ext SYSTEM \"https://example.invalid/entity\">]><svg xmlns=\"http://www.w3.org/2000/svg\">&ext;</svg>",
+      "parsed_document": null
+    }
+  ]
+}

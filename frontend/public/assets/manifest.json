@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "id": "vesta-assets",
+  "version": "1.2.0",
+  "name": "Vesta Visual Assets",
+  "description": "Vesta Summer defaults, commercial/light/dark brand variants and application icons",
+  "type": "theme",
+  "meta": {
+    "icon_library": "Tabler Icons",
+    "icon_library_version": "^3.0.0",
+    "svg_stroke_width": 2,
+    "svg_viewbox": "0 0 24 24",
+    "vesta": {
+      "schema_version": 2,
+      "product_name": "Vesta",
+      "colors": {
+        "primary": "#526B3D",
+        "success": "#49704A",
+        "warning": "#8A620F",
+        "danger": "#A5483E",
+        "body-bg": "#FAFAF2",
+        "body-color": "#303B28"
+      },
+      "font_family": "system",
+      "density": "comfortable",
+      "theme_colors": {
+        "light": {
+          "primary": "#526B3D",
+          "success": "#49704A",
+          "warning": "#8A620F",
+          "danger": "#A5483E",
+          "body-bg": "#FAFAF2",
+          "body-color": "#303B28"
+        },
+        "dark": {
+          "primary": "#8FC96B",
+          "success": "#7DBD72",
+          "warning": "#E6B84A",
+          "danger": "#EF8585",
+          "body-bg": "#182433",
+          "body-color": "#E8EDF3"
+        }
+      }
+    }
+  },
+  "categories": {
+    "nav": {
+      "label": "Navigation",
+      "order": 1
+    },
+    "stat": {
+      "label": "Stat Cards",
+      "order": 2
+    },
+    "action": {
+      "label": "Actions",
+      "order": 3
+    },
+    "empty": {
+      "label": "Empty States",
+      "order": 4
+    },
+    "brand": {
+      "label": "Brand",
+      "order": 5
+    }
+  },
+  "assets": {
+    "nav-dashboard": {
+      "label": "Dashboard",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "home",
+        "overview"
+      ],
+      "file": "tabler://home",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-vms": {
+      "label": "Virtual Machines",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "vm",
+        "server"
+      ],
+      "file": "tabler://server",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-backups": {
+      "label": "Backups",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "backup",
+        "database"
+      ],
+      "file": "tabler://database",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-restores": {
+      "label": "Restores",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "restore",
+        "rotate"
+      ],
+      "file": "tabler://rotate-clockwise",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-schedules": {
+      "label": "Schedules",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "schedule",
+        "calendar"
+      ],
+      "file": "tabler://calendar",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-verification": {
+      "label": "Verification",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "verify",
+        "shield"
+      ],
+      "file": "tabler://shield-check",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-groups": {
+      "label": "Groups",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "group",
+        "folder"
+      ],
+      "file": "tabler://folder",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-reports": {
+      "label": "Reports",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "report",
+        "file"
+      ],
+      "file": "tabler://file-text",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-health": {
+      "label": "Health",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "health",
+        "monitor"
+      ],
+      "file": "tabler://heart-rate-monitor",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-agents": {
+      "label": "Agents",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "agent",
+        "cpu"
+      ],
+      "file": "tabler://cpu",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-activity": {
+      "label": "Activity",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "activity",
+        "clock"
+      ],
+      "file": "tabler://clock",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-notifications": {
+      "label": "Notifications",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "notification",
+        "bell"
+      ],
+      "file": "tabler://bell",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-users": {
+      "label": "Users",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "users",
+        "admin"
+      ],
+      "file": "tabler://users",
+      "content_type": "text/x-tabler-icon"
+    },
+    "nav-settings": {
+      "label": "Settings",
+      "category": "nav",
+      "tags": [
+        "nav",
+        "settings",
+        "admin"
+      ],
+      "file": "tabler://settings",
+      "content_type": "text/x-tabler-icon"
+    },
+    "stat-vms": {
+      "label": "Virtual machines",
+      "category": "stat",
+      "tags": [
+        "stat",
+        "vm",
+        "server"
+      ],
+      "file": "vesta-1-2-0/stat-vms.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-backups": {
+      "label": "Backups",
+      "category": "stat",
+      "tags": [
+        "stat",
+        "backup",
+        "database"
+      ],
+      "file": "vesta-1-2-0/stat-backups.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-agents": {
+      "label": "Agents",
+      "category": "stat",
+      "tags": [
+        "stat",
+        "agent",
+        "grid"
+      ],
+      "file": "vesta-1-2-0/stat-agents.svg",
+      "content_type": "image/svg+xml"
+    },
+    "stat-running": {
+      "label": "Running backups",
+      "category": "stat",
+      "tags": [
+        "stat",
+        "running",
+        "active"
+      ],
+      "file": "vesta-1-2-0/stat-running.svg",
+      "content_type": "image/svg+xml"
+    },
+    "action-search": {
+      "label": "Search",
+      "category": "action",
+      "tags": [
+        "action",
+        "search",
+        "find"
+      ],
+      "file": "tabler://search",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-edit": {
+      "label": "Edit",
+      "category": "action",
+      "tags": [
+        "action",
+        "edit",
+        "pencil"
+      ],
+      "file": "tabler://pencil",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-delete": {
+      "label": "Delete",
+      "category": "action",
+      "tags": [
+        "action",
+        "delete",
+        "trash"
+      ],
+      "file": "tabler://trash",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-add": {
+      "label": "Add",
+      "category": "action",
+      "tags": [
+        "action",
+        "add",
+        "plus"
+      ],
+      "file": "tabler://plus",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-download": {
+      "label": "Download",
+      "category": "action",
+      "tags": [
+        "action",
+        "download"
+      ],
+      "file": "tabler://download",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-upload": {
+      "label": "Upload",
+      "category": "action",
+      "tags": [
+        "action",
+        "upload"
+      ],
+      "file": "tabler://upload",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-save": {
+      "label": "Save",
+      "category": "action",
+      "tags": [
+        "action",
+        "save",
+        "disk"
+      ],
+      "file": "tabler://device-floppy",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-refresh": {
+      "label": "Refresh",
+      "category": "action",
+      "tags": [
+        "action",
+        "refresh",
+        "reload"
+      ],
+      "file": "tabler://refresh",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-login": {
+      "label": "Login",
+      "category": "action",
+      "tags": [
+        "action",
+        "login",
+        "signin"
+      ],
+      "file": "tabler://login",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-logout": {
+      "label": "Logout",
+      "category": "action",
+      "tags": [
+        "action",
+        "logout",
+        "signout"
+      ],
+      "file": "tabler://logout",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-check": {
+      "label": "Check / Confirm",
+      "category": "action",
+      "tags": [
+        "action",
+        "check",
+        "confirm"
+      ],
+      "file": "tabler://check",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-alert": {
+      "label": "Alert / Warning",
+      "category": "action",
+      "tags": [
+        "action",
+        "alert",
+        "warning"
+      ],
+      "file": "tabler://alert-triangle",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-eye": {
+      "label": "View / Details",
+      "category": "action",
+      "tags": [
+        "action",
+        "view",
+        "eye",
+        "details"
+      ],
+      "file": "tabler://eye",
+      "content_type": "text/x-tabler-icon"
+    },
+    "action-language": {
+      "label": "Language",
+      "category": "action",
+      "tags": [
+        "action",
+        "language",
+        "locale",
+        "i18n"
+      ],
+      "file": "tabler://language",
+      "content_type": "text/x-tabler-icon"
+    },
+    "empty-state": {
+      "label": "No items yet",
+      "category": "empty",
+      "tags": [
+        "empty",
+        "no-data",
+        "placeholder"
+      ],
+      "file": "vesta-1-2-0/empty-state.svg",
+      "content_type": "image/svg+xml"
+    },
+    "brand-logo": {
+      "label": "Vesta",
+      "category": "brand",
+      "tags": [
+        "brand",
+        "logo"
+      ],
+      "content_type": "image/svg+xml",
+      "variants": {
+        "oss/light": "vesta-1-2-0/summer-light.svg",
+        "oss/dark": "vesta-1-2-0/summer-dark.svg",
+        "commercial/light": "vesta-1-2-0/commercial-light.svg",
+        "commercial/dark": "vesta-1-2-0/commercial-dark.svg"
+      },
+      "default": "vesta-1-2-0/summer-light.svg"
+    },
+    "brand-favicon": {
+      "label": "Vesta",
+      "category": "brand",
+      "tags": [
+        "brand",
+        "favicon"
+      ],
+      "content_type": "image/svg+xml",
+      "variants": {
+        "oss/light": "vesta-1-2-0/summer-light.svg",
+        "oss/dark": "vesta-1-2-0/summer-dark.svg",
+        "commercial/light": "vesta-1-2-0/commercial-light.svg",
+        "commercial/dark": "vesta-1-2-0/commercial-dark.svg"
+      },
+      "default": "vesta-1-2-0/summer-light.svg"
+    }
+  },
+  "variant_schema": {
+    "edition": {
+      "label": "Edition",
+      "values": [
+        "oss",
+        "commercial"
+      ],
+      "default": "oss"
+    },
+    "theme": {
+      "label": "Theme",
+      "values": [
+        "light",
+        "dark"
+      ],
+      "default": "light"
+    }
+  }
+}

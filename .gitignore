@@ -1,0 +1,108 @@
+# Build artifacts (CI/CD generated)
+packaging/rpm/output/
+packaging/deb/output/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+# ANCHORED to the repo root with a leading slash. Unanchored, each of these
+# matches a directory of that name at ANY DEPTH — so a nested backend/core/lib/
+# or agent/internal/build/ would be silently untracked, with no error, no warning
+# and no diff. dokk had a live instance: scripts/lib/s3_retry.sh was untrackable
+# and would never have been committed, while local tests stayed green because the
+# file was on disk. The gap only appears in a fresh checkout.
+#
+# The class CI does not catch is an asset consumed by BUNDLING rather than by an
+# import — nothing references it, so nothing fails, and it goes missing from the
+# artifact. A missing code file fails loudly; a missing packaged asset does not.
+#
+# Checked before anchoring: vnbui has no nested directory by any of these names,
+# so this is prophylactic rather than a repair. frontend/dist/ is unaffected — it
+# is ignored by frontend/.gitignore, not by the root `dist/` rule.
+/build/
+/develop-eggs/
+/dist/
+/downloads/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+/wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Node
+node_modules/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.env.*
+!.env.example
+.env.local
+
+# Logs
+*.log
+
+# Generated test artifacts
+frontend/api-calls.json
+# Consecutive commit-bound exports must not count their own artifacts as source.
+/output/operator-contract/
+/output/operator-contract-profiles/
+
+# Test coverage
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+aws-creds.txt
+
+# gosec reports (ci/gosec-scan.sh output; CI keeps them as artifacts)
+agent/gosec-report-*.json
+
+# Locally built agent binaries
+agent/bin/
+
+# Local Claude Code harness config (not repo content)
+.claude/settings.local.json
+
+# Go build/module cache redirected into the project dir for CI caching
+.gocache/
+
+# Private publication rehearsal evidence (never source inputs)
+/output/publication-*/

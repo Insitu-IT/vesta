@@ -1,0 +1,17 @@
+name: Private follow-up
+description: Ask a Vesta maintainer to arrange a confidential channel.
+title: "Request for private follow-up"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This request is visible to people with repository access. A maintainer will
+        arrange a confidential exchange. Keep security details, employer documents,
+        email addresses, account identifiers, logs and attachments out of this issue.
+  - type: checkboxes
+    id: contact
+    attributes:
+      label: Request
+      options:
+        - label: Please arrange a private follow-up with my GitHub account.
+          required: true

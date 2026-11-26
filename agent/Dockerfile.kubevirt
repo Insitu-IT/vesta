@@ -1,0 +1,29 @@
+FROM golang:1.26.11-bookworm AS builder
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN GOFLAGS="-tags=kubevirt" go mod download
+RUN GOBIN=/usr/local/bin go install github.com/google/go-licenses/v2@v2.0.1
+
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -tags kubevirt \
+    -ldflags="-s -w -X main.version=$(cat VERSION)" \
+    -o /runtime/vesta-agent ./cmd/vnbui-agent
+RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w" \
+    -o /runtime/vesta-restore ./cmd/vnbui-restore
+RUN ln -s /vesta-agent /runtime/vnbui-agent && \
+    ln -s /vesta-restore /runtime/vnbui-restore
+RUN sh scripts/collect-third-party-notices.sh /third-party-notices kubevirt "$(go env GOROOT)/LICENSE"
+
+FROM gcr.io/distroless/static-debian12
+
+COPY --from=builder /runtime/ /
+COPY LICENSE /usr/share/licenses/vnbui/LICENSE
+COPY NOTICE /usr/share/licenses/vnbui/NOTICE
+LABEL org.opencontainers.image.licenses="LicenseRef-Vesta-MMIT-1.1"
+COPY --from=builder /third-party-notices/ /usr/share/licenses/vnbui/third-party/
+
+USER 65534
+EXPOSE 8090
+
+ENTRYPOINT ["/vesta-agent"]

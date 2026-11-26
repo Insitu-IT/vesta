@@ -1,0 +1,68 @@
+{
+  "support_status": "DRAFT",
+  "first_public_version": "6.1.0",
+  "cases": [
+    {
+      "query": {
+        "contract": 3
+      },
+      "status": 400,
+      "body": {
+        "detail": {
+          "code": "realtime_contract_unsupported",
+          "message": "Unsupported realtime contract"
+        }
+      }
+    },
+    {
+      "query": {
+        "contract": 2,
+        "since": "bad"
+      },
+      "status": 400,
+      "body": {
+        "detail": {
+          "code": "realtime_parameters_conflict",
+          "message": "since cannot be combined with contract=2"
+        }
+      }
+    },
+    {
+      "query": {
+        "contract": 2,
+        "cursor": "bad"
+      },
+      "status": 400,
+      "body": {
+        "detail": {
+          "code": "realtime_cursor_invalid",
+          "message": "Invalid realtime cursor"
+        }
+      }
+    },
+    {
+      "query": {
+        "cursor": "bad"
+      },
+      "status": 400,
+      "body": {
+        "detail": {
+          "code": "realtime_cursor_contract_required",
+          "message": "cursor requires contract=2"
+        }
+      }
+    },
+    {
+      "query": {
+        "since": "2026-11-08T12:00:00"
+      },
+      "status": 400,
+      "body": {
+        "detail": {
+          "code": "realtime_timestamp_invalid",
+          "message": "since requires an ISO8601 timestamp with a UTC offset"
+        }
+      }
+    }
+  ]
+}

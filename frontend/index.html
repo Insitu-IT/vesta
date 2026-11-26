@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <meta name="description" content="Vesta - Backup Orchestration Platform" />
+
+    <!-- Security headers (additional headers set by server) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;" />
+
+    <script>
+        // Apply the saved mode before styles or application modules can paint.
+        try { document.documentElement.dataset.bsTheme = localStorage.getItem('vnbui-theme') === 'dark' ? 'dark' : 'light'; }
+        catch { document.documentElement.dataset.bsTheme = 'light'; }
+        document.documentElement.style.colorScheme = document.documentElement.dataset.bsTheme;
+    </script>
+    <style>html[data-bs-theme="dark"] { background: #182433; color: #e8edf3; }</style>
+    <title>Vesta - Backup Orchestration</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/assets/vesta-1-1-0/summer-light.svg" />
+
+</head>
+<body>
+    <!-- Application root -->
+    <div id="app">
+        <!-- Loading screen -->
+        <div class="page page-center">
+            <div class="container-tight py-4">
+                <div class="text-center">
+                    <div class="mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-primary" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/>
+                        </svg>
+                    </div>
+                    <div class="text-secondary mb-3">Loading <span data-product-name>Vesta</span>...</div>
+                    <div class="progress progress-sm">
+                        <div class="progress-bar progress-bar-indeterminate"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main application script -->
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "vesta-agent",
+    "namespace": "vesta-agent",
+    "labels": {
+      "app.kubernetes.io/part-of": "vesta"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "strategy": {
+      "type": "Recreate"
+    },
+    "selector": {
+      "matchLabels": {
+        "app": "vesta-agent"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "vesta-agent",
+          "app.kubernetes.io/part-of": "vesta"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": true,
+        "serviceAccountName": "vesta-agent",
+        "securityContext": {
+          "runAsNonRoot": true,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "agent",
+            "image": "registry.invalid/vesta/agent@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "imagePullPolicy": "IfNotPresent",
+            "resources": {
+              "requests": {
+                "cpu": "250m",
+                "memory": "256Mi"
+              },
+              "limits": {
+                "cpu": "2",
+                "memory": "2Gi"
+              }
+            },
+            "securityContext": {
+              "runAsNonRoot": true,
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "tmp",
+                "mountPath": "/tmp",
+                "readOnly": false
+              },
+              {
+                "name": "scope",
+                "mountPath": "/scope",
+                "readOnly": true
+              },
+              {
+                "name": "journal",
+                "mountPath": "/var/lib/vnbui",
+                "readOnly": false
+              },
+              {
+                "name": "tls",
+                "mountPath": "/tls",
+                "readOnly": true
+              },
+              {
+                "name": "trust",
+                "mountPath": "/trust",
+                "readOnly": true
+              }
+            ],
+            "ports": [
+              {
+                "name": "https",
+                "containerPort": 8090
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8090,
+                "scheme": "HTTPS"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/health/ready",
+                "port": 8090,
+                "scheme": "HTTPS"
+              },
+              "periodSeconds": 15,
+              "initialDelaySeconds": 30
+            },
+            "env": [
+              {
+                "name": "ENVIRONMENT",
+                "value": "production"
+              },
+              {
+                "name": "PROVIDER",
+                "value": "kubevirt"
+              },
+              {
+                "name": "HOSTNAME",
+                "value": "vesta-kubevirt-protected-vms"
+              },
+              {
+                "name": "AGENT_DISPLAY_NAME",
+                "value": "KubeVirt agent 1"
+              },
+              {
+                "name": "MAX_CONCURRENT_BACKUPS",
+                "value": "1"
+              },
+              {
+                "name": "KUBE_API_QPS",
+                "value": "50"
+              },
+              {
+                "name": "KUBE_API_BURST",
+                "value": "100"
+              },
+              {
+                "name": "KUBE_NAMESPACE",
+                "value": "protected-vms"
+              },
+              {
+                "name": "KUBEVIRT_SCOPE_POLICY_FILE",
+                "value": "/scope/policy.json"
+              },
+              {
+                "name": "KUBEVIRT_RESTORE_NAMESPACES",
+                "value": "protected-vms"
+              },
+              {
+                "name": "KUBEVIRT_BACKUP_SCRATCH_PVC",
+                "value": "vesta-scratch"
+              },
+              {
+                "name": "KUBEVIRT_NATIVE_BACKUP_TTL_SECONDS",
+                "value": "36000"
+              },
+              {
+                "name": "KUBEVIRT_TRANSACTION_TIMEOUT_SECONDS",
+                "value": "0"
+              },
+              {
+                "name": "KUBEVIRT_RESTORE_IMAGE",
+                "value": "registry.invalid/vesta/agent@sha256:0000000000000000000000000000000000000000000000000000000000000000"
+              },
+              {
+                "name": "AGENT_IP_ADDRESS",
+                "value": "vesta-agent.vesta-agent.svc"
+              },
+              {
+                "name": "ORCHESTRATOR_URL",
+                "value": "https://vesta-api.example.org"
+              },
+              {
+                "name": "KEY_FILE_PATH",
+                "value": "/var/lib/vnbui/agent.key"
+              },
+              {
+                "name": "BACKUP_STORAGE_PATH",
+                "value": "/var/lib/vnbui/backups"
+              },
+              {
+                "name": "ENABLE_API_KEY_VALIDATION",
+                "value": "true"
+              },
+              {
+                "name": "REQUIRE_TLS",
+                "value": "true"
+              },
+              {
+                "name": "TLS_ENABLED",
+                "value": "true"
+              },
+              {
+                "name": "ORCHESTRATOR_VERIFY_SSL",
+                "value": "true"
+              },
+              {
+                "name": "TLS_VERIFY_CLIENT",
+                "value": "false"
+              },
+              {
+                "name": "TLS_CERT_FILE",
+                "value": "/tls/tls.crt"
+              },
+              {
+                "name": "TLS_KEY_FILE",
+                "value": "/tls/tls.key"
+              },
+              {
+                "name": "TLS_CA_FILE",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "OPERATION_TIME_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_NO_PROGRESS_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_OBSERVATION_COEFFICIENT",
+                "value": "3"
+              },
+              {
+                "name": "OPERATION_SCRATCH_COEFFICIENT",
+                "value": "1.2"
+              },
+              {
+                "name": "OPERATION_BOOTSTRAP_BYTES_PER_SECOND",
+                "value": "8388608"
+              },
+              {
+                "name": "OPERATION_PREPARATION_ESTIMATE_SECONDS",
+                "value": "180"
+              },
+              {
+                "name": "OPERATION_CONTROL_ESTIMATE_SECONDS",
+                "value": "60"
+              },
+              {
+                "name": "KUBEVIRT_SOURCE_HEALTH_PROBES",
+                "value": "[]"
+              },
+              {
+                "name": "KUBEVIRT_RESOURCE_PREFIX",
+                "value": "vesta"
+              },
+              {
+                "name": "REGISTRATION_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-agent-registration",
+                    "key": "REGISTRATION_KEY"
+                  }
+                }
+              },
+              {
+                "name": "KEYSTORE_IDENTITY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-agent-registration",
+                    "key": "KEYSTORE_IDENTITY"
+                  }
+                }
+              },
+              {
+                "name": "ORCHESTRATOR_API_KEY",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "vesta-agent-registration",
+                    "key": "ORCHESTRATOR_API_KEY"
+                  }
+                }
+              },
+              {
+                "name": "SSL_CERT_FILE",
+                "value": "/trust/ca.crt"
+              },
+              {
+                "name": "KUBEVIRT_RESTORE_CA_FILE",
+                "value": "/trust/ca.crt"
+              }
+            ]
+          }
+        ],
+        "volumes": [
+          {
+            "name": "tmp",
+            "emptyDir": {}
+          },
+          {
+            "name": "scope",
+            "configMap": {
+              "name": "vesta-agent-scope"
+            }
+          },
+          {
+            "name": "journal",
+            "persistentVolumeClaim": {
+              "claimName": "vesta-journal"
+            }
+          },
+          {
+            "name": "tls",
+            "secret": {
+              "secretName": "vesta-agent-tls",
+              "defaultMode": 288
+            }
+          },
+          {
+            "name": "trust",
+            "secret": {
+              "secretName": "vesta-trust",
+              "defaultMode": 288
+            }
+          }
+        ]
+      }
+    }
+  }
+}

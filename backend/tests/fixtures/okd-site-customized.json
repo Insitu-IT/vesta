@@ -1,0 +1,87 @@
+{
+  "namespace": "vnbui",
+  "vm_namespace": "protected-vms",
+  "restore_namespaces": [
+    "protected-vms"
+  ],
+  "ui_host": "backup.example.org",
+  "api_host": "backup-api.example.org",
+  "images": {
+    "backend": "registry.example.org/vnbui/backend@sha256:REPLACE_WITH_BUILT_DIGEST",
+    "frontend": "registry.example.org/vnbui/frontend@sha256:REPLACE_WITH_BUILT_DIGEST",
+    "agent": "registry.example.org/vnbui/agent-kubevirt@sha256:REPLACE_WITH_BUILT_DIGEST"
+  },
+  "secrets": {
+    "database_owner": "vnbui-db-owner",
+    "database_runtime": "vnbui-db-runtime",
+    "application": "vnbui-application",
+    "admin": "vnbui-initial-admin",
+    "backend_tls": "vnbui-backend-tls",
+    "agent_tls": "vnbui-agent-tls",
+    "agent_registration": "vnbui-agent-registration",
+    "trust": "vnbui-trust"
+  },
+  "mtls": null,
+  "database": "vnbui",
+  "runtime_role": "vnbui_runtime",
+  "admin_username": "installation-admin",
+  "apm_enabled": false,
+  "journal_storage_class": "REPLACE",
+  "journal_size": "1Gi",
+  "scratch_storage_class": "REPLACE",
+  "scratch_size": "64Gi",
+  "scratch_access_mode": "ReadWriteMany",
+  "resources": {
+    "backend": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    },
+    "frontend": {
+      "requests": {
+        "cpu": "50m",
+        "memory": "64Mi"
+      },
+      "limits": {
+        "cpu": "500m",
+        "memory": "256Mi"
+      }
+    },
+    "agent": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    },
+    "migration": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "1",
+        "memory": "1Gi"
+      }
+    }
+  },
+  "agent_namespace": "vnbui-agent",
+  "source_namespaces": [
+    "protected-vms"
+  ],
+  "selected_namespaces": [
+    "protected-vms"
+  ],
+  "agent_id": "vnbui-kubevirt-protected-vms",
+  "agent_display_name": "KubeVirt agent 1",
+  "max_concurrent_backups": 1,
+  "ui_aliases": []
+}

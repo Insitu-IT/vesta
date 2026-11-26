@@ -1,0 +1,4 @@
+/*!
+ * lunr.stopWordFilter
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

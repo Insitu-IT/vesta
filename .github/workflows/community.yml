@@ -1,0 +1,159 @@
+name: Community source checks
+
+'on': [pull_request, push]
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+          persist-credentials: false
+      - name: Verify checkout revision
+        run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm ci --no-audit
+      - run: npm run build
+      - run: node scripts/extract-api-calls.cjs
+      - run: node --experimental-vm-modules --test tests/*.test.mjs
+
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+          persist-credentials: false
+      - name: Verify checkout revision
+        run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: python -m pip install -r backend/requirements.txt -r tests/requirements-test.txt
+      - run: node frontend/scripts/extract-api-calls.cjs
+      - run: python -m pytest backend/tests tests/test_operator_contracts.py -q
+      - run: python -m unittest discover -s packaging/community -p test_quickstart.py -v
+
+  postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: disposable-test-database
+        ports:
+          - 5432/tcp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+          persist-credentials: false
+      - name: Verify checkout revision
+        run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r backend/requirements.txt -r tests/requirements-test.txt
+      - name: Migrate a fresh database and exercise Community models
+        run: python -m pytest tests/integration/test_schema_parity_pg.py::test_fresh_migration_supports_active_orm_crud -q
+        env:
+          PYTHONPATH: backend
+          SCHEMA_PARITY_TEST_ADMIN_URL: postgresql://postgres:disposable-test-database@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres
+      - name: Start and restart the Community API with PostgreSQL
+        run: python packaging/community/test_postgres_quickstart.py
+        env:
+          PYTHONPATH: backend
+          VESTA_DISPOSABLE_POSTGRES: '1'
+          SCHEMA_PARITY_TEST_ADMIN_URL: postgresql://postgres:disposable-test-database@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres
+
+  agents:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+          persist-credentials: false
+      - name: Verify checkout revision
+        run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
+      - name: Build and test both provider profiles
+        run: |
+          docker run --rm --mount "type=bind,source=$PWD/agent,target=/src" \
+            -w /src golang:1.26.11-alpine sh -eu -c '
+              apk add --no-cache build-base ca-certificates libvirt-dev pkgconf
+              export CGO_ENABLED=0
+              make gen-contracts
+              make build-kubevirt
+              go test -tags kubevirt ./...
+              export CGO_ENABLED=1
+              go build -trimpath -buildvcs=false -tags libvirt -o /tmp/vesta-agent-libvirt ./cmd/vnbui-agent
+              go test -tags libvirt ./...
+            '
+          git diff --exit-code -- agent/contracts/contracts.py
+
+  quickstart:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SOURCE_SHA }}
+          persist-credentials: false
+      - name: Verify checkout revision
+        run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
+      - name: Build and start the local profile
+        run: |
+          python3 packaging/community/init-local.py
+          docker compose --env-file packaging/community/.local/compose.env \
+            -f packaging/community/compose.yaml up --build --wait --wait-timeout 180
+      - name: Check console, proxy and database readiness
+        run: |
+          curl --fail --silent --show-error http://127.0.0.1:8080/ >/dev/null
+          curl --fail --silent --show-error http://127.0.0.1:8080/api/v1/version
+          curl --fail --silent --show-error http://127.0.0.1:8000/ready
+      - name: Sign in through the console proxy
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import urlencode
+          from urllib.request import urlopen
+
+          password = Path("packaging/community/.local/admin-password").read_text()
+          form = urlencode({"username": "admin", "password": password.rstrip("\r\n")})
+          with urlopen("http://127.0.0.1:8080/api/v1/auth/login", form.encode(), timeout=10) as response:
+              login = json.load(response)
+          assert login["user"]["role"] == "admin" and login["access_token"]
+          PY
+      - name: Stop the local profile
+        if: always()
+        run: |
+          if test -f packaging/community/.local/compose.env; then
+            docker compose --env-file packaging/community/.local/compose.env \
+              -f packaging/community/compose.yaml down --volumes
+          fi

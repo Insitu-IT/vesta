@@ -1,0 +1,522 @@
+{
+  "schema": "vesta-psycopg2-native-review/1",
+  "wheel_filename": "psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+  "wheel_sha256": "977646e05232579d2e7b9c59e21dbe5261f403a88417f6a6512e70d3f8a046be",
+  "wheel_url": "https://files.pythonhosted.org/packages/ce/85/62825cabc6aad53104b7b6d12eb2ad74737d268630032d07b74d4444cb72/psycopg2_binary-2.9.9-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+  "wheel_bytes": 3019515,
+  "supported_environment": {
+    "implementation_name": "cpython",
+    "python_version": "3.11",
+    "sys_platform": "linux",
+    "platform_machine": "x86_64"
+  },
+  "native_members_sha256": {
+    "psycopg2_binary.libs/libkeyutils-dfe70bd6.so.1.5": "c29e41b03cf4b2dffbfb4960946e2b42f82c0ca5d53d231d3f0fc597ba274488",
+    "psycopg2_binary.libs/libsasl2-883649fd.so.3.0.0": "182f02d5e474db227cda83abac7413d431d487c6c01afd0cd741e140cedc0f3a",
+    "psycopg2_binary.libs/libkrb5support-d0bcff84.so.0.1": "6a71f57d748fef79b4e736d5348875545d0a224fa8928b5d62a3cf2647fc109f",
+    "psycopg2_binary.libs/libselinux-0922c95c.so.1": "d4fa8e7fb3add960a68325a59c9694244aea3213fd739a50815cb067c4965654",
+    "psycopg2_binary.libs/libssl-3e69114b.so.1.1": "7d2cf992255138c7177a0d1293006c26429fc77c763e54165bf6be786cf5fec9",
+    "psycopg2_binary.libs/libldap-1b002981.so.2.0.200": "9bcf0a43be7f792cfbd6a8941a3df31b56ffd46b8a3893eff72aae97c92ad03e",
+    "psycopg2_binary.libs/libcom_err-2abe824b.so.2.1": "5426dcb54dd01c9eedda05e2179f0e47114e8b48a534ffe9e94916e79471b257",
+    "psycopg2_binary.libs/libpcre-9513aab5.so.1.2.0": "02eda850e04931656d8af81f5171bff74d8bec1553d3d85c3d32d7fc5efe8864",
+    "psycopg2_binary.libs/libk5crypto-b1f99d5c.so.3.1": "9844e5009e70a6ad2fb22b587306810fe2a7b1b9f6b9922daa1c78ba3466de27",
+    "psycopg2_binary.libs/libpq-e8a033dd.so.5.16": "44840f4041ad0a1c8ac64e9bfa0ef4a7ad83f537110688cea7430a8f5461156b",
+    "psycopg2_binary.libs/libgssapi_krb5-497db0c6.so.2.2": "2a74b0330ee973281b26f8ebe4acef0ebf9ee99c6b68497cf9151fff6c4c34e1",
+    "psycopg2_binary.libs/liblber-1c2d2bfc.so.2.0.200": "ce495f0601ecc4975368905da08e080cc9a3fb470d91662aa7657b601e29223d",
+    "psycopg2_binary.libs/libcrypto-7d0e8add.so.1.1": "3b70da3751ec6c12a7740a89b4d3bdb94416dfb6ebf1c15352fbfccbeb8f52ab",
+    "psycopg2_binary.libs/libkrb5-fcafa220.so.3.3": "b2aab528ff4cab2144e5ce01b246ac09f574a072a53ff63ea81d6bb29b26b8f1",
+    "psycopg2/_psycopg.cpython-311-x86_64-linux-gnu.so": "440c7ae6a07eaae87a200bb93f8d7c54b546517c34d3f7f3be9789ae880675b3"
+  },
+  "wheel_control_members_sha256": {
+    "psycopg2_binary-2.9.9.dist-info/LICENSE": "9614b85dfc9a72c5b2ca33144c1d7e1ed3b1c297459d9fb28a6a5762c2e8d71b",
+    "psycopg2_binary-2.9.9.dist-info/WHEEL": "e3cc1421c65c750da958deeab741cfd360afbfa1c84191ac4a0c773ec7a9363f",
+    "psycopg2_binary-2.9.9.dist-info/METADATA": "be4c4cb7ed89ee245e52dcaad92378018e01ac70e08b3f1cb148da7145185959"
+  },
+  "notice_sources": [
+    {
+      "file": "openssl_openssl-OpenSSL_1_1_1w-LICENSE",
+      "sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c",
+      "bytes": 6121,
+      "original_url": "https://raw.githubusercontent.com/openssl/openssl/e04bd3433fd84e1861bf258ea37928d9845e6a86/LICENSE",
+      "original_source_path": "LICENSE",
+      "original_file_sha256": "c32913b33252e71190af2066f08115c69bc9fddadf3bf29296e20c835389841c",
+      "upstream_commit": "e04bd3433fd84e1861bf258ea37928d9845e6a86",
+      "upstream_tag": "OpenSSL_1_1_1w",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "postgres_postgres-REL_16_0-COPYRIGHT",
+      "sha256": "1a7d13c3ab31961b91ba256f77d6e82e0b54bf992253060fe93bdb5466df416a",
+      "bytes": 1192,
+      "original_url": "https://raw.githubusercontent.com/postgres/postgres/c372fbbd8e911f2412b80a8c39d7079366565d67/COPYRIGHT",
+      "original_source_path": "COPYRIGHT",
+      "original_file_sha256": "1a7d13c3ab31961b91ba256f77d6e82e0b54bf992253060fe93bdb5466df416a",
+      "upstream_commit": "c372fbbd8e911f2412b80a8c39d7079366565d67",
+      "upstream_tag": "REL_16_0",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "cyrusimap_cyrus-sasl-cyrus-sasl-2.1.28-COPYING",
+      "sha256": "9d6e5d1632140a6c135b251260953650d17d87cd1124f87aaf72192aa4580d4b",
+      "bytes": 1861,
+      "original_url": "https://raw.githubusercontent.com/cyrusimap/cyrus-sasl/7a6b45b177070198fed0682bea5fa87c18abb084/COPYING",
+      "original_source_path": "COPYING",
+      "original_file_sha256": "9d6e5d1632140a6c135b251260953650d17d87cd1124f87aaf72192aa4580d4b",
+      "upstream_commit": "7a6b45b177070198fed0682bea5fa87c18abb084",
+      "upstream_tag": "cyrus-sasl-2.1.28",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "krb5_krb5-krb5-1.15.1-final-NOTICE",
+      "sha256": "f83512c49bc8cbc44ca6b8783e989a03b4051508b30563b3f9d7956eefae9151",
+      "bytes": 61301,
+      "original_url": "https://raw.githubusercontent.com/krb5/krb5/b9ad6c49505c96a088326b62a52568e3484f2168/NOTICE",
+      "original_source_path": "NOTICE",
+      "original_file_sha256": "f83512c49bc8cbc44ca6b8783e989a03b4051508b30563b3f9d7956eefae9151",
+      "upstream_commit": "b9ad6c49505c96a088326b62a52568e3484f2168",
+      "upstream_tag": "krb5-1.15.1-final",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "keyutils-v1.5.8-LICENCE.LGPL",
+      "sha256": "0d15593e3a8ad90917f8509b5ac1e4b5e5d196434a68029aa9dc0858a4a4c521",
+      "bytes": 26450,
+      "original_url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/dhowells/keyutils/+/dd64114721edca5808872190e7e2e927ee2e994c/LICENCE.LGPL?format=TEXT",
+      "original_source_path": "keyutils-v1.5.8-LICENCE.LGPL",
+      "original_file_sha256": "0d15593e3a8ad90917f8509b5ac1e4b5e5d196434a68029aa9dc0858a4a4c521",
+      "upstream_commit": "dd64114721edca5808872190e7e2e927ee2e994c",
+      "upstream_tag": "v1.5.8",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "keyutils-v1.5.8-LICENCE.GPL",
+      "sha256": "f46409d4822b2457b39bbd0e7881eecb396130eb8320b7748fa7e9488970aa6d",
+      "bytes": 17997,
+      "original_url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/dhowells/keyutils/+/dd64114721edca5808872190e7e2e927ee2e994c/LICENCE.GPL?format=TEXT",
+      "original_source_path": "keyutils-v1.5.8-LICENCE.GPL",
+      "original_file_sha256": "f46409d4822b2457b39bbd0e7881eecb396130eb8320b7748fa7e9488970aa6d",
+      "upstream_commit": "dd64114721edca5808872190e7e2e927ee2e994c",
+      "upstream_tag": "v1.5.8",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "keyutils-v1.5.8-keyutils.c.license-header.txt",
+      "sha256": "220eb0bd223f950c397472e9e91a1e17cead8c8f0916417897d72831ba979204",
+      "bytes": 416,
+      "original_url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/dhowells/keyutils/+/dd64114721edca5808872190e7e2e927ee2e994c/keyutils.c?format=TEXT",
+      "original_source_path": "keyutils-v1.5.8-keyutils.c",
+      "original_file_sha256": "4c34f646e28308cb4b47c9f871f0686da9cbcc59ab289c35ee13e049c2d711bf",
+      "upstream_commit": "dd64114721edca5808872190e7e2e927ee2e994c",
+      "upstream_tag": "v1.5.8",
+      "treatment": "Exact initial C-comment bytes only, not complete source; original full-file identity retained separately"
+    },
+    {
+      "file": "keyutils-v1.5.8-keyutils.h.license-header.txt",
+      "sha256": "e0efefef4b48362f5652cc28e2981e017759a53658c121dbe1c9539fa9980621",
+      "bytes": 426,
+      "original_url": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/dhowells/keyutils/+/dd64114721edca5808872190e7e2e927ee2e994c/keyutils.h?format=TEXT",
+      "original_source_path": "keyutils-v1.5.8-keyutils.h",
+      "original_file_sha256": "a5cca5ae3b959e49662905a35c96bf66b2b83d2c8ed8164e597d628a616d0f4f",
+      "upstream_commit": "dd64114721edca5808872190e7e2e927ee2e994c",
+      "upstream_tag": "v1.5.8",
+      "treatment": "Exact initial C-comment bytes only, not complete source; original full-file identity retained separately"
+    },
+    {
+      "file": "openldap-2.6.3-LICENSE",
+      "sha256": "310fe25c858a9515fc8c8d7d1f24a67c9496f84a91e0a0e41ea9975b1371e569",
+      "bytes": 2214,
+      "original_url": "https://raw.githubusercontent.com/openldap/openldap/951da33108ffa5d74a1b15f1469525d5a6ac8cd2/LICENSE",
+      "original_source_path": "openldap-2.6.3-LICENSE",
+      "original_file_sha256": "310fe25c858a9515fc8c8d7d1f24a67c9496f84a91e0a0e41ea9975b1371e569",
+      "upstream_commit": "951da33108ffa5d74a1b15f1469525d5a6ac8cd2",
+      "upstream_tag": "OPENLDAP_REL_ENG_2_6_3",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "openldap-2.6.3-COPYRIGHT",
+      "sha256": "9a28e758024988539d5d21420bdc19086c86cd2b0e3bb609e954a9e364b7c11f",
+      "bytes": 2345,
+      "original_url": "https://raw.githubusercontent.com/openldap/openldap/951da33108ffa5d74a1b15f1469525d5a6ac8cd2/COPYRIGHT",
+      "original_source_path": "openldap-2.6.3-COPYRIGHT",
+      "original_file_sha256": "9a28e758024988539d5d21420bdc19086c86cd2b0e3bb609e954a9e364b7c11f",
+      "upstream_commit": "951da33108ffa5d74a1b15f1469525d5a6ac8cd2",
+      "upstream_tag": "OPENLDAP_REL_ENG_2_6_3",
+      "treatment": "Unmodified original complete notice file"
+    },
+    {
+      "file": "pcre-8.32-LICENCE",
+      "sha256": "9ccbdd877d602470f8ec02a47c32048887e49bd64b081c48132a32dcd6f46eed",
+      "bytes": 3099,
+      "original_url": "https://downloads.sourceforge.net/project/pcre/pcre/8.32/pcre-8.32.tar.bz2",
+      "original_source_path": "pcre-8.32/LICENCE",
+      "upstream_base_version": "8.32",
+      "archive_sha256": "a913fb9bd058ef380a2d91847c3c23fcf98e92dc3b47cd08a53c021c5cde0f55",
+      "archive_hash_basis": "Computed from fetched version-pinned archive; independent publisher checksum not established",
+      "treatment": "Unmodified original complete notice file; configure.ac version/date match observed library base identifier"
+    },
+    {
+      "file": "libselinux-2.5-LICENSE",
+      "sha256": "86657b4c0fe868d7cbd977cb04c63b6c667e08fa51595a7bc846ad4bed8fc364",
+      "bytes": 1034,
+      "original_url": "https://raw.githubusercontent.com/SELinuxProject/selinux/libselinux-2.5/libselinux/LICENSE",
+      "original_source_path": "libselinux/LICENSE",
+      "upstream_tag": "libselinux-2.5",
+      "treatment": "Unmodified version-tagged upstream original; downstream patch/notice completeness not established"
+    },
+    {
+      "file": "libcom_err-1.42.9-19.el7-COPYING",
+      "sha256": "680f852df303874fe9c722283a7da571ae9a0477768df8af1e363298e2adc51e",
+      "bytes": 44569,
+      "original_url": "https://vault.centos.org/7.9.2009/os/x86_64/Packages/libcom_err-1.42.9-19.el7.x86_64.rpm",
+      "original_source_path": "usr/share/doc/libcom_err-1.42.9/COPYING",
+      "original_rpm_sha256": "b98e19c3bbf6de458697a895654db0d75e93e7738ef22bc1540e2c78fa91748b",
+      "treatment": "Complete unmodified runtime RPM COPYING, including distinctions between e2fsprogs components; no generic MIT substitution"
+    },
+    {
+      "file": "e2fsprogs-v1.42.9-com_err.c.license-header.txt",
+      "sha256": "b1833a929ac746be3daf049ad7b83ac7b60de7427651d55d726100ef39ea81bc",
+      "bytes": 580,
+      "original_url": "https://raw.githubusercontent.com/tytso/e2fsprogs/v1.42.9/lib/et/com_err.c",
+      "original_source_path": "lib/et/com_err.c",
+      "original_file_sha256": "873d31d80fa2f930d13b3fb600159663d54861af0abb937c1b879b74e11db0ab",
+      "upstream_tag": "v1.42.9",
+      "treatment": "Exact initial C-comment bytes only, including original MIT SIPB advertising restriction and warranty terms; not complete source"
+    }
+  ],
+  "components": [
+    {
+      "member": "psycopg2_binary.libs/libkeyutils-dfe70bd6.so.1.5",
+      "sha256": "c29e41b03cf4b2dffbfb4960946e2b42f82c0ca5d53d231d3f0fc597ba274488",
+      "build_ids": [
+        "2e01d5ac08c1280d013aab96b292ac58bc30a263"
+      ],
+      "source_family": "keyutils",
+      "upstream_base_version": "1.5.8",
+      "version_evidence": "Direct keyutils-1.5.8 literal; source-RPM release/backports unknown",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "keyutils-v1.5.8-LICENCE.LGPL",
+        "keyutils-v1.5.8-LICENCE.GPL",
+        "keyutils-v1.5.8-keyutils.c.license-header.txt",
+        "keyutils-v1.5.8-keyutils.h.license-header.txt"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libsasl2-883649fd.so.3.0.0",
+      "sha256": "182f02d5e474db227cda83abac7413d431d487c6c01afd0cd741e140cedc0f3a",
+      "build_ids": [
+        "248a1916082585f000a3ed74978eb7cc308c5233"
+      ],
+      "source_family": "cyrusimap/cyrus-sasl",
+      "upstream_base_version": "2.1.28",
+      "version_evidence": "Literal2.1.28 and version-info disassembly writes2/1/28",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "cyrusimap_cyrus-sasl-cyrus-sasl-2.1.28-COPYING"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libkrb5support-d0bcff84.so.0.1",
+      "sha256": "6a71f57d748fef79b4e736d5348875545d0a224fa8928b5d62a3cf2647fc109f",
+      "build_ids": [
+        "779381063daecc27e8480c8f79f0651162586478"
+      ],
+      "source_family": "krb5/krb5",
+      "upstream_base_version": null,
+      "version_evidence": "Kerberos family association only; exact individual source binding unresolved",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "krb5_krb5-krb5-1.15.1-final-NOTICE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libselinux-0922c95c.so.1",
+      "sha256": "d4fa8e7fb3add960a68325a59c9694244aea3213fd739a50815cb067c4965654",
+      "build_ids": [
+        "903a0bd0bfb4fee8c284f41beb9773ded94cbc52"
+      ],
+      "source_family": "SELinux libselinux",
+      "upstream_base_version": null,
+      "version_evidence": "Exact runtime RPM core-content match (GNU build ID and .text/.rodata), not SONAME/version-label inference",
+      "downstream_build_binding": "Runtime RPM content match established; source/patch/build materials and publisher wheel-repair provenance remain unaccepted",
+      "notice_files": [
+        "libselinux-2.5-LICENSE"
+      ],
+      "notice_scope": "Original matched-runtime-RPM/version-tagged notices and source header only; not exhaustive downstream notice/source fulfilment",
+      "runtime_rpm_binding": {
+        "nevra": "libselinux-2.5-15.el7.x86_64",
+        "url": "https://vault.centos.org/7.9.2009/os/x86_64/Packages/libselinux-2.5-15.el7.x86_64.rpm",
+        "rpm_sha256": "06a5ab8e6feff677b312426988773600996a0a299878bf661e149a53d42c3edb",
+        "rpm_bytes": 166012,
+        "rpm_elf_sha256": "0922c95c5680d2e9633205df5b5533f44809bb36a9bdb47c0d5c44d0eaa20630",
+        "source_rpm": "libselinux-2.5-15.el7.src.rpm",
+        "rpm_license_label": "Public Domain",
+        "rpm_signature_verified": false,
+        "gnu_build_id": "903a0bd0bfb4fee8c284f41beb9773ded94cbc52",
+        "equal_sections": {
+          ".text": {
+            "bytes": 89606,
+            "sha256": "0bda64db3fa743577658464fc3fa537a9e84993ebd26333d57eb4ed9cdfad29e"
+          },
+          ".rodata": {
+            "bytes": 7398,
+            "sha256": "b7102e4307a0ba225c2e7b552845e9d1474d80c8cecd563afe3477b99efaa29e"
+          }
+        },
+        "other_equal_file_backed_sections": [
+          ".data",
+          ".data.rel.ro",
+          ".eh_frame",
+          ".eh_frame_hdr",
+          ".fini",
+          ".fini_array",
+          ".gnu.hash",
+          ".gnu.version",
+          ".gnu.version_r",
+          ".gnu_debugdata",
+          ".gnu_debuglink",
+          ".got",
+          ".got.plt",
+          ".init",
+          ".init_array",
+          ".jcr",
+          ".note.gnu.build-id",
+          ".plt",
+          ".rela.dyn",
+          ".rela.plt",
+          ".rodata",
+          ".shstrtab",
+          ".tdata",
+          ".text"
+        ],
+        "different_sections": [
+          ".dynamic",
+          ".dynstr",
+          ".dynsym"
+        ],
+        "binding_scope": "GNU build ID and core section bytes match exact CentOS runtime RPM; .dynamic/.dynstr/.dynsym differ. Publisher repair command/tool/base image and corresponding source/patch/build sufficiency not established."
+      }
+    },
+    {
+      "member": "psycopg2_binary.libs/libssl-3e69114b.so.1.1",
+      "sha256": "7d2cf992255138c7177a0d1293006c26429fc77c763e54165bf6be786cf5fec9",
+      "build_ids": [
+        "f8004c56570caa9caa56d78e665d97a422117865"
+      ],
+      "source_family": "openssl/openssl",
+      "upstream_base_version": "1.1.1w",
+      "version_evidence": "Direct compiled OpenSSL version/date literal",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "openssl_openssl-OpenSSL_1_1_1w-LICENSE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libldap-1b002981.so.2.0.200",
+      "sha256": "9bcf0a43be7f792cfbd6a8941a3df31b56ffd46b8a3893eff72aae97c92ad03e",
+      "build_ids": [
+        "7b0fc522328c76acdce84f18efda66f05d4960fc"
+      ],
+      "source_family": "openldap/openldap",
+      "upstream_base_version": "2.6.3",
+      "version_evidence": "LDAPAPIInfo vendor field compiled constant20603; source header/option implementation and release recipe corroborate",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "openldap-2.6.3-LICENSE",
+        "openldap-2.6.3-COPYRIGHT"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libcom_err-2abe824b.so.2.1",
+      "sha256": "5426dcb54dd01c9eedda05e2179f0e47114e8b48a534ffe9e94916e79471b257",
+      "build_ids": [
+        "2addb65846a50ce45f0c9b62ea35dda62c6ad7a2"
+      ],
+      "source_family": "e2fsprogs/libcom_err (matched CentOS runtime RPM)",
+      "upstream_base_version": null,
+      "version_evidence": "Exact runtime RPM core-content match (GNU build ID and .text/.rodata), not SONAME/version-label inference",
+      "downstream_build_binding": "Runtime RPM content match established; source/patch/build materials and publisher wheel-repair provenance remain unaccepted",
+      "notice_files": [
+        "libcom_err-1.42.9-19.el7-COPYING",
+        "e2fsprogs-v1.42.9-com_err.c.license-header.txt"
+      ],
+      "notice_scope": "Original matched-runtime-RPM/version-tagged notices and source header only; not exhaustive downstream notice/source fulfilment",
+      "runtime_rpm_binding": {
+        "nevra": "libcom_err-1.42.9-19.el7.x86_64",
+        "url": "https://vault.centos.org/7.9.2009/os/x86_64/Packages/libcom_err-1.42.9-19.el7.x86_64.rpm",
+        "rpm_sha256": "b98e19c3bbf6de458697a895654db0d75e93e7738ef22bc1540e2c78fa91748b",
+        "rpm_bytes": 43092,
+        "rpm_elf_sha256": "2abe824bc4b40f400391ad327090796ecc2cd48df173c2f82134ec5c1d3d6c91",
+        "source_rpm": "e2fsprogs-1.42.9-19.el7.src.rpm",
+        "rpm_license_label": "MIT",
+        "rpm_signature_verified": false,
+        "gnu_build_id": "2addb65846a50ce45f0c9b62ea35dda62c6ad7a2",
+        "equal_sections": {
+          ".text": {
+            "bytes": 3027,
+            "sha256": "6bb544fadd9c4d8d244b5493a145d4acee1787a880ea8f191b562c428c08f60e"
+          },
+          ".rodata": {
+            "bytes": 227,
+            "sha256": "a6f7b64bb00940ffeb10fbeb28903b1bcb195d8d8b830a57e6be8d9f544c875e"
+          }
+        },
+        "other_equal_file_backed_sections": [
+          ".data",
+          ".data.rel.ro",
+          ".eh_frame",
+          ".eh_frame_hdr",
+          ".fini",
+          ".fini_array",
+          ".gnu.hash",
+          ".gnu.version",
+          ".gnu.version_r",
+          ".gnu_debugdata",
+          ".gnu_debuglink",
+          ".got",
+          ".got.plt",
+          ".init",
+          ".init_array",
+          ".jcr",
+          ".note.gnu.build-id",
+          ".plt",
+          ".rela.dyn",
+          ".rela.plt",
+          ".rodata",
+          ".shstrtab",
+          ".text"
+        ],
+        "different_sections": [
+          ".dynamic",
+          ".dynstr",
+          ".dynsym"
+        ],
+        "binding_scope": "GNU build ID and core section bytes match exact CentOS runtime RPM; .dynamic/.dynstr/.dynsym differ. Publisher repair command/tool/base image and corresponding source/patch/build sufficiency not established."
+      }
+    },
+    {
+      "member": "psycopg2_binary.libs/libpcre-9513aab5.so.1.2.0",
+      "sha256": "02eda850e04931656d8af81f5171bff74d8bec1553d3d85c3d32d7fc5efe8864",
+      "build_ids": [
+        "9ca3d11f018beeb719cdb34be800bf1641350d0a"
+      ],
+      "source_family": "PCRE1",
+      "upstream_base_version": "8.32",
+      "version_evidence": "Direct8.32 2012-11-30 native literal; original upstream source distribution configure.ac major8/minor32/date matches",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "pcre-8.32-LICENCE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence",
+      "notice_acquisition": "Versioned source LICENCE retained; downstream patches/source-RPM still unresolved"
+    },
+    {
+      "member": "psycopg2_binary.libs/libk5crypto-b1f99d5c.so.3.1",
+      "sha256": "9844e5009e70a6ad2fb22b587306810fe2a7b1b9f6b9922daa1c78ba3466de27",
+      "build_ids": [
+        "5ff9d1075a8d5d62f77f5ce56c935fcd92c62efa"
+      ],
+      "source_family": "krb5/krb5",
+      "upstream_base_version": null,
+      "version_evidence": "Kerberos family association only; exact individual source binding unresolved",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "krb5_krb5-krb5-1.15.1-final-NOTICE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libpq-e8a033dd.so.5.16",
+      "sha256": "44840f4041ad0a1c8ac64e9bfa0ef4a7ad83f537110688cea7430a8f5461156b",
+      "build_ids": [
+        "42c09dfe4fb0c42718d48e3cadaeb96a49a9e400"
+      ],
+      "source_family": "postgres/postgres",
+      "upstream_base_version": "16.0",
+      "version_evidence": "PQlibVersion disassembly returns160000; no function execution",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "postgres_postgres-REL_16_0-COPYRIGHT"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libgssapi_krb5-497db0c6.so.2.2",
+      "sha256": "2a74b0330ee973281b26f8ebe4acef0ebf9ee99c6b68497cf9151fff6c4c34e1",
+      "build_ids": [
+        "0caec124d97114da40ddeb0fed1fad5d14c3d626"
+      ],
+      "source_family": "krb5/krb5",
+      "upstream_base_version": null,
+      "version_evidence": "Kerberos family association only; exact individual source binding unresolved",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "krb5_krb5-krb5-1.15.1-final-NOTICE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/liblber-1c2d2bfc.so.2.0.200",
+      "sha256": "ce495f0601ecc4975368905da08e080cc9a3fb470d91662aa7657b601e29223d",
+      "build_ids": [
+        "78f486b4241c49bd4ff3d92f911cfae7262a0133"
+      ],
+      "source_family": "openldap/openldap",
+      "upstream_base_version": null,
+      "version_evidence": "OpenLDAP ABI and paired recipe only; standalone release identifier not established",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "openldap-2.6.3-LICENSE",
+        "openldap-2.6.3-COPYRIGHT"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libcrypto-7d0e8add.so.1.1",
+      "sha256": "3b70da3751ec6c12a7740a89b4d3bdb94416dfb6ebf1c15352fbfccbeb8f52ab",
+      "build_ids": [
+        "e69cc618c30d63a28d51ff45cf1411e47fd81670"
+      ],
+      "source_family": "openssl/openssl",
+      "upstream_base_version": "1.1.1w",
+      "version_evidence": "Direct compiled OpenSSL version/date literal",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "openssl_openssl-OpenSSL_1_1_1w-LICENSE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    },
+    {
+      "member": "psycopg2_binary.libs/libkrb5-fcafa220.so.3.3",
+      "sha256": "b2aab528ff4cab2144e5ce01b246ac09f574a072a53ff63ea81d6bb29b26b8f1",
+      "build_ids": [
+        "52c5b6279da9cd210e5d58d1b1e0e080e5c8b232"
+      ],
+      "source_family": "krb5/krb5",
+      "upstream_base_version": "1.15.1",
+      "version_evidence": "KRB5_BRAND upstream-base identifier; downstream release/backports unknown",
+      "downstream_build_binding": "UNRESOLVED: no exact source-RPM/patch/build-cache or wheel build attestation supplied",
+      "notice_files": [
+        "krb5_krb5-krb5-1.15.1-final-NOTICE"
+      ],
+      "notice_scope": "Original upstream-base/family notices only; not exact downstream source/build correspondence"
+    }
+  ],
+  "evidence_inputs_sha256": {
+    "native-source-mapping.json": "a3d740624dedf227a9ceb2da02d356d5359a652521d4379854b4712924775645",
+    "wheel-member-inventory.json": "2d3c5135ff1e0f4b87a7d5f97d0a5716d05498b1daf85a372bd42c4e405254d2",
+    "upstream-notice-source-index.json": "45cae5f6666618f6101ac74d3089fceeaf1177579013ad5279a0626e2964a917",
+    "publisher-wheel-selection.json": "47cc5c231cd59c88722e2a32ad77d0dd502690419fc2716a9edf2ff694d2f996",
+    "runtime_rpm_elf_comparison.json": "930ffc761235c8bfe97a9cd42f77c4276c8c3b3cb7e8f2d2b212c124500bb70e",
+    "runtime_rpm_downloads.json": "2d7bb50c44db9c8e8979798ce4adcf7f5b2a00b9c014bceb4711503e681ca07f"
+  },
+  "source_fulfilment_accepted": false,
+  "scope": "Original upstream-base/family notice supplement bound to one reviewed publisher wheel and installed native/control hashes; not complete source/build provenance or compliance. libselinux/libcom_err runtime RPM core-content matches are established; exact corresponding source/patch/build sufficiency and publisher wheel-repair provenance remain unaccepted.",
+  "keyutils_grant_note": "Original library C/H headers say LGPL version2-or-later; original LICENCE.LGPL contains LGPL2.1. Preserve both verbatim. LICENCE.GPL is separate project context and is not a claim that Vesta or this library is GPL-only.",
+  "kerberos_family_note": "Complete original krb5 NOTICE is retained for associated family members; only libkrb5 upstream-base identifier was independently observed; per-member downstream correspondence remains unproven."
+}

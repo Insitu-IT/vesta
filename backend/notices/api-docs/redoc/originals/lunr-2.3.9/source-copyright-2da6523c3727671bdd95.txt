@@ -1,0 +1,5 @@
+/*!
+ * lunr.stemmer
+ * Copyright (C) @YEAR Oliver Nightingale
+ * Includes code from - http://tartarus.org/~martin/PorterStemmer/js.txt
+ */

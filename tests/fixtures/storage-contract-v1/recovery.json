@@ -1,0 +1,226 @@
+{
+  "protocol": "vnbui-storage-transaction/1",
+  "cases": [
+    {
+      "id": "F01",
+      "inject": "plan commit fails",
+      "expected_state": "not_dispatched",
+      "production_test_id": "test_f01_plan_commit_failure",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "no_agent_request",
+        "no_s3_write",
+        "no_native_backup"
+      ]
+    },
+    {
+      "id": "F02",
+      "inject": "replacement VM/PVC or changed disk selection",
+      "expected_state": "source_conflict",
+      "production_test_id": "test_f02_source_replacement",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "original_history_unchanged",
+        "no_partial_backup"
+      ]
+    },
+    {
+      "id": "F03",
+      "inject": "missing/extra artifact or oversize manifest",
+      "expected_state": "cleanup_required",
+      "production_test_id": "test_f03_receipt_set_and_bounds",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "receipt_not_accepted",
+        "reservation_retained"
+      ]
+    },
+    {
+      "id": "F04",
+      "inject": "multipart creation/part/completion reply lost",
+      "expected_state": "prepared_or_cleanup_required",
+      "production_test_id": "test_f04_multipart_crash_boundaries",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "exact_key_retained",
+        "unknown_upload_id_holds",
+        "no_guessed_reupload"
+      ]
+    },
+    {
+      "id": "F05",
+      "inject": "acceptance reply lost, identical/conflicting retry",
+      "expected_state": "receipt_accepted",
+      "production_test_id": "test_f05_acceptance_replay",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "identical_replay",
+        "conflict_rejected",
+        "no_checkpoint_inference"
+      ]
+    },
+    {
+      "id": "F06",
+      "inject": "absent or same-transaction receipt plus publication",
+      "expected_state": "reserved",
+      "production_test_id": "test_f06_prior_transaction_required",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "db_and_api_refuse",
+        "no_visible_member"
+      ]
+    },
+    {
+      "id": "F07",
+      "inject": "namespace/tracker loss or incidental TTL checkpoint",
+      "expected_state": "cleanup_required",
+      "production_test_id": "test_f07_incidental_checkpoint",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "never_completed",
+        "retained_attribution",
+        "fresh_full_after_native_cleanup"
+      ]
+    },
+    {
+      "id": "F08",
+      "inject": "replacement VMB/tracker or stuck finalizer",
+      "expected_state": "cleanup_required",
+      "production_test_id": "test_f08_native_abort_uid_fences",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "replacement_untouched",
+        "vmb_absent_before_tracker_delete",
+        "no_finalizer_mutation"
+      ]
+    },
+    {
+      "id": "F09",
+      "inject": "checkpoint verified before manifest commit, then restart",
+      "expected_state": "manifest_pending_or_completed",
+      "production_test_id": "test_f09_checkpoint_to_manifest_recovery",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "no_reupload",
+        "exactly_once_logical_completion",
+        "no_visibility_without_pointer"
+      ]
+    },
+    {
+      "id": "F10",
+      "inject": "concurrent append/delete, stale CAS or lost pointer reply",
+      "expected_state": "manifest_pending_or_committed",
+      "production_test_id": "test_f10_root_cas_recovery",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "no_lost_update",
+        "no_delete_before_put",
+        "immutable_generation_receipts"
+      ]
+    },
+    {
+      "id": "F11",
+      "inject": "target changes or unowned legacy chain",
+      "expected_state": "fresh_full_required_or_cleanup_required",
+      "production_test_id": "test_f11_target_and_legacy_boundary",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "recorded_target_only",
+        "no_backfill",
+        "legacy_restorable"
+      ]
+    },
+    {
+      "id": "F12",
+      "inject": "object changes before exact cleanup",
+      "expected_state": "cleanup_required",
+      "production_test_id": "test_f12_cleanup_identity_change",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "replacement_untouched",
+        "exact_version_or_conditional_etag"
+      ]
+    },
+    {
+      "id": "F13",
+      "inject": "partial retention deletion, pending child, restart",
+      "expected_state": "deletion_pending",
+      "production_test_id": "test_f13_retention_retry_tombstones",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "parent_preserved",
+        "ledger_and_tombstone_retained",
+        "retry_exact_failed_steps"
+      ]
+    },
+    {
+      "id": "F14",
+      "inject": "tenant collision, disabled org, task cancellation",
+      "expected_state": "tenant_scoped_failure",
+      "production_test_id": "test_f14_background_scope_lifetime",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": [
+        "other_tenant_progresses",
+        "disabled_org_not_auto_pruned",
+        "resources_closed",
+        "platform_enumeration_ends_before_mutation"
+      ]
+    },
+    {
+      "id": "F15",
+      "inject": "restore/scrub/export/import/chain-assembly ciphertext or plaintext digest/count mismatch",
+      "expected_state": "corrupt/held",
+      "production_test_id": "test_f15_all_consumers_integrity_failure",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["no_guest_exposure", "no_successful_completion", "receipt_and_ownership_retained", "no_provider_verified_claim"]
+    },
+    {
+      "id": "F16",
+      "inject": "consumer restart before verification commit or lost completion acknowledgement afterward",
+      "expected_state": "durable_verification_or_prior_assurance",
+      "production_test_id": "test_f16_consumer_verification_restart",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["exact_receipt_object_fencing", "unverified_output_not_usable", "secure_hash_resume_or_restart", "idempotent_completion"]
+    },
+    {
+      "id": "F17",
+      "inject": "same-bucket payload and manifest rewritten without authenticated receipt anchor",
+      "expected_state": "untrusted/held",
+      "production_test_id": "test_f17_import_anchor_required",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["no_name_only_adoption", "self_consistent_hashes_not_provenance", "authorized_verified_import_and_trust_admission_before_publication"]
+    },
+    {
+      "id": "F18",
+      "inject": "ignored completion precondition, expired producer lease, ambiguous complete reply",
+      "expected_state": "uncertain_attempt_held",
+      "production_test_id": "test_f18_unique_attempt_no_second_mpu",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["unique_committed_attempt_keys", "no_key_reuse", "no_blind_completion", "lease_expiry_not_s3_fence", "changed_identity_never_adopted", "stale_producer_cannot_publish"]
+    },
+    {
+      "id": "F19",
+      "inject": "consumed MPU absent on abort or changed identity during cleanup",
+      "expected_state": "exact_absence_or_cleanup_hold",
+      "production_test_id": "test_f19_cleanup_absence_and_replacement_hold",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["persist_exact_upload_absence", "production_replacement_never_adopted", "producer_quiescence_before_delete", "probe_exception_exact_journal_only"]
+    },
+    {
+      "id": "F20",
+      "inject": "DB-rooted generation created but selection commit lost; concurrent producer; tombstone cleanup interrupted",
+      "expected_state": "db_selected_generation_or_held_outbox",
+      "production_test_id": "test_f20_db_rooted_outbox_recovery",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["D06_D08_D09", "no_mutable_s3_root", "stale_producer_not_selected", "tombstone_committed_before_cleanup", "receipt_ledger_retained"]
+    },
+    {
+      "id": "F21",
+      "inject": "DB loss; unordered candidates, fork, cycle, missing parent, mixed tenant, forged same-bucket manifest",
+      "expected_state": "untrusted/held",
+      "production_test_id": "test_f21_db_loss_generation_graph_admission",
+      "production_test_status": "required_not_claimed_implemented",
+      "invariants": ["D08_D09", "bounded_exact_installation_prefix_discovery", "reject_invalid_or_ambiguous_graph", "full_consumer_verification", "explicit_audited_operator_trust", "no_adversarial_anchor_claim"]
+    }
+  ]
+}

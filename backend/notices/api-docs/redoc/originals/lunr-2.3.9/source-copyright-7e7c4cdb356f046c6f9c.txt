@@ -1,0 +1,4 @@
+/*!
+ * lunr.Vector
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

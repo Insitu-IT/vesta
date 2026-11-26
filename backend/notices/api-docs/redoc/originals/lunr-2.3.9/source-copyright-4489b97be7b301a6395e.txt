@@ -1,0 +1,4 @@
+/*!
+ * lunr.Set
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

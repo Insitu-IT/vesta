@@ -1,0 +1,110 @@
+{
+  "namespace": "vesta",
+  "vm_namespace": "protected-vms",
+  "restore_namespaces": [
+    "protected-vms"
+  ],
+  "ui_host": "vesta.example.org",
+  "api_host": "vesta-api.example.org",
+  "images": {
+    "backend": "registry.example.org/vesta/backend@sha256:REPLACE_WITH_BUILT_DIGEST",
+    "frontend": "registry.example.org/vesta/frontend@sha256:REPLACE_WITH_BUILT_DIGEST",
+    "agent": "registry.example.org/vesta/agent-kubevirt@sha256:REPLACE_WITH_BUILT_DIGEST"
+  },
+  "secrets": {
+    "database_owner": "vesta-db-owner",
+    "database_runtime": "vesta-db-runtime",
+    "application": "vesta-application",
+    "admin": "vesta-initial-admin",
+    "backend_tls": "vesta-backend-tls",
+    "agent_tls": "vesta-agent-tls",
+    "agent_registration": "vesta-agent-registration",
+    "trust": "vesta-trust"
+  },
+  "mtls": null,
+  "database": "vesta",
+  "runtime_role": "vesta_runtime",
+  "admin_username": "installation-admin",
+  "apm_enabled": false,
+  "kube_api_qps": 50,
+  "kube_api_burst": 100,
+  "kubevirt_transfer_profile": "kubevirt-32m/1",
+  "kubevirt_native_backup_ttl_seconds": 36000,
+  "kubevirt_transaction_timeout_seconds": 0,
+  "operation_budget": {
+    "time_coefficient": 3,
+    "no_progress_coefficient": 3,
+    "observation_coefficient": 3,
+    "scratch_coefficient": 1.2,
+    "bootstrap_bytes_per_second": 8388608,
+    "preparation_estimate_seconds": 180,
+    "control_estimate_seconds": 60
+  },
+  "source_health_probes": [],
+  "journal_storage_class": "REPLACE",
+  "journal_size": "1Gi",
+  "scratch_storage_class": "REPLACE",
+  "scratch_size": "64Gi",
+  "scratch_access_mode": "ReadWriteMany",
+  "resources": {
+    "backend": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "512Mi"
+      },
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    },
+    "frontend": {
+      "requests": {
+        "cpu": "50m",
+        "memory": "64Mi"
+      },
+      "limits": {
+        "cpu": "500m",
+        "memory": "256Mi"
+      }
+    },
+    "agent": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "2",
+        "memory": "2Gi"
+      }
+    },
+    "migration": {
+      "requests": {
+        "cpu": "250m",
+        "memory": "256Mi"
+      },
+      "limits": {
+        "cpu": "1",
+        "memory": "1Gi"
+      }
+    }
+  },
+  "agent_namespace": "vesta-agent",
+  "source_namespaces": [
+    "protected-vms"
+  ],
+  "selected_namespaces": [
+    "protected-vms"
+  ],
+  "agent_id": "vesta-kubevirt-protected-vms",
+  "agent_display_name": "KubeVirt agent 1",
+  "agent_key_rotation_ttl_hours": 24,
+  "max_concurrent_backups": 1,
+  "ui_aliases": [],
+  "edition": "community",
+  "operating_profile": {
+    "auth_mode": "single_organization",
+    "enabled_modules": []
+  },
+  "resource_prefix": "vesta",
+  "application_key_name": "VESTA_ENCRYPTION_KEY"
+}

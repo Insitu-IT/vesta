@@ -1,0 +1,37 @@
+[Unit]
+Description=Vesta optional native staging allocation broker
+RequiresMountsFor=/var/lib/vesta-native-staging
+ConditionPathExists=/etc/vesta/native-staging.env
+
+[Service]
+Type=simple
+User=root
+Group=vesta-agent
+UMask=0027
+Environment=NATIVE_STAGING_MOUNT=/var/lib/vesta-native-staging
+Environment=NATIVE_STAGING_SOCKET=/run/vesta-native-staging/broker.sock
+EnvironmentFile=/etc/vesta/native-staging.env
+EnvironmentFile=-/etc/vesta/native-staging-legacy.env
+RuntimeDirectory=vesta-native-staging
+RuntimeDirectoryMode=0750
+ExecCondition=/usr/bin/mountpoint -q ${NATIVE_STAGING_MOUNT}
+ExecStart=/usr/bin/python3 -I /usr/libexec/vesta-native-staging/native_staging_broker.py --root ${NATIVE_STAGING_MOUNT}/attempts --socket ${NATIVE_STAGING_SOCKET} --uid ${NATIVE_STAGING_UID} --gid ${NATIVE_STAGING_GID} --reserved-bytes ${NATIVE_STAGING_RESERVED_BYTES} --capacity-bytes ${NATIVE_STAGING_CAPACITY_BYTES} --minimum-free-bytes ${NATIVE_STAGING_MINIMUM_FREE_BYTES}
+Restart=on-failure
+RestartSec=30
+NoNewPrivileges=true
+CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_LINUX_IMMUTABLE
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=-/var/lib/vesta-native-staging/attempts /run/vesta-native-staging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=vesta-native-staging
+
+[Install]
+WantedBy=multi-user.target

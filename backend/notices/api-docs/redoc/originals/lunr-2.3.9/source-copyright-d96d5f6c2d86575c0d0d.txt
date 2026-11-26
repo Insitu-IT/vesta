@@ -1,0 +1,4 @@
+/*!
+ * lunr.tokenizer
+ * Copyright (C) @YEAR Oliver Nightingale
+ */

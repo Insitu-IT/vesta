@@ -1,0 +1,177 @@
+[
+  {
+    "name": "legacy-light",
+    "valid": true,
+    "metadata": {
+      "schema_version": 1,
+      "colors": {
+        "primary": "#102A43"
+      }
+    }
+  },
+  {
+    "name": "v2-empty",
+    "valid": true,
+    "metadata": {
+      "schema_version": 2
+    }
+  },
+  {
+    "name": "v2-empty-themes",
+    "valid": true,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {}
+    }
+  },
+  {
+    "name": "v2-partial",
+    "valid": true,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "dark": {
+          "body-bg": "#102A43",
+          "body-color": "#FFFFFF"
+        }
+      }
+    }
+  },
+  {
+    "name": "v2-both-and-fallback",
+    "valid": true,
+    "metadata": {
+      "schema_version": 2,
+      "colors": {
+        "primary": "#102A43"
+      },
+      "theme_colors": {
+        "light": {
+          "success": "#aBcDeF"
+        },
+        "dark": {
+          "primary": "#AbCdEf"
+        }
+      }
+    }
+  },
+  {
+    "name": "legacy-theme-forbidden",
+    "valid": false,
+    "metadata": {
+      "schema_version": 1,
+      "theme_colors": {}
+    }
+  },
+  {
+    "name": "boolean-version",
+    "valid": false,
+    "metadata": {
+      "schema_version": true,
+      "theme_colors": {}
+    }
+  },
+  {
+    "name": "unknown-version",
+    "valid": false,
+    "metadata": {
+      "schema_version": 3
+    }
+  },
+  {
+    "name": "null-themes",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": null
+    }
+  },
+  {
+    "name": "array-themes",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": []
+    }
+  },
+  {
+    "name": "unknown-theme",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "system": {}
+      }
+    }
+  },
+  {
+    "name": "null-palette",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "dark": null
+      }
+    }
+  },
+  {
+    "name": "arbitrary-css-key",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "dark": {
+          "background-image": "#112233"
+        }
+      }
+    }
+  },
+  {
+    "name": "url-color",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "dark": {
+          "primary": "url(https://example.org/a)"
+        }
+      }
+    }
+  },
+  {
+    "name": "css-injection",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "dark": {
+          "primary": "#112233; color:red"
+        }
+      }
+    }
+  },
+  {
+    "name": "short-color",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "light": {
+          "primary": "#fff"
+        }
+      }
+    }
+  },
+  {
+    "name": "non-string-color",
+    "valid": false,
+    "metadata": {
+      "schema_version": 2,
+      "theme_colors": {
+        "light": {
+          "primary": 123
+        }
+      }
+    }
+  }
+]

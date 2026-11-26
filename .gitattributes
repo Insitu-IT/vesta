@@ -1,0 +1,3 @@
+# Preserve original legal files and exact source-comment slices, including CRLF
+# and upstream whitespace. Their byte hashes are part of the notice review.
+backend/notices/api-docs/*/originals/** -text -whitespace

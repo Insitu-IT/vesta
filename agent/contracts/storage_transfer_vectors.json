@@ -1,0 +1,72 @@
+[
+  {
+    "profile": null,
+    "role": "volume_payload",
+    "ciphertext_max": 0,
+    "part_bytes": 8388608,
+    "range_bytes": 8388608
+  },
+  {
+    "profile": null,
+    "role": "volume_payload",
+    "ciphertext_max": 53687091200,
+    "part_bytes": 8388608,
+    "range_bytes": 8388608
+  },
+  {
+    "profile": null,
+    "role": "volume_payload",
+    "ciphertext_max": 536870912000,
+    "part_bytes": 58720256,
+    "range_bytes": 8388608
+  },
+  {
+    "profile": null,
+    "role": "volume_manifest",
+    "ciphertext_max": 16777216,
+    "part_bytes": 8388608,
+    "range_bytes": 8388608
+  },
+  {
+    "profile": null,
+    "role": "volume_payload",
+    "ciphertext_max": 10737418240000,
+    "part_bytes": 1073741824,
+    "range_bytes": 8388608
+  },
+  {
+    "profile": "kubevirt-32m/1",
+    "role": "volume_payload",
+    "ciphertext_max": 0,
+    "part_bytes": 33554432,
+    "range_bytes": 33554432
+  },
+  {
+    "profile": "kubevirt-32m/1",
+    "role": "volume_payload",
+    "ciphertext_max": 53687091200,
+    "part_bytes": 33554432,
+    "range_bytes": 33554432
+  },
+  {
+    "profile": "kubevirt-32m/1",
+    "role": "volume_payload",
+    "ciphertext_max": 536870912000,
+    "part_bytes": 58720256,
+    "range_bytes": 33554432
+  },
+  {
+    "profile": "kubevirt-32m/1",
+    "role": "volume_manifest",
+    "ciphertext_max": 16777216,
+    "part_bytes": 8388608,
+    "range_bytes": 33554432
+  },
+  {
+    "profile": "kubevirt-32m/1",
+    "role": "volume_payload",
+    "ciphertext_max": 10737418240000,
+    "part_bytes": 1073741824,
+    "range_bytes": 33554432
+  }
+]
