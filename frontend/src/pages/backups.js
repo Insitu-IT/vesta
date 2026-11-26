@@ -937,7 +937,10 @@ export class BackupsPage {
     transferText(data) {
         if (!Number.isSafeInteger(data?.bytes_transferred) || !Number.isSafeInteger(data?.total_bytes)
             || data.bytes_transferred < 0 || data.total_bytes <= 0 || data.bytes_transferred > data.total_bytes) return '';
-        return `${formatSize(data.bytes_transferred)} / ${formatSize(data.total_bytes)}`;
+        // A non-breaking space keeps the unit attached to its value when a
+        // narrow console would otherwise wrap e.g. "786.25" and "MB" apart.
+        const joined = value => formatSize(value).replace(' ', '\u00a0');
+        return `${joined(data.bytes_transferred)} / ${joined(data.total_bytes)}`;
     }
 
     /**
