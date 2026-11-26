@@ -32,3 +32,7 @@ Try the [interactive console demo](https://vestabackup.com/#recovery-demo), or s
 | Update an installation | [Upgrades and rollback](packaging/community/UPGRADES.md) |
 
 Explore the [roadmap](ROADMAP.md), report a problem in [GitHub Issues](https://github.com/Insitu-IT/vesta/issues), or [contribute a change](CONTRIBUTING.md).
+
+## Contributors
+
+[@soko246](https://github.com/soko246)
