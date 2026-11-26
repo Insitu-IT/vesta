@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build the Vesta Agent and its native restore command for EL9.
+# Build the Vesta Agent and its native restore command for the current Enterprise Linux platform.
 set -euo pipefail
 
 repo_root=$(cd "$(dirname "$0")/../.." && pwd)

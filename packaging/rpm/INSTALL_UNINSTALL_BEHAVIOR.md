@@ -44,7 +44,7 @@ and backup retention separately according to your site's policy.
 
 ## Verify package lifecycle
 
-On a disposable supported EL9 host, run
+On a disposable host matching the RPM’s Enterprise Linux major version, run
 `sudo ./test-rpm-cycles.sh /path/to/vesta-agent.rpm` for a fresh cycle.
 Pass the previous agent RPM as the second argument to exercise
 the upgrade and retention of existing state.

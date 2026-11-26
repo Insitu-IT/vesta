@@ -13,7 +13,7 @@ with redistributed packages.
 
 ## Host requirements and configuration
 
-Use the native EL9 x86_64 package on a compatible libvirt host. Native push backup accepts libvirt **11.10.x or 12.7.x**, a running QEMU **10.1.x** domain and **qemu-img 10.1.x**. Package-manager dependency minimums alone cannot establish compatibility. The host also needs the libvirt QEMU driver and Python bindings, systemd, ACL and polkit support. Check the running domain and its backup and checkpoint interfaces before protecting important VMs.
+Use the x86_64 RPM for your Enterprise Linux major version. Choose the filename containing `.el9.` or `.el10.`. Native push backup accepts libvirt **11.10.x or 12.7.x**, a running QEMU **10.1.x** domain and **qemu-img 10.1.x**. The host also needs the libvirt QEMU driver and Python bindings, systemd, ACL and polkit support. Check the running domain and its backup and checkpoint interfaces before protecting important VMs. [Host requirements](../community/installation-requirements.md)
 
 Provision `/etc/vesta/agent.env` privately with the site's backend URL, serving
 and client trust, scoped registration/authentication inputs and stable identity.

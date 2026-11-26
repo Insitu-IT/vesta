@@ -3,7 +3,7 @@
 %global _build_id_links none
 
 Name:           vesta-agent
-Version:        6.1.0
+Version:        6.1.1
 Release:        1%{?dist}
 Summary:        Vesta KVM Backup Agent (prebuilt binary)
 
@@ -290,6 +290,9 @@ exit 0
 %dir %attr(0750,vesta-agent,vesta-agent) /var/log/vesta
 
 %changelog
+* Fri Nov 27 2026 Vesta Backup maintainers - 6.1.1-1
+- Align the agent package with the console readability patch.
+
 * Wed Nov 25 2026 Vesta Backup maintainers - 6.1.0-1
 - Initial Community release of the native libvirt agent and standalone disk recovery tool.
 - Report backup readiness from the observed disks, checkpoints and available storage.

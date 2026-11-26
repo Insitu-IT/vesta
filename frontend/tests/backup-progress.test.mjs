@@ -50,7 +50,7 @@ test('pending and uploading rows display progress and acknowledged payload bytes
         page.backups = [{id: 'upload', status, progress: 12, storage_progress: {bytes_transferred: 8, total_bytes: 64}}];
         const html = page.renderBackupRows();
         assert.match(html, /backup-progress-text/);
-        assert.match(html, /8\u00a0B \/ 64\u00a0B/);
+        assert.match(html, /backup-transfer-text" dir="ltr">8\u00a0B \/ 64\u00a0B<\/div>/);
         page.filter = 'running';
         assert.equal(page.getFilteredCount('running'), 1);
         assert.equal(page.getFilteredBackups().length, 1);

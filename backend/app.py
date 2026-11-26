@@ -13,7 +13,7 @@ from builtins import BaseExceptionGroup
 
 from models import Agent, VM
 from config import settings
-from version import __version__
+from version import OPERATOR_API_VERSION, __version__
 from core import metrics
 
 # Set up logging
@@ -39,7 +39,7 @@ from core.product_identity import product_name  # noqa: E402
 app = FastAPI(
     title=f"{product_name()} API",
     description="KVM Backup Orchestration Platform",
-    version=__version__,
+    version=OPERATOR_API_VERSION,
     docs_url=None,
     redoc_url=None,
 )

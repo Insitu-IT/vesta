@@ -7,7 +7,7 @@ The Vesta Community kit runs the API and web console on amd64 OKD or OpenShift. 
 | What you want to run | What to provide |
 | --- | --- |
 | Control plane with a KubeVirt agent | The amd64 kit, an OKD or OpenShift cluster with the required virtualization APIs, PostgreSQL 17.x, a cluster-reachable registry, and S3-compatible storage |
-| Control plane with external native agents | The amd64 kit with `agent: "external"`, the same cluster, registry and database inputs, S3-compatible storage, and a matching RPM for each EL9 x86_64 host |
+| Control plane with external native agents | The amd64 kit with `agent: "external"`, the same cluster, registry and database inputs, S3-compatible storage, and the matching x86_64 agent RPM for each host |
 | Operator CLI | The `vesta-cli-linux-amd64` binary, a reachable Vesta API, its trusted CA, and an account or token with the required permissions |
 | Offline recovery | The `vesta-restore-linux-amd64` binary, saved chain metadata, read access to the exact backup objects, any required decryption keys, and a fresh output location |
 
@@ -42,7 +42,11 @@ Vesta’s documented lab baseline is HCO 1.18.1, KubeVirt 1.8.4 and CDI 1.65.0 o
 
 ### Native libvirt
 
-Use the EL9 x86_64 `vesta-agent` RPM on a compatible host. Its package dependencies require libvirt, the QEMU driver and Python bindings at **11.10.0 or newer**, plus `qemu-img` **10.1.0 or newer**. At runtime, the native backup path accepts the specific libvirt **11.10.x** and **12.7.x** series. The protected VM must actually be running **QEMU 10.1.x**, and the host must have **qemu-img 10.1.x**. Check the running VM as well as the installed packages. The agent uses the local `qemu:///system` connection and requires at least one eligible qcow2 disk. Check the selected disks on mixed-format VMs.
+Choose the x86_64 `vesta-agent` RPM matching the host’s Enterprise Linux major version. Releases provide separate EL9 and EL10 packages.
+
+If your EL10 host runs the newer libvirt 12.9 and QEMU 11.1 combination, native VM backups on that stack await qualification.
+
+The RPM requires libvirt, the QEMU driver and Python bindings at **11.10.0 or newer**, plus `qemu-img` **10.1.0 or newer**. For native VM backup, Vesta checks the actual virtualization stack. It accepts the libvirt **11.10.x** and **12.7.x** series, a running **QEMU 10.1.x** VM and **qemu-img 10.1.x** on the host. The agent connects to `qemu:///system` and needs at least one eligible qcow2 disk. Check the selected disks on mixed-format VMs.
 
 The package uses systemd, Python 3, ACLs and polkit. Run the packaged service under its dedicated account. Prepare verified HTTPS in both directions, the agent’s server certificate and client CA, and the per-host enrollment credential from Vesta. Preserve the stable host identity, journals and keys under `/var/lib/vesta`. [Install a native agent](https://vestabackup.com/docs/manuals/native-agent/)
 

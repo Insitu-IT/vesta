@@ -8,7 +8,7 @@ The [prebuilt kit](../packaging/community/OKD.md) includes the KubeVirt agent im
 
 ## Native libvirt on Linux
 
-Download the `vesta-agent` RPM for your architecture and operating system from [GitHub Releases](https://github.com/Insitu-IT/vesta/releases/latest). Verify it with the signed checksums, then install it on the libvirt host.
+Choose the x86_64 RPM for your host’s Enterprise Linux major version. Look for `.el9.` or `.el10.` in the filename. Download that single RPM, verify it with the signed checksums and install it on the libvirt host. [GitHub Releases](https://github.com/Insitu-IT/vesta/releases/latest) · [Virtualization requirements](../packaging/community/installation-requirements.md)
 
 ```sh
 sudo dnf install ./vesta-agent-*.rpm

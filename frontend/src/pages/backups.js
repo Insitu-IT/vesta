@@ -324,7 +324,7 @@ export class BackupsPage {
                             </div>
                             <span class="text-nowrap backup-progress-text">${backup.progress || 0}%${this.formatETA(backup.tags?.estimated_completion)}</span>
                         </div>
-                        <div class="small text-secondary backup-transfer-text">${this.transferText(backup.storage_progress)}</div>
+                        <div class="small text-secondary backup-transfer-text" dir="ltr">${this.transferText(backup.storage_progress)}</div>
                     ` : `<span class="text-secondary">—</span>`}
                 </td>
                 <td>

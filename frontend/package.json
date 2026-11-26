@@ -1,7 +1,7 @@
 {
   "name": "vesta-frontend",
   "license": "SEE LICENSE IN LICENSE",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "type": "module",
   "description": "Vesta Backup frontend with Tabler UI",
   "scripts": {

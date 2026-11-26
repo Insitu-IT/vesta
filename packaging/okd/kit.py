@@ -282,9 +282,18 @@ def verify_registration_documents(manifest, actual):
     if metadata.get("edition") != "community" or policy_name not in actual or not isinstance(receipt, dict):
         raise ValueError(error)
     policy = json.loads(actual[policy_name].read_bytes())
-    if not isinstance(policy, dict) or policy.get("release") != metadata.get("runtime_version"):
+    if not isinstance(policy, dict):
         raise ValueError(error)
     names = set(REGISTRATION_FILES)
+    if policy.get("release") != metadata.get("runtime_version"):
+        binding_name = "install/legal/release-binding.json"
+        if binding_name not in actual:
+            raise ValueError(error)
+        binding = json.loads(actual[binding_name].read_bytes())
+        if binding != {"release": metadata["runtime_version"], "policy_release": policy.get("release"),
+                       "policy_sha256": sha(actual[policy_name])}:
+            raise ValueError(error)
+        names.add(binding_name)
     documents = ["terms", "privacy"]
     if "eligibility" in policy:
         names.add("install/legal/eligibility.html")

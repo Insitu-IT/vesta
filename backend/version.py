@@ -9,9 +9,11 @@ Semantic Versioning Policy:
   and schema prerequisites before upgrading dependent agents.
 """
 
-__version__ = "6.1.0"
-__build_date__ = "2026-11-25"
+__version__ = "6.1.1"
+__build_date__ = "2026-11-27"
 API_SERVICE_NAME = "vesta-api"
+# The published OpenAPI revision changes when the operator contract changes.
+OPERATOR_API_VERSION = "6.1.0"
 
 
 def parse_version(version_string: str) -> dict:
