@@ -1,10 +1,10 @@
 # Manage installation licenses
 
-Select a visible licensing reminder or open **Settings → License**. Installation administrators can see and copy the installation ID and current license ID, and check the license class, coverage and expiry. In a multi-organization installation, a platform administrator manages the license.
+Select a visible licensing reminder or open **Settings → License**. Installation administrators can see and copy the installation ID and current license ID, and check the license class, coverage and expiry.
 
 ## Replace the license
 
-1. Copy the installation ID and sign in to the [Vesta licensing portal](https://vestabackup.com/portal/licensing) on a connected device. Select the installed release. Request or renew a license for the same installation ID.
+1. Copy the installation ID and sign in to the [Vesta licensing portal](https://account.vestabackup.com/portal/licensing) on a connected device. Select the installed release. Request or renew a license for the same installation ID.
 2. Download the complete signed JSON file. For a disconnected site, transfer it through your normal offline delivery process.
 3. On the installation's **License** screen choose the file and select **Import file**, or paste the signed JSON and select **Import pasted license**.
 4. Check the success message, license ID and expiry. If verification fails, the screen shows the reason and the previously accepted license. Check the installation ID, trusted issuer, validity dates and that you supplied the complete document.
@@ -17,4 +17,4 @@ The installation kit supplies the issuer's public verification keys. If you mana
 
 ## Acknowledge a reminder
 
-An installation administrator can acknowledge a licensing reminder in the console after reviewing it. Acknowledgement records that the administrator has seen the reminder. Use the [licensing portal](https://vestabackup.com/portal/licensing) to obtain or renew the license.
+An installation administrator can acknowledge a licensing reminder in the console after reviewing it. Acknowledgement records that the administrator has seen the reminder. Use the [licensing portal](https://account.vestabackup.com/portal/licensing) to obtain or renew the license.

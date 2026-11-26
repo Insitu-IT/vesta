@@ -14,7 +14,7 @@ The local manual `runbooks/site-manifest.md` explains each field and the applica
 
 ## Try a recovery
 
-Select a disposable VM and write a file you can recognize. Back it up, restore a fresh copy and compare the file before scheduling protection for production workloads. Use the included guides to [connect your first agent](../runbooks/first-configuration.md) and [recover a VM](../runbooks/fresh-vm-restore.md) while disconnected. [First recovery guide](https://vestabackup.com/docs/first-recovery/)
+Select a disposable VM and write a file you can recognize. Back it up, restore a fresh copy and compare the file before scheduling protection for production workloads. From the root of the offline kit, open `runbooks/first-configuration.md` to connect your first agent and `runbooks/fresh-vm-restore.md` to recover a VM. [First configuration](https://vestabackup.com/docs/manuals/first-configuration/) · [First recovery](https://vestabackup.com/docs/first-recovery/)
 
 ## Maintain the site
 

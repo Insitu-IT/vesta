@@ -15,6 +15,6 @@ OpenShift/OKD 5.0 brought group snapshots to general availability on supported d
 
 ## Installation and operation
 
-We are working on surfacing the prerequisites and next action for the **selected VM** in both the console and the operator API, improving recovery information for automation, and reducing repeated setup steps. We also plan to improve keyboard navigation, translations and right-to-left layouts in the console.
+The console and operator API already show backup readiness for the selected VM. Next we plan to cover more storage configurations, give automation clients clearer recovery information, and simplify repeated setup steps. We also plan to improve keyboard navigation, translations and right-to-left layouts in the console.
 
 Follow [GitHub Issues](https://github.com/Insitu-IT/vesta/issues) for open work and [release notes](CHANGELOG.md) for shipped changes. To contribute results from a storage stack or guest you use, include the release, driver, volume mode, backup and restore results using disposable data. [Contribution guide](CONTRIBUTING.md)

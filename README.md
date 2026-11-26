@@ -8,6 +8,8 @@ Run the control plane on your own infrastructure, including in an air-gapped net
 
 ## Make your first recovery
 
+Try the [interactive console demo](https://vestabackup.com/#recovery-demo), or see [what Vesta can back up and restore](docs/faq.md). The [Vesta documentation](https://vestabackup.com/docs/) walks through installation and day-to-day operation.
+
 1. [Install Vesta](QUICKSTART.md) from the prebuilt [GitHub release](https://github.com/Insitu-IT/vesta/releases/latest).
 2. [Connect your bucket and enroll an agent](packaging/okd/runbooks/first-configuration.md). Choose a disposable VM and write a file you can recognize.
 3. [Back up the VM and restore a fresh copy](docs/first-recovery.md). Open the restored file and compare it with the original. Then schedule backups for the workloads you want to protect.
