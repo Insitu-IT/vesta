@@ -48,6 +48,19 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
+      - name: Install the pinned OpenShift client for offline checks
+        run: |
+          oc_dir="$(mktemp -d "$RUNNER_TEMP/vesta-oc.XXXXXX")"
+          archive="$oc_dir/openshift-client.tar.gz"
+          curl --fail --location --silent --show-error --connect-timeout 30 --max-time 180 --retry 3 \
+            https://mirror.openshift.com/pub/openshift-v4/clients/ocp/4.21.0/openshift-client-linux-4.21.0.tar.gz \
+            --output "$archive"
+          printf '%s  %s\n' 735b43f9ae4ffe8f1777b13e23d691540f51dcbe18ac73ab058754d42abfb4b2 "$archive" |
+            sha256sum --check --strict
+          tar -xzf "$archive" -C "$oc_dir" oc
+          rm "$archive"
+          "$oc_dir/oc" version --client
+          printf '%s\n' "$oc_dir" >> "$GITHUB_PATH"
       - run: python -m pip install -r backend/requirements.txt -r tests/requirements-test.txt
       - run: node frontend/scripts/extract-api-calls.cjs
       - run: python -m pytest backend/tests tests/test_operator_contracts.py -q
@@ -103,8 +116,11 @@ jobs:
         run: test "$(git rev-parse --verify HEAD)" = "$EXPECTED_SOURCE_SHA"
       - name: Build and test both provider profiles
         run: |
-          docker run --rm --mount "type=bind,source=$PWD/agent,target=/src" \
-            -w /src golang:1.26.11-alpine sh -eu -c '
+          # Keep the shared golden fixtures at their checkout-relative path.
+          docker run --rm \
+            --mount "type=bind,source=$PWD/agent,target=/checkout/agent" \
+            --mount "type=bind,source=$PWD/tests/fixtures/storage-contract-v1,target=/checkout/tests/fixtures/storage-contract-v1,readonly" \
+            -w /checkout/agent golang:1.26.11-alpine sh -eu -c '
               apk add --no-cache build-base ca-certificates libvirt-dev pkgconf
               export CGO_ENABLED=0
               make gen-contracts
