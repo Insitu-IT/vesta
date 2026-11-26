@@ -50,7 +50,7 @@ test('pending and uploading rows display progress and acknowledged payload bytes
         page.backups = [{id: 'upload', status, progress: 12, storage_progress: {bytes_transferred: 8, total_bytes: 64}}];
         const html = page.renderBackupRows();
         assert.match(html, /backup-progress-text/);
-        assert.match(html, /8 B \/ 64 B/);
+        assert.match(html, /8\u00a0B \/ 64\u00a0B/);
         page.filter = 'running';
         assert.equal(page.getFilteredCount('running'), 1);
         assert.equal(page.getFilteredBackups().length, 1);
@@ -79,7 +79,7 @@ test('connected sockets still reconcile all active states and update the visible
     assert.equal(nodes.get('.backup-status').textContent, 'uploading');
     assert.equal(nodes.get('.progress-bar').style.width, '12%');
     assert.equal(nodes.get('.progress-bar')['aria-valuenow'], '12');
-    assert.equal(nodes.get('.backup-transfer-text').textContent, '8 B / 64 B');
+    assert.equal(nodes.get('.backup-transfer-text').textContent, '8\u00a0B / 64\u00a0B');
     assert.equal(page.backups[0].status, 'uploading');
     assert.equal(page.backups[0].storage_progress.bytes_transferred, 8);
     assert.equal(page.backups[0].storage_progress.phase, 'uploading');
@@ -171,4 +171,12 @@ test('dispatch holds appear after initial admission acknowledgment and survive p
     assert(page.renderBackupRows().includes('original-request'));
     page.handleBackupProgress({backup_id:'one',operator_dispatch:{state:'delivered',request_id:'original-request'}});
     assert.equal(page.backups[0].status,'pending','delivery is never job completion');
+});
+
+test('transfer text keeps each value and its unit together on narrow screens', async () => {
+    const {page} = await harness();
+    const nbsp = '\u00a0';
+    const text = page.transferText({bytes_transferred: 320, total_bytes: 786});
+    assert.equal(text, `320${nbsp}B / 786${nbsp}B`);
+    assert.ok(!/[0-9] [A-Z]/.test(text), 'no ASCII space may separate a value from its unit');
 });
