@@ -2,7 +2,7 @@
 Description=Vesta KVM Backup Agent
 Documentation=https://github.com/Insitu-IT/vesta
 After=network.target virtqemud.socket
-Requires=virtqemud.socket
+Wants=virtqemud.socket
 StartLimitIntervalSec=300
 StartLimitBurst=5
 

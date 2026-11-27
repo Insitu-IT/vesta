@@ -3,6 +3,7 @@ package encryption
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -36,37 +37,43 @@ func isEncrypted(name string) bool {
 // EncryptDirectory encrypts all encryptable files in a directory (*.data, *.raw, *.qcow2, *.img).
 // Respects context cancellation between files.
 func EncryptDirectory(ctx context.Context, dir string, key []byte) error {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return fmt.Errorf("read dir: %w", err)
-	}
-
-	for _, entry := range entries {
-		if ctx.Err() != nil {
-			return ctx.Err()
+	var pending []string
+	if err := filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if err := ctx.Err(); err != nil {
+			return err
 		}
 		if entry.IsDir() {
-			continue
+			return nil
 		}
-		if !isEncryptable(entry.Name()) {
-			continue
+		if !entry.Type().IsRegular() {
+			return fmt.Errorf("non-regular staging entry: %s", entry.Name())
 		}
-
-		inputPath := filepath.Join(dir, entry.Name())
-		outputPath := inputPath + ".enc"
-
-		slog.Info("encrypting file", "file", entry.Name())
-		if err := EncryptFile(inputPath, outputPath, key); err != nil {
-			return fmt.Errorf("encrypt %s: %w", entry.Name(), err)
+		if isEncryptable(entry.Name()) {
+			pending = append(pending, path)
 		}
-
-		// Remove unencrypted file
-		if err := os.Remove(inputPath); err != nil {
-			slog.Warn("remove unencrypted file", "file", inputPath, "error", err)
-		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("scan encryption stage: %w", err)
+	}
+	if len(pending) == 0 {
+		return fmt.Errorf("no plaintext backup files to encrypt")
 	}
 
-	return nil
+	for _, inputPath := range pending {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if err := EncryptFile(inputPath, inputPath+".enc", key); err != nil {
+			return fmt.Errorf("encrypt %s: %w", filepath.Base(inputPath), err)
+		}
+		if err := os.Remove(inputPath); err != nil {
+			return fmt.Errorf("remove plaintext %s: %w", filepath.Base(inputPath), err)
+		}
+	}
+	return ctx.Err()
 }
 
 // DecryptFiles decrypts only the named files (if they have .enc suffix) in a directory.

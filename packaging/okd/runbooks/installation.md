@@ -16,3 +16,5 @@ Use `./vesta plan` for an offline view of the selected images and deployment sta
 The installation brings up the API and console. Complete [first configuration](first-configuration.md) to connect storage and an agent. For a site using a separately managed database, follow [customer-managed PostgreSQL](customer-postgresql.md). For a running site, use [upgrades and rollback](upgrade-recovery.md).
 
 Back up a disposable VM and [restore a fresh copy](restore.md) to check your installation before scheduling other workloads.
+
+For a directory of Linux files, follow [file backup and recovery](file-backups.md) to select an agent, schedule a backup, and recover a single file.

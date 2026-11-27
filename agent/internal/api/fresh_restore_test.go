@@ -5,12 +5,12 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
-	"vnbui/agent/internal/config"
-	"vnbui/agent/internal/models"
-	"vnbui/agent/internal/restore"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"vnbui/agent/internal/config"
+	"vnbui/agent/internal/models"
+	"vnbui/agent/internal/restore"
 )
 
 type freshRestoreExecutor struct {
@@ -33,9 +33,9 @@ func (e *freshNativeExecutor) StartRestore(req *models.RestoreRequest) (*models.
 func TestFreshNativeRequiresAuthenticatedTLSAndMatchingProvider(t *testing.T) {
 	for _, problem := range []string{"valid", "http", "no-key", "kubevirt", "both"} {
 		t.Run(problem, func(t *testing.T) {
-			cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
 			executor := &freshNativeExecutor{}
-			server := NewServer(cfg, "test", WithRestoreExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+			server := NewServer(cfg, "test", WithRestoreExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			body := []byte(`{"restore_id":"one","native":{"schema":"vnbui-native-vm-restore/1"}}`)
 			if problem == "kubevirt" {
 				body = []byte(`{"restore_id":"one","kubevirt":{}}`)
@@ -44,6 +44,7 @@ func TestFreshNativeRequiresAuthenticatedTLSAndMatchingProvider(t *testing.T) {
 				body = []byte(`{"restore_id":"one","kubevirt":{},"native":{}}`)
 			}
 			request := httptest.NewRequest(http.MethodPost, "https://agent/api/restores", bytes.NewReader(body))
+			certifyTestController(request)
 			request.Header.Set("X-Orchestrator-Key", "expected")
 			if problem == "http" {
 				request.TLS = nil
@@ -77,10 +78,11 @@ func TestFreshRestorePreJournalConflictIsExactAndNoStore(t *testing.T) {
 				err = errors.New("unproven error")
 			}
 			executor := &freshRestoreExecutor{err: err}
-			cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
-			server := NewServer(cfg, "test", WithRestoreExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
+			server := NewServer(cfg, "test", WithRestoreExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			body := []byte(`{"restore_id":"restore-one","kubevirt":{"schema":"vnbui-kubevirt-vm-restore/1","restore_id":"restore-one","target":{"vm_name":"fresh","disks":[{"pvc_name":"z"},{"pvc_name":"a"}]}}}`)
 			request := httptest.NewRequest(http.MethodPost, "https://agent/api/restores", bytes.NewReader(body))
+			certifyTestController(request)
 			request.Header.Set("X-Orchestrator-Key", "expected")
 			response := httptest.NewRecorder()
 			server.router.ServeHTTP(response, request)
@@ -108,11 +110,11 @@ func TestFreshRestorePreJournalConflictIsExactAndNoStore(t *testing.T) {
 func TestFreshRestoreRequiresAuthenticatedHTTPS(t *testing.T) {
 	for _, problem := range []string{"valid", "no-key", "auth-disabled", "http", "server-http", "unknown-field"} {
 		t.Run(problem, func(t *testing.T) {
-			cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
 			executor := &freshRestoreExecutor{}
 			options := []ServerOption{WithRestoreExecutor(executor)}
 			if problem != "server-http" {
-				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			}
 			if problem == "auth-disabled" {
 				cfg.EnableAPIKeyValidation = false
@@ -122,6 +124,7 @@ func TestFreshRestoreRequiresAuthenticatedHTTPS(t *testing.T) {
 				body = []byte(`{"restore_id":"restore-one","sensitive_unknown":"must-not-echo"}`)
 			}
 			req := httptest.NewRequest(http.MethodPost, "https://agent/api/restores", bytes.NewReader(body))
+			certifyTestController(req)
 			req.Header.Set("X-Orchestrator-Key", "expected")
 			if problem == "no-key" {
 				req.Header.Del("X-Orchestrator-Key")
@@ -138,6 +141,9 @@ func TestFreshRestoreRequiresAuthenticatedHTTPS(t *testing.T) {
 			}
 			if problem == "no-key" {
 				want = http.StatusUnauthorized
+			}
+			if problem == "http" {
+				want = http.StatusForbidden
 			}
 			if problem == "unknown-field" {
 				want = http.StatusBadRequest

@@ -7,6 +7,7 @@ is accepted in argv, emitted in a manifest, or printed in an error report.
 import argparse
 import os
 from pathlib import Path
+from uuid import UUID
 
 from alembic import command
 from alembic.config import Config
@@ -220,6 +221,138 @@ def transition_operation_safety(
     }
 
 
+MANAGED_FILES_HEAD = "managed_file_backups"
+MANAGED_FILES_PREDECESSOR = "backup_admission_pause"
+
+
+def _assert_managed_file_guards(connection):
+    for table in ("file_backups", "file_schedules"):
+        ready = connection.scalar(
+            text("""
+                SELECT c.relrowsecurity AND c.relforcerowsecurity
+                AND EXISTS (
+                  SELECT 1 FROM pg_policy p WHERE p.polrelid=c.oid
+                    AND p.polname='tenant_isolation_' || c.relname
+                    AND p.polqual IS NOT NULL AND p.polwithcheck IS NOT NULL
+                )
+                AND EXISTS (
+                  SELECT 1 FROM pg_trigger t WHERE t.tgrelid=c.oid
+                    AND t.tgname='file_custody' AND t.tgenabled IN ('O','A')
+                    AND t.tgfoid='public.vnbui_file_custody()'::regprocedure
+                )
+                FROM pg_class c
+                WHERE c.relnamespace='public'::regnamespace AND c.relname=:table
+            """),
+            {"table": table},
+        )
+        if not ready:
+            raise RuntimeError(
+                f"Managed file custody guards are unavailable for {table}"
+            )
+
+    legacy_guard_installed = connection.scalar(text("""
+            SELECT EXISTS (
+                SELECT 1 FROM pg_trigger t
+                 WHERE t.tgrelid='public.backups'::regclass
+                   AND t.tgname='unverified_legacy_s3_custody'
+                   AND t.tgenabled IN ('O','A')
+                   AND t.tgfoid=to_regprocedure('public.vnbui_unverified_legacy_s3()')
+            )
+        """))
+    if not legacy_guard_installed:
+        raise RuntimeError("Legacy S3 catalog quarantine guard is unavailable")
+
+    if not connection.scalar(text("""
+        SELECT c.relrowsecurity AND c.relforcerowsecurity
+          AND EXISTS (
+              SELECT 1 FROM pg_policy p
+               WHERE p.polrelid=c.oid AND p.polname='tenant_isolation_recovery_publications'
+                 AND p.polqual IS NOT NULL AND p.polwithcheck IS NOT NULL
+          )
+          AND EXISTS (
+              SELECT 1 FROM pg_trigger t
+               WHERE t.tgrelid=c.oid AND t.tgname='recovery_publication_custody'
+                 AND t.tgenabled IN ('O','A')
+                 AND t.tgfoid=to_regprocedure('public.vnbui_recovery_publication_custody()')
+          )
+          FROM pg_class c WHERE c.oid='public.recovery_publications'::regclass
+    """)):
+        raise RuntimeError("Signed recovery publication custody guards are unavailable")
+
+    if not connection.scalar(text("""
+        SELECT EXISTS (
+            SELECT 1 FROM pg_trigger t
+            WHERE t.tgrelid='public.settings_v3'::regclass
+              AND t.tgname='recovery_signer_marker' AND t.tgenabled IN ('O','A')
+              AND t.tgfoid=to_regprocedure('public.vnbui_recovery_signer_marker()')
+        )
+    """)):
+        raise RuntimeError("Recovery signer identity guard is unavailable")
+
+
+def validated_installation_id(installation_id):
+    try:
+        identity = UUID(installation_id)
+    except (AttributeError, TypeError, ValueError):
+        raise RuntimeError(
+            "An observed database installation UUID is required"
+        ) from None
+    if identity.int == 0 or str(identity) != installation_id:
+        raise RuntimeError("An observed database installation UUID is required")
+    return installation_id
+
+
+def _assert_expected_installation(connection, installation_id):
+    identity = validated_installation_id(installation_id)
+    actual_id = connection.scalar(
+        text("SELECT installation_id FROM storage_configuration_clock WHERE slot=1")
+    )
+    if identity != actual_id:
+        raise RuntimeError(
+            "Database installation differs from the reviewed upgrade plan"
+        )
+
+
+def transition_managed_files(
+    connection, *, runtime_role, expected_database, installation_id, rollback=False
+):
+    """Add the managed-file schema to 6.1.x, with an empty-custody rollback fence."""
+    validated_installation_id(installation_id)
+    connection.execute(text("SET LOCAL lock_timeout = '30s'"))
+    connection.execute(text("SET LOCAL statement_timeout = '5min'"))
+    database = _target(connection, runtime_role, expected_database)
+    configuration = _configuration(connection)
+    _assert_expected_installation(connection, installation_id)
+    if (
+        ScriptDirectory.from_config(configuration).get_current_head()
+        != MANAGED_FILES_HEAD
+    ):
+        raise RuntimeError("This command supports only the managed file backup release")
+    source, target = (
+        (MANAGED_FILES_HEAD, MANAGED_FILES_PREDECESSOR)
+        if rollback
+        else (MANAGED_FILES_PREDECESSOR, MANAGED_FILES_HEAD)
+    )
+    revisions = list(
+        connection.execute(text("SELECT version_num FROM alembic_version")).scalars()
+    )
+    if revisions != [source] and (rollback or revisions != [target]):
+        raise RuntimeError(
+            "Schema differs from the reviewed managed file backup transition source"
+        )
+    if rollback:
+        assert_schema_current(connection)
+        _assert_managed_file_guards(connection)
+        command.downgrade(configuration, target)
+    else:
+        if revisions == [source]:
+            command.upgrade(configuration, target)
+        assert_schema_current(connection)
+        _assert_managed_file_guards(connection)
+        apply_current_runtime_grants(connection, runtime_role)
+    return {"database": database, "runtime_role": runtime_role, "revision": target}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -228,6 +361,8 @@ def main():
     mode.add_argument("--restored", action="store_true")
     mode.add_argument("--upgrade-operation-safety", action="store_true")
     mode.add_argument("--rollback-operation-safety", action="store_true")
+    mode.add_argument("--upgrade-managed-files", action="store_true")
+    mode.add_argument("--rollback-managed-files", action="store_true")
     parser.add_argument(
         "--rollback-revision",
         choices=(
@@ -238,9 +373,17 @@ def main():
         ),
         default="verification_budget",
     )
+    parser.add_argument(
+        "--installation-id", help="database identity observed by the upgrade plan"
+    )
     parser.add_argument("--database", required=True)
     parser.add_argument("--runtime-role", required=True)
     args = parser.parse_args()
+    if args.upgrade_managed_files or args.rollback_managed_files:
+        try:
+            validated_installation_id(args.installation_id)
+        except RuntimeError as error:
+            parser.error(str(error))
     url = os.environ.get("DATABASE_URL")
     if not url:
         parser.error("DATABASE_URL must be mounted from the migration-owner Secret")
@@ -255,11 +398,20 @@ def main():
             if args.check_prerequisites:
                 connection.execute(text("SET TRANSACTION READ ONLY"))
                 _target(connection, **options, lock=False)
+                if args.installation_id is not None:
+                    _assert_expected_installation(connection, args.installation_id)
                 print(
                     "Database prerequisites passed; no schema or grant changes performed."
                 )
                 return
-            if args.upgrade_operation_safety or args.rollback_operation_safety:
+            if args.upgrade_managed_files or args.rollback_managed_files:
+                result = transition_managed_files(
+                    connection,
+                    **options,
+                    rollback=args.rollback_managed_files,
+                    installation_id=args.installation_id,
+                )
+            elif args.upgrade_operation_safety or args.rollback_operation_safety:
                 result = transition_operation_safety(
                     connection,
                     **options,

@@ -5,12 +5,12 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"vnbui/agent/internal/models"
 	kubevirtrestore "vnbui/agent/internal/restore/kubevirt"
 	"vnbui/agent/internal/restoreinput"
 	"vnbui/agent/internal/storagerestore"
-	"io"
-	"os"
 )
 
 func runWorker(ctx context.Context, path, caPath string, stdout io.Writer) error {
@@ -25,7 +25,7 @@ func runWorker(ctx context.Context, path, caPath string, stdout io.Writer) error
 		return err
 	}
 	cfg := req.S3
-	open, close, err := restoreinput.S3SourceConfig(restoreinput.S3Configuration{Endpoint: cfg.Endpoint, Bucket: cfg.Bucket, Region: cfg.Region, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey, SessionToken: cfg.SessionToken, CAFile: caPath})
+	open, close, err := restoreinput.S3RestoreSourceConfig(restoreinput.S3Configuration{Endpoint: cfg.Endpoint, Bucket: cfg.Bucket, Region: cfg.Region, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey, SessionToken: cfg.SessionToken, CAFile: caPath}, req.RecoveryOrigin)
 	if err != nil {
 		return err
 	}

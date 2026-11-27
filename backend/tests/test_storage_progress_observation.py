@@ -210,7 +210,9 @@ async def test_heartbeat_commits_before_bounded_notification(
     from routers import health
 
     agent, row, claim, event = uploading
-    request = SimpleNamespace(json=AsyncMock(return_value={"events": [event]}))
+    request = SimpleNamespace(
+        scope={}, json=AsyncMock(return_value={"events": [event]})
+    )
     monkeypatch.setattr(health, "get_setting", lambda db, name, default: default)
     monkeypatch.setattr(
         health,

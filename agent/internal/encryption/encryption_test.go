@@ -223,3 +223,23 @@ func TestDirectoryEncryptDecrypt(t *testing.T) {
 		}
 	}
 }
+
+func TestDirectoryEncryptionKeepsOriginalIfOutputAlreadyExists(t *testing.T) {
+	root := t.TempDir()
+	original := filepath.Join(root, "ordinary.raw")
+	encrypted := original + ".enc"
+	for file, body := range map[string]string{original: "sample local bytes", encrypted: "existing fixture"} {
+		if err := os.WriteFile(file, []byte(body), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := EncryptDirectory(context.Background(), root, make([]byte, 32)); err == nil {
+		t.Fatal("existing ciphertext allowed replacement or successful staging")
+	}
+	for file, expected := range map[string]string{original: "sample local bytes", encrypted: "existing fixture"} {
+		got, err := os.ReadFile(file)
+		if err != nil || string(got) != expected {
+			t.Fatalf("fixture file changed: %v", err)
+		}
+	}
+}

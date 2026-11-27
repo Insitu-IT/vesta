@@ -1,8 +1,10 @@
 package restore
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/pem"
 	"fmt"
@@ -16,6 +18,7 @@ import (
 
 	"vnbui/agent/internal/backup"
 	"vnbui/agent/internal/config"
+	"vnbui/agent/internal/encryption"
 	"vnbui/agent/internal/models"
 	"vnbui/agent/internal/nativefileset"
 	"vnbui/agent/internal/nativerestore"
@@ -52,7 +55,7 @@ func TestQueuedNativeRestoreReportsExhaustionBeforeWorkerVisitsIt(t *testing.T) 
 	}
 }
 
-func nativeRuntimeFixture(t *testing.T, endpoint string) (models.NativeRestoreRequest, map[string][]byte) {
+func nativeRuntimeFixture(t *testing.T, endpoint string, historical bool) (models.NativeRestoreRequest, map[string][]byte) {
 	t.Helper()
 	r := models.NativeTransactionRequest{Protocol: models.StorageProtocol, OrgID: "66666666-6666-4666-8666-666666666666", AgentID: "44444444-4444-4444-8444-444444444444", BackupID: "22222222-2222-4222-8222-222222222222", ReservationID: "33333333-3333-4333-8333-333333333333"}
 	p := &r.Plan
@@ -65,8 +68,18 @@ func nativeRuntimeFixture(t *testing.T, endpoint string) (models.NativeRestoreRe
 	p.Exclusions = []string{}
 	p.Encryption = models.StorageEncryption{Format: "none"}
 	p.Target = models.StorageTarget{Endpoint: endpoint, Bucket: "native-test", Region: "us-east-1"}
+	if historical {
+		p.Target.Region = ""
+	}
 	inv := models.NativeFileSet{Format: models.NativeFileSetFormat, DomainUUID: "11111111-1111-4111-8111-111111111111", BackupID: r.BackupID, AttemptID: r.ReservationID, JobID: "vnbui-native-" + r.ReservationID, Checkpoint: "vnbui-" + r.ReservationID, Disks: []models.NativeDisk{{ID: "vda", Target: "vda", Bus: "virtio"}}}
 	plains := map[string][]byte{"domain.xml": []byte("<domain>captured</domain>"), "checkpoint.xml": []byte("<domaincheckpoint/>"), "vda.qcow2": []byte("native")}
+	var key []byte
+	if historical {
+		key = bytes.Repeat([]byte{0x42}, 32)
+		ref := "kek:55555555-5555-4555-8555-555555555555:2222222222222222"
+		p.Encryption = models.StorageEncryption{Format: "vnbu1-aes256gcm-chunk5242880", KeyRef: &ref}
+		plains["domain.xml"] = []byte(fmt.Sprintf(`<domain type="kvm"><name>captured</name><uuid>%s</uuid><devices><interface type="network"><mac address="52:54:00:00:00:0a"/><source network="source-network"/></interface></devices></domain>`, inv.DomainUUID))
+	}
 	m := models.NativePushManifest{Schema: backup.NativePushFormat, BackupID: r.BackupID, AttemptID: r.ReservationID, DomainUUID: inv.DomainUUID, Checkpoint: inv.Checkpoint, DomainXMLSHA256: nativeHash(plains["domain.xml"]), CheckpointSHA256: nativeHash(plains["checkpoint.xml"]), Source: []models.NativeSourceDisk{{Target: "vda", Source: "/source/disk", Bus: "virtio", Format: "qcow2"}}, Exclusions: []string{}, Disks: []models.NativePushDisk{{Target: "vda", File: "vda.qcow2", SizeBytes: 6, VirtualSize: 6, SHA256: nativeHash(plains["vda.qcow2"])}}}
 	canonical, _ := models.StorageCanonical(m)
 	plains["manifest.json"] = canonical
@@ -97,11 +110,27 @@ func nativeRuntimeFixture(t *testing.T, endpoint string) (models.NativeRestoreRe
 				plain = plains[f.Path]
 			}
 		}
-		objects["/"+p.Target.Bucket+"/"+a.Key] = plain
-		receipt.Objects = append(receipt.Objects, models.NativeStorageObjectReceipt{ArtifactID: a.ArtifactID, DiskID: a.DiskID, Role: a.Role, Key: a.Key, ETag: `"exact"`, PlaintextBytes: int64(len(plain)), CiphertextBytes: int64(len(plain)), PlaintextSHA256: nativeHash(plain), CiphertextSHA256: nativeHash(plain)})
+		stored := plain
+		if historical {
+			var sealed bytes.Buffer
+			if err := encryption.EncryptStreamChunked(bytes.NewReader(plain), &sealed, key, 5<<20); err != nil {
+				t.Fatal(err)
+			}
+			stored = sealed.Bytes()
+		}
+		objects["/"+p.Target.Bucket+"/"+a.Key] = stored
+		receipt.Objects = append(receipt.Objects, models.NativeStorageObjectReceipt{ArtifactID: a.ArtifactID, DiskID: a.DiskID, Role: a.Role, Key: a.Key, ETag: `"exact"`, PlaintextBytes: int64(len(plain)), CiphertextBytes: int64(len(stored)), PlaintextSHA256: nativeHash(plain), CiphertextSHA256: nativeHash(stored)})
 	}
 	bundle := nativerestore.Bundle{Schema: nativerestore.BundleSchema, Members: []nativerestore.Member{{Request: r, Receipt: receipt, PushResult: models.NativePushResult{Manifest: m, ManifestSHA256: nativeHash(canonical)}}}}
 	req := models.NativeRestoreRequest{Schema: models.NativeRestoreSchema, OrgID: r.OrgID, AgentID: r.AgentID, RestoreID: "99999999-9999-4999-8999-999999999999", Target: models.NativeRestoreTarget{VMName: "fresh-native", VMUUID: "88888888-8888-4888-8888-888888888888", Disks: []string{"vda"}, DropExcludedDisks: []string{}, Networks: []models.NativeRestoreNetwork{}}, Bundle: nativerestore.MarshalBundle(bundle), S3: models.KubeVirtRestoreS3{Endpoint: endpoint, Bucket: p.Target.Bucket, Region: p.Target.Region, AccessKey: "read", SecretKey: "private-secret"}, Keys: map[string]string{}}
+	if historical {
+		req.RecoveryOrigin = &models.RestoreOrigin{OrgID: req.OrgID, AgentID: req.AgentID}
+		req.OrgID = "33333333-3333-4333-8333-333333333333"
+		req.AgentID = "77777777-7777-4777-8777-777777777777"
+		req.Target.Networks = []models.NativeRestoreNetwork{{SourceMAC: "52:54:00:00:00:0a", Network: "fresh-network"}}
+		req.Keys[r.BackupID] = base64.StdEncoding.EncodeToString(key)
+		req.S3.Region = "us-east-1"
+	}
 	if _, _, err := nativerestore.ValidatePlan(&req, true); err != nil {
 		t.Fatal(err)
 	}
@@ -109,10 +138,21 @@ func nativeRuntimeFixture(t *testing.T, endpoint string) (models.NativeRestoreRe
 }
 
 func TestNativeRuntimeHTTPSObjectsDurableAcceptanceCompletionAndRestart(t *testing.T) {
+	for _, historical := range []bool{false, true} {
+		name := "catalog"
+		if historical {
+			name = "verified-s3-recovery"
+		}
+		t.Run(name, func(t *testing.T) { nativeRuntimeHTTPSObjects(t, historical) })
+	}
+}
+
+func nativeRuntimeHTTPSObjects(t *testing.T, historical bool) {
 	var objects map[string][]byte
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, ok := objects[r.URL.Path]
-		if !ok || r.Method != "GET" || r.Header.Get("If-Match") != `"exact"` {
+		if !ok || r.Method != "GET" || r.Header.Get("If-Match") != `"exact"` ||
+			!strings.Contains(r.Header.Get("Authorization"), "/us-east-1/s3/aws4_request,") {
 			http.Error(w, "scope", 412)
 			return
 		}
@@ -122,19 +162,25 @@ func TestNativeRuntimeHTTPSObjectsDurableAcceptanceCompletionAndRestart(t *testi
 		_, _ = w.Write(body)
 	}))
 	defer server.Close()
-	req, store := nativeRuntimeFixture(t, server.URL)
+	req, store := nativeRuntimeFixture(t, server.URL, historical)
 	objects = store
 	root := t.TempDir()
 	_ = os.Chmod(root, 0700)
 	ca := filepath.Join(root, "ca.pem")
 	_ = os.WriteFile(ca, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw}), 0600)
-	open, closeSource, err := restoreinput.S3SourceConfig(restoreinput.S3Configuration{Endpoint: server.URL, Bucket: req.S3.Bucket, Region: req.S3.Region, AccessKey: req.S3.AccessKey, SecretKey: req.S3.SecretKey, CAFile: ca})
+	open, closeSource, err := restoreinput.S3RestoreSourceConfig(restoreinput.S3Configuration{Endpoint: server.URL, Bucket: req.S3.Bucket, Region: req.S3.Region, AccessKey: req.S3.AccessKey, SecretKey: req.S3.SecretKey, CAFile: ca}, req.RecoveryOrigin)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer closeSource()
 	bundle, _, _ := nativerestore.ValidatePlan(&req, true)
-	if _, err = nativerestore.ReadDomainXML(context.Background(), bundle, open, nil); err != nil {
+	var keys nativerestore.KeyResolver
+	if historical {
+		keys = func(_ context.Context, member nativerestore.Member) ([]byte, error) {
+			return base64.StdEncoding.DecodeString(req.Keys[member.Request.BackupID])
+		}
+	}
+	if _, err = nativerestore.ReadDomainXML(context.Background(), bundle, open, keys); err != nil {
 		t.Fatal("TLS source", err)
 	}
 	cfg := &config.Config{AgentID: req.AgentID, KeyFilePath: filepath.Join(root, "agent.key"), NativeRestoreRoot: filepath.Join(root, "images"), NativeRestoreCAFile: ca, LibvirtURI: "qemu:///system", OrchestratorVerifySSL: true, EnableAPIKeyValidation: true, OrchestratorAPIKey: "authenticated"}
@@ -177,6 +223,11 @@ func TestNativeRuntimeHTTPSObjectsDurableAcceptanceCompletionAndRestart(t *testi
 		if !request.AllowCreate || request.Target.VMUUID != req.Target.VMUUID {
 			return nil, fmt.Errorf("wrong definition intent")
 		}
+		if historical && (len(request.Target.Networks) != 1 ||
+			request.Target.Networks[0].Network != "fresh-network" ||
+			!strings.Contains(string(request.DomainXML), request.Target.Networks[0].SourceMAC)) {
+			return nil, fmt.Errorf("lost verified source interface mapping")
+		}
 		return map[string]interface{}{"vm_name": req.Target.VMName, "vm_uuid": req.Target.VMUUID, "state": "shutoff", "disks": request.Disks, "plan_sha256": request.PlanSHA256}, nil
 	}
 	if err := executor.StartRestores(context.Background()); err != nil {
@@ -214,6 +265,10 @@ func TestNativeRuntimeHTTPSObjectsDurableAcceptanceCompletionAndRestart(t *testi
 	if p := executor.GetProgress(req.RestoreID); p.Status != models.TaskStatusCompleted || defines != 1 || executor.ActiveCount() != 0 {
 		t.Fatal(p, defines)
 	}
+	fresh, err := os.ReadFile(filepath.Join(cfg.NativeRestoreRoot, req.RestoreID, "disks", "vda.raw"))
+	if err != nil || string(fresh) != "native" {
+		t.Fatal("fresh disk readback differs from the authenticated input", err)
+	}
 	if err := executor.CloseRestores(); err != nil {
 		t.Fatal(err)
 	}
@@ -232,7 +287,7 @@ func TestNativeRuntimeHTTPSObjectsDurableAcceptanceCompletionAndRestart(t *testi
 }
 
 func TestNativeRuntimeHoldsInterruptedWritesAndNeverRecreatesDestination(t *testing.T) {
-	req, _ := nativeRuntimeFixture(t, "https://s3.example.invalid")
+	req, _ := nativeRuntimeFixture(t, "https://s3.example.invalid", false)
 	_, digest, _ := nativerestore.ValidatePlan(&req, true)
 	for _, phase := range []string{"materializing", "assembling", "defining"} {
 		t.Run(phase, func(t *testing.T) {

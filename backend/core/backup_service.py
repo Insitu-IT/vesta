@@ -448,13 +448,18 @@ class BackupService:
             .filter(
                 Backup.vm_id == vm_id,
                 Backup.status == "completed",
+                Backup.unverified_legacy_s3.is_(False),
                 Backup.chain_id.isnot(None),
             )
             .order_by(desc(Backup.created_at))
             .first()
         )
 
-        if parent and (parent.storage_path or "").startswith("s3://"):
+        if parent and self._unverified_chain_member(parent.chain_id, parent.org_id):
+            parent = None
+        if parent and not (parent.storage_path or "").startswith(("file:///", "s3://")):
+            parent = None
+        if parent and parent.storage_path.startswith("s3://"):
             from core.s3_ownership import (
                 owned_chain_target,
                 storage_identity,
@@ -506,13 +511,26 @@ class BackupService:
             backup.parent_backup_id = None
             backup.chain_position = 0
 
+    def _unverified_chain_member(
+        self, chain_id: str, org_id: Optional[str] = None
+    ) -> bool:
+        query = self.db.query(Backup.id).filter(
+            Backup.chain_id == chain_id, Backup.unverified_legacy_s3.is_(True)
+        )
+        if org_id is not None:
+            query = query.filter(Backup.org_id == org_id)
+        return query.first() is not None
+
     def get_chain(self, chain_id: str) -> List[Backup]:
         """All completed backups in a chain, ordered by chain_position ASC."""
+        if self._unverified_chain_member(chain_id):
+            return []
         return (
             self.db.query(Backup)
             .filter(
                 Backup.chain_id == chain_id,
                 Backup.status == "completed",
+                Backup.unverified_legacy_s3.is_(False),
             )
             .order_by(Backup.chain_position.asc())
             .all()

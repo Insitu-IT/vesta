@@ -425,6 +425,7 @@ def apply_contracts(document, routes, definitions, secrets, *, require_mtls=Fals
             "vm_id": STRING,
             "vm_name": STRING,
             "status": STRING,
+            "unverified_legacy_s3": BOOLEAN,
             "progress": nullable(INTEGER),
             "safety_diagnostic": nullable(
                 {"$ref": "#/components/schemas/StorageSafetyDiagnostic"}
@@ -503,7 +504,8 @@ def apply_contracts(document, routes, definitions, secrets, *, require_mtls=Fals
     restore_item = obj(
         {
             "id": STRING,
-            "backup_id": STRING,
+            "backup_id": nullable(STRING),
+            "recovery_source": {"$ref": "#/components/schemas/RecoveryPointResponse"},
             "status": STRING,
             "progress": nullable(INTEGER),
             "restore_to_original": BOOLEAN,
@@ -757,6 +759,19 @@ def apply_contracts(document, routes, definitions, secrets, *, require_mtls=Fals
     backup_single["required"].remove("capacity_state")
     backup_single["properties"]["scheduler_decision"] = nullable(scheduler_decision())
     backup_single["required"].append("scheduler_decision")
+    backup_single["properties"]["recovery_publication"] = nullable(
+        obj(
+            {
+                "state": {
+                    "type": "string",
+                    "enum": ["pending", "retrying", "ready", "unavailable"],
+                },
+                "attempts": {"type": "integer", "minimum": 0},
+                "next_attempt_at": nullable({"type": "string", "format": "date-time"}),
+            }
+        )
+    )
+    backup_single["required"].append("recovery_publication")
     restore_single = deepcopy(restore_item)
     restore_single["properties"]["backup"]["properties"].update(
         {"vm_id": STRING, "status": STRING}

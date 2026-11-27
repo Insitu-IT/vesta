@@ -106,7 +106,18 @@ async def register_agent(
     reg_key.last_used_at = datetime.utcnow()
 
     # Extract agent details
-    capabilities = agent_data.get("capabilities", {})
+    from core.file_backups import FILE_CAPABILITY_FIELDS
+
+    supplied = agent_data.get("capabilities")
+    capabilities = (
+        {
+            key: value
+            for key, value in supplied.items()
+            if key not in FILE_CAPABILITY_FIELDS
+        }
+        if isinstance(supplied, dict)
+        else {}
+    )
     ip_address = agent_data.get("ip_address")
     port = agent_data.get("port")
     version = agent_data.get("version")

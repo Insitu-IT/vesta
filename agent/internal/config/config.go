@@ -29,6 +29,8 @@ var UIConfigurableSettings = map[string]bool{
 // Config holds all agent configuration.
 type Config struct {
 	runtimeMu            sync.Mutex
+	vmController         controllerPin
+	fileController       controllerPin
 	LogLevelControl      *slog.LevelVar
 	NamespaceScope       *NamespaceScope
 	NamespacePolicyError error
@@ -91,6 +93,7 @@ type Config struct {
 	TLSKeyFile      string
 	TLSClientCAFile string // trusted backend client CA for inbound requests
 	TLSVerifyClient bool
+	TLSJournalDir   string
 
 	// Health
 	HeartbeatInterval int
@@ -100,7 +103,12 @@ type Config struct {
 	LogLevel string
 
 	// Provider selection
-	Provider string // "libvirt", "kubevirt", or "mock"
+	Provider           string // "libvirt", "kubevirt", "mock", or "none"
+	Workloads          string
+	FileBackupConfig   string
+	FileBackupState    string
+	ManagedFileSets    []string // published only after local file backup activation
+	ManagedFileStorage map[string]interface{}
 
 	// KubeVirt
 	KubeconfigPath            string   // path to kubeconfig (empty = in-cluster)
@@ -163,10 +171,14 @@ func Load() *Config {
 		TLSCAFile:                  envStr("TLS_CA_FILE", ""),
 		TLSClientCAFile:            envStr("TLS_CLIENT_CA_FILE", ""),
 		TLSVerifyClient:            envBool("TLS_VERIFY_CLIENT", false),
+		TLSJournalDir:              envStr("TLS_JOURNAL_DIR", ""),
 		HeartbeatInterval:          envInt("HEARTBEAT_INTERVAL", 30),
 		HeartbeatEnabled:           envBool("HEARTBEAT_ENABLED", true),
 		LogLevel:                   envStr("LOG_LEVEL", "INFO"),
 		Provider:                   envStr("PROVIDER", "libvirt"),
+		Workloads:                  envStr("VESTA_WORKLOADS", "vm"),
+		FileBackupConfig:           envStr("VESTA_FILE_BACKUP_CONFIG", "/etc/vesta/file-backups.json"),
+		FileBackupState:            envStr("VESTA_FILE_BACKUP_STATE", ""),
 		KubeconfigPath:             envStr("KUBECONFIG", ""),
 		KubeNamespace:              envStr("KUBE_NAMESPACE", ""),
 		KubevirtResourcePrefix:     envStr("KUBEVIRT_RESOURCE_PREFIX", ""),
@@ -229,7 +241,7 @@ func (c *Config) ValidateProduction() error {
 	if c.Environment != "production" {
 		return nil
 	}
-	if c.MockLibvirt || c.MockVirtnbdbackup {
+	if c.Provider == "mock" || c.MockLibvirt || c.MockVirtnbdbackup {
 		return fmt.Errorf("mock mode not allowed in production")
 	}
 	if c.RequireTLS && !strings.HasPrefix(c.OrchestratorURL, "https://") {
@@ -399,6 +411,9 @@ func toInt(v interface{}) (int, bool) {
 // StorageMeasurementPath is the durable control journal for KubeVirt, whose
 // payload scratch lives in source-namespace worker PVCs rather than this pod.
 func (c *Config) StorageMeasurementPath() string {
+	if c.Provider == "none" {
+		return c.FileBackupState
+	}
 	if c.Provider == "kubevirt" {
 		return filepath.Dir(c.KeyFilePath)
 	}
@@ -408,7 +423,7 @@ func (c *Config) StorageMeasurementPath() string {
 	return c.BackupStoragePath
 }
 func (c *Config) StorageRole() string {
-	if c.Provider == "kubevirt" {
+	if c.Provider == "kubevirt" || c.Provider == "none" {
 		return "journal"
 	}
 	return "native_capture"

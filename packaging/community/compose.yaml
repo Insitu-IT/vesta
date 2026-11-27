@@ -49,6 +49,8 @@ services:
       INITIAL_ADMIN_USERNAME: admin
       INITIAL_ADMIN_PASSWORD_FILE: /run/secrets/admin-password
       LICENSE_REGISTRATION_URL: ""
+      S3_RECOVERY_ACCESS_KEY: "${S3_RECOVERY_ACCESS_KEY:-}"
+      S3_RECOVERY_SECRET_KEY: "${S3_RECOVERY_SECRET_KEY:-}"
     depends_on:
       migrate:
         condition: service_completed_successfully

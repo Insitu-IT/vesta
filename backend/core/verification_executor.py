@@ -3,16 +3,14 @@
 import asyncio
 from contextlib import suppress
 from datetime import datetime, timedelta
-import ipaddress
 import logging
-import re
-import ssl
 
 from core import backup_verification as scrub
 from core.s3_ownership import StorageOwnershipError
 from core.operation_budget import verification_admission_exhausted
 from core.task_lifetime import DispatchLifetime, owned_dispatch, run_owned_worker
 from core.tenant_context import PlatformContext, TenantContext
+from core.vm_agent_peer import AgentPeerUnavailable, vm_agent_peer
 from database import SessionLocal
 from models import Agent, BackupVerification
 
@@ -25,23 +23,6 @@ def _defer(row):
         if row.status in scrub.TERMINAL
         else datetime.utcnow() + timedelta(seconds=300 if row.status == "held" else 10)
     )
-
-
-def _url(agent):
-    host = agent.ip_address or agent.hostname
-    port = agent.port or 8090
-    if not isinstance(host, str) or type(port) is not int or not 1 <= port <= 65535:
-        raise StorageOwnershipError("Verification agent endpoint unavailable")
-    try:
-        address = ipaddress.ip_address(host)
-        host = f"[{address}]" if address.version == 6 else str(address)
-    except ValueError:
-        if len(host) > 253 or not all(
-            re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", label)
-            for label in host.split(".")
-        ):
-            raise StorageOwnershipError("Verification agent endpoint unavailable")
-    return f"https://{host}:{port}"
 
 
 def _record(db, identity, org_id, actor_id):
@@ -104,13 +85,21 @@ def _prepare(identity, org_id, actor_id):
                 "held",
                 "Original verification authority unavailable; no further reads admitted",
             )
+        try:
+            peer = vm_agent_peer(db, _agent(db, row))
+        except (AgentPeerUnavailable, StorageOwnershipError):
+            row.status = "held"
+            row.result_message = "Original enrolled verification peer unavailable"
+            _defer(row)
+            db.commit()
+            return None
         info = dict(
             id=row.id,
             org_id=org_id,
             actor_id=actor_id,
             agent_id=row.verification_agent_id,
             provider=plan["provider"],
-            url=_url(_agent(db, row)),
+            peer=peer,
             worker_id=row.verification_worker_id,
             plan_sha256=row.verification_plan_sha256,
             action="observe" if allowed else "cancel",
@@ -121,10 +110,17 @@ def _prepare(identity, org_id, actor_id):
         return info
 
 
+def _recheck_peer(info):
+    with TenantContext(info["org_id"], info["actor_id"]), SessionLocal() as db:
+        row = _record(db, info["id"], info["org_id"], info["actor_id"])
+        if row is None or vm_agent_peer(db, _agent(db, row)) != info["peer"]:
+            raise StorageOwnershipError("Original verification agent transport changed")
+
+
 def _hydrated(info):
     with TenantContext(info["org_id"], info["actor_id"]), SessionLocal() as db:
         row = _record(db, info["id"], info["org_id"], info["actor_id"])
-        if row is None or _url(_agent(db, row)) != info["url"]:
+        if row is None or vm_agent_peer(db, _agent(db, row)) != info["peer"]:
             return None
         scrub.readmit(db, row)
         db.refresh(row, with_for_update=True)
@@ -168,7 +164,7 @@ def _busy(info, attempt, value):
         raise StorageOwnershipError("Original no-admission reply unavailable")
     with TenantContext(info["org_id"], info["actor_id"]), SessionLocal() as db:
         row = _record(db, info["id"], info["org_id"], info["actor_id"])
-        if row is None or _url(_agent(db, row)) != info["url"]:
+        if row is None or vm_agent_peer(db, _agent(db, row)) != info["peer"]:
             return
         scrub.readmit(db, row)
         db.refresh(row, with_for_update=True)
@@ -203,7 +199,7 @@ def _observe(info, value):
         row = _record(db, info["id"], info["org_id"], info["actor_id"])
         if row is None:
             return "terminal"
-        if _url(_agent(db, row)) != info["url"]:
+        if vm_agent_peer(db, _agent(db, row)) != info["peer"]:
             return "cancel"
         if row.verification_cancel_requested:
             scrub.apply_progress(row, value)
@@ -344,28 +340,12 @@ class VerificationExecutor:
 
     @staticmethod
     def _transport():
-        # Reuse the existing verified agent TLS configuration, not its workers.
-        # AgentHTTP itself owns each connection on the invoking event loop.
         from core.restore_executor import restore_executor
         from config import settings
 
-        client = restore_executor.http_client
-        key = settings.orchestrator_to_agent_key
-        verify = getattr(client, "_configuration", {}).get("verify", True)
-        trusted = (
-            verify is True
-            or (isinstance(verify, str) and bool(verify))
-            or (
-                isinstance(verify, ssl.SSLContext)
-                and verify.check_hostname
-                and verify.verify_mode == ssl.CERT_REQUIRED
-            )
-        )
-        if not restore_executor.agent_tls_enabled or not key or not trusted:
-            raise StorageOwnershipError(
-                "Verification requires configured verified agent HTTPS"
-            )
-        return client, {"X-Orchestrator-Key": key}
+        return restore_executor._transport(), {
+            "X-Orchestrator-Key": settings.orchestrator_to_agent_key
+        }
 
     @owned_dispatch
     async def once(self, identity, org_id, actor_id):
@@ -374,10 +354,17 @@ class VerificationExecutor:
             return
         try:
             client, headers = self._transport()
-            base = info["url"] + "/api/verifications"
+            peer = info["peer"]
+            headers = {**headers, "X-Vesta-Agent-ID": info["agent_id"]}
+            base = "/api/verifications"
+
+            async def recheck():
+                await run_owned_worker(_recheck_peer, info)
+
             scope = {"org_id": info["org_id"]}
             cancel_scope = dict(scope, plan_sha256=info["plan_sha256"])
-            capability = await client.get(base + "/capability", headers=headers)
+            await recheck()
+            capability = await client.get(peer, base + "/capability", headers=headers)
             capability.raise_for_status()
             if capability.json() != {
                 "schema": scrub.SCHEMA,
@@ -387,8 +374,9 @@ class VerificationExecutor:
                 raise StorageOwnershipError(
                     "Original verification agent capability unavailable"
                 )
+            await recheck()
             response = await client.get(
-                base + f"/{identity}", params=scope, headers=headers
+                peer, base + f"/{identity}", params=scope, headers=headers
             )
             if info["action"] == "cancel":
                 if response.status_code == 404:
@@ -412,7 +400,11 @@ class VerificationExecutor:
                 if action == "terminal":
                     return
                 await client.post(
-                    base + f"/{identity}/cancel", params=cancel_scope, headers=headers
+                    peer,
+                    base + f"/{identity}/cancel",
+                    params=cancel_scope,
+                    headers=headers,
+                    recheck=recheck,
                 )
                 return
             if response.status_code == 404:
@@ -429,7 +421,11 @@ class VerificationExecutor:
                 action = await run_owned_worker(_observe, info, response.json())
             if action == "cancel":
                 await client.post(
-                    base + f"/{identity}/cancel", params=cancel_scope, headers=headers
+                    peer,
+                    base + f"/{identity}/cancel",
+                    params=cancel_scope,
+                    headers=headers,
+                    recheck=recheck,
                 )
             elif action == "readmit":
                 admitted = await run_owned_worker(_hydrated, info)
@@ -437,7 +433,9 @@ class VerificationExecutor:
                     return
                 request, attempt = admitted
                 del admitted
-                response = await client.post(base, json=request, headers=headers)
+                response = await client.post(
+                    peer, base, json=request, headers=headers, recheck=recheck
+                )
                 del request
                 if response.status_code == 429:
                     await run_owned_worker(_busy, info, attempt, response.json())
@@ -446,9 +444,11 @@ class VerificationExecutor:
                 action = await run_owned_worker(_observe, info, response.json())
                 if action == "cancel":
                     await client.post(
+                        peer,
                         base + f"/{identity}/cancel",
                         params=cancel_scope,
                         headers=headers,
+                        recheck=recheck,
                     )
         except asyncio.CancelledError:
             raise  # Journal/DB custody survives; never invent a terminal result.

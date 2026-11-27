@@ -56,7 +56,7 @@ func TestAgentServerTLSConfigUsesMountedCertificate(t *testing.T) {
 	cert, key := testServerPair(t, t.TempDir(), "tls.crt", "tls.key")
 	cfg := &config.Config{TLSEnabled: true, TLSCertFile: cert, TLSKeyFile: key}
 	serverTLS, err := agentServerTLSConfig(cfg, tlspkg.New(t.TempDir()))
-	if err != nil || serverTLS == nil || len(serverTLS.Certificates) != 1 {
+	if err != nil || serverTLS == nil || serverTLS.GetCertificate == nil {
 		t.Fatalf("mounted certificate did not enable HTTPS: config=%v err=%v", serverTLS, err)
 	}
 }
@@ -344,5 +344,55 @@ func TestAgentServerTLSConfigAllowsExplicitHTTPMode(t *testing.T) {
 	serverTLS, err := agentServerTLSConfig(&config.Config{TLSEnabled: false}, tlspkg.New(t.TempDir()))
 	if err != nil || serverTLS != nil {
 		t.Fatalf("explicit HTTP mode changed: config=%v err=%v", serverTLS, err)
+	}
+}
+
+func TestManagedFileServingCertificateFollowsEnrollmentRenewal(t *testing.T) {
+	dir := t.TempDir()
+	cert, key := testServerPair(t, dir, "agent.crt", "agent.key")
+	ca, _ := testServerPair(t, dir, "client-ca.crt", "client-ca.key")
+	cfg := &config.Config{TLSEnabled: true, TLSVerifyClient: true, Workloads: "files", TLSClientCAFile: ca,
+		CallbackClientCertFile: cert, CallbackClientKeyFile: key}
+	server, err := agentServerTLSConfig(cfg, tlspkg.New(dir))
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, err := server.GetCertificate(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	testServerPair(t, dir, "agent.crt", "agent.key")
+	next, err := server.GetCertificate(nil)
+	if err != nil || string(first.Certificate[0]) == string(next.Certificate[0]) {
+		t.Fatalf("serving leaf did not follow renewal: %v", err)
+	}
+	cfg.TLSCertFile, cfg.TLSKeyFile = testServerPair(t, dir, "other.crt", "other.key")
+	if _, err := agentServerTLSConfig(cfg, tlspkg.New(dir)); err == nil {
+		t.Fatal("distinct serving leaf accepted for managed files")
+	}
+}
+
+func TestOptionalAgentTLSFollowsEnrolledClientCA(t *testing.T) {
+	cert, key := testServerPair(t, t.TempDir(), "server.crt", "server.key")
+	manager := tlspkg.New(t.TempDir())
+	server, err := agentServerTLSConfig(&config.Config{
+		TLSEnabled: true, TLSCertFile: cert, TLSKeyFile: key,
+	}, manager)
+	if err != nil || server.ClientAuth != tls.VerifyClientCertIfGiven || server.ClientCAs == nil || server.GetConfigForClient == nil {
+		t.Fatalf("optional client TLS was not fail-closed before enrollment: %v", err)
+	}
+	if before, err := server.GetConfigForClient(nil); err != nil || before != nil {
+		t.Fatalf("an unenrolled client CA was selected: %v", err)
+	}
+	pem, err := os.ReadFile(cert)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manager.CAPath(), pem, 0600); err != nil {
+		t.Fatal(err)
+	}
+	after, err := server.GetConfigForClient(nil)
+	if err != nil || after == nil || after.ClientCAs == nil || after.ClientAuth != tls.VerifyClientCertIfGiven {
+		t.Fatalf("a new connection did not pick up the enrolled client CA: %v", err)
 	}
 }

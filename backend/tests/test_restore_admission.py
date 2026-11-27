@@ -9,7 +9,17 @@ import pytest
 import httpx
 
 from core import restore_executor as module
+from core.file_agent_http import AgentPeer, FileAgentHTTP
 from models import Organization, User, Restore, Backup, VM, Agent
+
+PEER = AgentPeer("127.0.0.1", 8090, "fixture", "a" * 64, "agent")
+
+
+def bind_transport(owner, monkeypatch):
+    owner.agent_tls_enabled = True
+    owner.http_client = MagicMock(spec=FileAgentHTTP, aclose=AsyncMock())
+    monkeypatch.setattr(module.settings, "orchestrator_to_agent_key", "test-only")
+    monkeypatch.setattr(owner, "_agent_peer", lambda db, agent: PEER)
 
 
 def specimen(monkeypatch):
@@ -139,9 +149,9 @@ async def test_worker_claim_precedes_request_and_never_replays(monkeypatch, outc
     db.commit.side_effect = commit
     monkeypatch.setattr(module, "SessionLocal", lambda: db)
     owner = module.RestoreExecutor()
-    monkeypatch.setattr(owner, "_get_agent_url", lambda agent: "https://fixture")
+    bind_transport(owner, monkeypatch)
 
-    async def send(*unused):
+    async def send(*unused, **unused_kwargs):
         assert order == ["commit"] * 3 and restore.status == "dispatching"
         order.append("send")
         if outcome == "cancel":
@@ -186,16 +196,15 @@ async def test_restore_monitor_drain_closes_session_without_remote_rollback(
     rows[Restore].status = "running"
     monkeypatch.setattr(module, "SessionLocal", lambda: db)
     owner = module.RestoreExecutor()
-    monkeypatch.setattr(owner, "_get_agent_url", lambda agent: "https://fixture")
+    bind_transport(owner, monkeypatch)
     entered = asyncio.Event()
 
     async def get(*args, **kwargs):
         entered.set()
         await asyncio.Future()
 
-    transport = MagicMock(get=AsyncMock(side_effect=get), aclose=AsyncMock())
-    await owner.http_client.aclose()
-    owner.http_client = transport
+    owner.http_client.get = AsyncMock(side_effect=get)
+    transport = owner.http_client
     # Only replace the timer, not the monitor/admission/transport ownership path.
     original_sleep = asyncio.sleep
 
@@ -203,9 +212,7 @@ async def test_restore_monitor_drain_closes_session_without_remote_rollback(
         await original_sleep(0)
 
     monkeypatch.setattr(module.asyncio, "sleep", tick)
-    task = asyncio.create_task(
-        owner.monitor_restore(args[0], "https://fixture", args[1], args[2])
-    )
+    task = asyncio.create_task(owner.monitor_restore(args[0], PEER, args[1], args[2]))
     owner.monitoring_tasks[args[0]] = task
     await asyncio.wait_for(entered.wait(), 1)
     await owner.cleanup()
@@ -222,6 +229,7 @@ async def test_restore_send_failure_does_not_log_remote_details(
     monkeypatch, caplog, kind
 ):
     owner = module.RestoreExecutor()
+    bind_transport(owner, monkeypatch)
     request = httpx.Request("POST", "https://fixture/api/restores")
     response = httpx.Response(403, request=request, text="PRIVATE_RESTORE_DETAIL")
     post = AsyncMock(return_value=response)
@@ -229,7 +237,7 @@ async def test_restore_send_failure_does_not_log_remote_details(
         post.side_effect = RuntimeError("PRIVATE_RESTORE_DETAIL")
     monkeypatch.setattr(owner.http_client, "post", post)
     try:
-        result, detail = await owner._send_restore_command("https://fixture", {})
+        result, detail = await owner._send_restore_command(PEER, {})
         assert result is None
         assert "PRIVATE_RESTORE_DETAIL" not in caplog.text + detail
         post.assert_awaited_once()
@@ -253,6 +261,7 @@ async def test_only_exact_authenticated_prejournal_conflict_is_definitive(
     monkeypatch, problem
 ):
     owner = module.RestoreExecutor()
+    bind_transport(owner, monkeypatch)
     request = {
         "kubevirt": {
             "restore_id": "restore-one",
@@ -285,7 +294,7 @@ async def test_only_exact_authenticated_prejournal_conflict_is_definitive(
     )
     monkeypatch.setattr(owner.http_client, "post", AsyncMock(return_value=response))
     try:
-        result, detail = await owner._send_restore_command("https://fixture", request)
+        result, detail = await owner._send_restore_command(PEER, request)
         assert result is None
         assert (detail == "prejournal_target_reserved") == (problem == "valid")
     finally:
@@ -314,7 +323,7 @@ async def test_fresh_restore_definitive_refusal_is_terminal_but_loss_is_held(
         kubevirt_restore, "hydrate_request", lambda *_: {"kubevirt": {}}
     )
     owner = module.RestoreExecutor()
-    monkeypatch.setattr(owner, "_get_agent_url", lambda *_: "https://fixture")
+    bind_transport(owner, monkeypatch)
     monkeypatch.setattr(
         owner,
         "_send_restore_command",
@@ -352,5 +361,23 @@ async def test_fresh_restore_hold_propagates_through_executor_layers(monkeypatch
     try:
         assert await owner.execute_restore(*args) == {"status": "held"}
         fresh.assert_awaited_once_with(db, *args)
+    finally:
+        await owner.cleanup()
+
+
+@pytest.mark.asyncio
+async def test_historical_queued_restore_refuses_quarantined_catalog_before_claim(
+    monkeypatch,
+):
+    db, rows, args = specimen(monkeypatch)
+    rows[Backup].unverified_legacy_s3 = True
+    monkeypatch.setattr(module, "SessionLocal", lambda: db)
+    owner = module.RestoreExecutor()
+    owner._send_restore_command = AsyncMock(side_effect=AssertionError("agent reached"))
+    try:
+        assert await owner.execute_restore(*args) == {"status": "held"}
+        assert rows[Restore].status == "pending"
+        db.commit.assert_not_called()
+        owner._send_restore_command.assert_not_called()
     finally:
         await owner.cleanup()

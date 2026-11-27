@@ -3,7 +3,7 @@
 %global _build_id_links none
 
 Name:           vesta-agent
-Version:        6.1.1
+Version:        6.2.0
 Release:        1%{?dist}
 Summary:        Vesta KVM Backup Agent (prebuilt binary)
 
@@ -15,6 +15,7 @@ BuildArch:      x86_64
 Provides:       vnbui-agent = %{version}-%{release}
 Obsoletes:      vnbui-agent <= %{version}-%{release}
 Conflicts:      vnbui-agent > %{version}-%{release}
+Conflicts:      vesta-agent-files
 Requires:       libvirt-daemon >= 11.10.0
 Requires:       libvirt-daemon-driver-qemu >= 11.10.0
 Requires:       python3-libvirt >= 11.10.0
@@ -50,6 +51,7 @@ install -Dpm 644 VERSION %{buildroot}/opt/vesta-agent/VERSION
 install -Dpm 644 vesta-agent.service %{buildroot}/usr/lib/systemd/system/vesta-agent.service
 install -Dpm 644 vesta-native-staging.service %{buildroot}/usr/lib/systemd/system/vesta-native-staging.service
 install -Dpm 644 agent.env.template %{buildroot}/etc/vesta/agent.env.example
+install -Dpm 644 file-backups.json.example %{buildroot}/etc/vesta/file-backups.json.example
 install -Dpm 644 native-staging.env.example %{buildroot}/etc/vesta/native-staging.env.example
 install -d %{buildroot}%{_libexecdir}/vesta-native-staging
 install -pm 644 native-staging/*.py %{buildroot}%{_libexecdir}/vesta-native-staging/
@@ -275,6 +277,7 @@ exit 0
 %{_bindir}/vesta-restore
 %dir /etc/vesta
 %config(noreplace) /etc/vesta/agent.env.example
+%config(noreplace) /etc/vesta/file-backups.json.example
 %config(noreplace) /etc/vesta/native-staging.env.example
 /usr/lib/systemd/system/vesta-agent.service
 /usr/lib/systemd/system/vesta-native-staging.service
@@ -290,6 +293,9 @@ exit 0
 %dir %attr(0750,vesta-agent,vesta-agent) /var/log/vesta
 
 %changelog
+* Fri Nov 27 2026 Vesta Backup maintainers - 6.2.0-1
+- Managed optional encrypted file backups and independent file recovery
+
 * Fri Nov 27 2026 Vesta Backup maintainers - 6.1.1-1
 - Align the agent package with the console readability patch.
 

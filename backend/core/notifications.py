@@ -171,6 +171,51 @@ class NotificationService:
             return []
         return [r.strip() for r in recipients_str.split(",") if r.strip()]
 
+    def _prepare_file_backup_email(self, success, backup_id, agent_id, file_set, error):
+        with SessionLocal() as db:
+            config = self._get_smtp_config(db)
+            prefs = self._get_notification_prefs(db)
+        if (
+            not config["enabled"]
+            or not prefs["on_success" if success else "on_failure"]
+        ):
+            return None
+        recipients = self._parse_recipients(config["recipients"])
+        if not recipients:
+            return None
+        state = "completed" if success else "failed"
+        subject = f"[{product_name()}] File backup {state}: {file_set}"
+        body = f"File set: {file_set}\nEnrolled host ID: {agent_id}\nBackup ID: {backup_id}\nStatus: {state}"
+        if error:
+            body += f"\nDetails: {error}"
+        return config, recipients, subject, body
+
+    async def send_file_backup_notification(
+        self, success, backup_id, agent_id, file_set, error
+    ):
+        """Use the configured backup preferences and logged SMTP dispatch."""
+        prepared = await run_owned_worker(
+            self._prepare_file_backup_email,
+            success,
+            backup_id,
+            agent_id,
+            file_set,
+            error,
+        )
+        if prepared is None:
+            return
+        config, recipients, subject, body = prepared
+        await self._send_logged_email(
+            db=None,
+            notification_type=(
+                "file_backup_success" if success else "file_backup_failure"
+            ),
+            recipients=recipients,
+            subject=subject,
+            body=body,
+            config=config,
+        )
+
     async def send_backup_notification(
         self,
         backup: Backup,

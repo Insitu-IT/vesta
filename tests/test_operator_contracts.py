@@ -79,7 +79,12 @@ def test_exact_settings_patch_keys_types_and_secret_policy():
         )
     )
     assert "retain" in schema["properties"]["oidc.client_secret"]["description"]
-    assert schema["properties"]["oidc.client_secret"]["writeOnly"]
+    for key in (
+        "oidc.client_secret",
+        "storage.s3.recovery_access_key",
+        "storage.s3.recovery_secret_key",
+    ):
+        assert schema["properties"][key]["writeOnly"]
 
 
 def fixture_app(require_mtls=False):

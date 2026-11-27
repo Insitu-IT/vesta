@@ -45,7 +45,8 @@ await module.link(specifier => {
     if (specifier.includes('operator-dispatch')) return dispatchModule;
     if (specifier.includes('backup-safety')) return safetyModule;
     if (specifier.includes('snapshot.service')) return snapshotModule;
-    const values = specifier.includes('authenticated-startup') ? {startAuthenticatedServices: async () => {}}
+    const values = specifier.includes('/components/file-backups') ? {FileBackupsPanel: class {mount() {} destroy() {}}}
+            : specifier.includes('authenticated-startup') ? {startAuthenticatedServices: async () => {}}
         : specifier.includes('installation.service') ? {installationService: {}}
             : specifier.includes('theme.service') ? {themeService: {button: () => ''}}
             : specifier.includes('vm-inventory') ? {renderDiskSummary: () => '', renderCbtObservation: () => ''}
@@ -102,7 +103,10 @@ function details() {
         set innerHTML(value) {html = value; text = '';}, get textContent() {return text;},
         set textContent(value) {text = value; html = '';}};
     return {target, classList: {contains: () => false},
-        querySelector: selector => {assert.equal(selector, '[data-scheduler-decision]'); return target;}};
+        querySelector: selector => {
+            assert.ok(['[data-scheduler-decision]', '[data-recovery-publication]'].includes(selector));
+            return selector === '[data-scheduler-decision]' ? target : null;
+        }};
 }
 answer = {id: 'scheduled', scheduler_decision: decision};
 const box = details();

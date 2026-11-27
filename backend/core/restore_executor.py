@@ -4,21 +4,25 @@ Replaces mock restore simulation in routers/restores.py
 """
 
 import asyncio
-import base64
-import hashlib
 import httpx
 import logging
 import os
 from datetime import datetime
 from typing import Optional, Dict, Tuple
-from sqlalchemy.orm import Session
 
 from database import SessionLocal
 from models import Backup, Restore, VM, Agent, Organization, OrganizationDefault, User
 from config import settings
-from core.agent_http import AgentHTTP
-from core.task_lifetime import DispatchLifetime, owned_dispatch
+from core.file_agent_http import AgentPeer, FileAgentHTTP
+from core.vm_agent_peer import AgentPeerUnavailable, vm_agent_peer
+from core.task_lifetime import DispatchLifetime, owned_dispatch, run_owned_worker
 from core.tenant_context import TenantContext, commercial_mode, _validate_user_id
+
+from core.legacy_recovery import (
+    LEGACY_RECOVERY_REFUSAL,
+    legacy_s3_unverified,
+    recorded_legacy_local_path,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,9 +60,36 @@ def admit_restore(db, restore_id, org_id, actor_id, phase):
     restore = locked(Restore, id=restore_id, org_id=org_id)
     if restore is None or restore.created_by != actor_id or restore.status != phase:
         raise RestoreAdmissionError("Restore admission refused")
+    if getattr(restore, "s3_recovery", None):
+        from core import bucket_recovery
+
+        plan = restore.native_plan or restore.kubevirt_plan
+        if (
+            not bucket_recovery.recovery_admin(actor)
+            or restore.backup_id is not None
+            or restore.restore_to_original
+            or restore.target_vm_id is not None
+            or not plan
+            or plan["org_id"] != org_id
+            or plan["restore_id"] != restore.id
+        ):
+            raise RestoreAdmissionError("S3 recovery admission refused")
+        agent = bucket_recovery.destination(
+            db,
+            org_id,
+            plan["agent_id"],
+            restore.s3_recovery["point"]["provider"],
+            plan["bundle"],
+            plan["target"],
+            lock=True,
+            check_existing=False,
+        )
+        return restore, None, None, agent
     backup = locked(Backup, id=restore.backup_id, org_id=org_id)
     if backup is None or backup.status != "completed":
         raise RestoreAdmissionError("Restore admission refused")
+    if legacy_s3_unverified(backup):
+        raise RestoreAdmissionError(LEGACY_RECOVERY_REFUSAL)
     vm = locked(VM, id=backup.vm_id, org_id=org_id)
     if vm is None or (restore.restore_to_original and restore.target_vm_id != vm.id):
         raise RestoreAdmissionError("Restore admission refused")
@@ -83,26 +114,20 @@ class RestoreExecutor:
     def __init__(self):
         self.dispatch_lifetime = DispatchLifetime()
         self._shutdown_complete = False
-        # Configure HTTP client (reuse same mTLS config as backup_executor)
-        client_config = {"timeout": 30.0}
-
-        agent_ca_cert = os.getenv("AGENT_CA_CERT")
-        client_cert = os.getenv("ORCHESTRATOR_CLIENT_CERT")
-        client_key = os.getenv("ORCHESTRATOR_CLIENT_KEY")
-
-        if agent_ca_cert:
-            client_config["verify"] = agent_ca_cert
-        else:
-            agent_verify_ssl = os.getenv("AGENT_VERIFY_SSL", "true").lower() == "true"
-            client_config["verify"] = agent_verify_ssl
-
-        if client_cert and client_key:
-            client_config["cert"] = (client_cert, client_key)
-
-        self.http_client = AgentHTTP(**client_config)
-        self.monitoring_tasks = {}  # restore_id -> asyncio.Task
+        self.monitoring_tasks = {}
         self.agent_tls_enabled = (
             os.getenv("AGENT_TLS_ENABLED", "false").lower() == "true"
+        )
+        client_cert = os.getenv("ORCHESTRATOR_CLIENT_CERT")
+        client_key = os.getenv("ORCHESTRATOR_CLIENT_KEY")
+        ca = os.getenv("AGENT_CA_CERT")
+        verify = ca or os.getenv("AGENT_VERIFY_SSL", "true").lower() == "true"
+        self.http_client = (
+            FileAgentHTTP(
+                ca=ca, certificate=(client_cert, client_key), max_response_bytes=262144
+            )
+            if client_cert and client_key and verify
+            else None
         )
 
     def configure_mtls_from_db(self, db):
@@ -142,10 +167,8 @@ class RestoreExecutor:
                 f.write(backend_key_pem)
             os.chmod(key_path, 0o600)
 
-            self.http_client = AgentHTTP(
-                timeout=30.0,
-                verify=ca_path,
-                cert=(cert_path, key_path),
+            self.http_client = FileAgentHTTP(
+                ca=ca_path, certificate=(cert_path, key_path), max_response_bytes=262144
             )
             self.agent_tls_enabled = True
             logger.info("mTLS enabled for restore agent communication (loaded from DB)")
@@ -187,6 +210,10 @@ class RestoreExecutor:
             restore, backup, vm, agent = admit_restore(
                 db, restore_id, org_id, actor_id, "pending"
             )
+            if recorded_legacy_local_path(backup) is None:
+                raise RestoreAdmissionError(LEGACY_RECOVERY_REFUSAL)
+            peer = self._agent_peer(db, agent)
+            self._transport()
             source_binding = (backup.id, vm.id, agent.id)
             # A durable conservative claim precedes even key resolution. Lost
             # commit acknowledgement cannot cause a second producer on restart.
@@ -201,121 +228,27 @@ class RestoreExecutor:
             # another ASGI request could block this same event loop.
             db.commit()
 
-            # Determine restore source: S3 chain or local file
-            is_s3_restore = backup.storage_path and backup.storage_path.startswith(
-                "s3://"
+            # Legacy local recovery has no authority to unwrap a catalog key
+            # or to obtain S3 credentials. The fresh plans above use retained
+            # and revalidated DB-rooted receipts for these actions.
+            backup_path = recorded_legacy_local_path(backup)
+            if backup_path is None:
+                raise RestoreAdmissionError(LEGACY_RECOVERY_REFUSAL)
+            from core.agent_requests import build_restore_request
+
+            agent_request = build_restore_request(
+                restore_id=restore.id,
+                backup_path=backup_path,
+                restore_path=restore.target_vm_name
+                or f"/var/lib/vnbui/restores/{restore.id}",
+                selected_disks=restore.selected_disks or None,
+                target_name=(
+                    restore.target_vm_name if not restore.restore_to_original else None
+                ),
+                until_checkpoint=restore.until_checkpoint,
+                auto_define=restore.auto_define,
+                adjust_config=restore.adjust_config,
             )
-
-            if is_s3_restore and backup.chain_id:
-                # S3 restore: resolve full chain and send to agent
-                agent_request = await self._build_s3_restore_request(
-                    restore, backup, db
-                )
-                if agent_request is None:
-                    # _build_s3_restore_request already set restore.status = "failed"
-                    return {"status": "held"}
-            else:
-                # Local restore (existing behavior)
-                if backup.storage_path and backup.storage_path.startswith("file://"):
-                    backup_path = backup.storage_path.replace("file://", "")
-                else:
-                    backup_path = f"/var/lib/vnbui/backups/{backup.id}"
-
-                # Resolve encryption config if backup was encrypted
-                from core.agent_requests import build_restore_request
-
-                enc_type = None
-                enc_key = None
-                enc_hash = None
-
-                if backup.tags and backup.tags.get("encrypted"):
-                    dek = None
-                    encryption_type = backup.tags.get("encryption_type", "aes-256-gcm")
-
-                    # Try envelope encryption first (v3.1+ backups)
-                    if backup.encryption_key_id and backup.wrapped_dek:
-                        try:
-                            from core.kms import get_kms_provider
-
-                            kms = get_kms_provider()
-                            wrapped_dek_bytes = base64.b64decode(backup.wrapped_dek)
-                            dek = await kms.unwrap_dek(
-                                wrapped_dek_bytes, backup.encryption_key_id
-                            )
-                            logger.info(
-                                f"Restore {restore.id}: unwrapped DEK via KMS (KEK={backup.encryption_key_id})"
-                            )
-                        except Exception:
-                            logger.error("Restore key resolution failed")
-                            restore.status = "failed"
-                            restore.error_message = "Restore key resolution failed"
-                            db.commit()
-                            return {"status": "held"}
-
-                    # Fallback: legacy env var mode (pre-envelope backups)
-                    if dek is None:
-                        encryption_key = os.getenv("ENCRYPTION_KEY", "")
-                        if not encryption_key:
-                            logger.error(
-                                "Cannot restore encrypted backup: no KMS key and ENCRYPTION_KEY not set"
-                            )
-                            restore.status = "failed"
-                            restore.error_message = "Cannot restore encrypted backup: encryption key not available"
-                            db.commit()
-                            return {"status": "held"}
-
-                        encryption_key_hash = backup.tags.get("encryption_key_hash")
-                        if encryption_key_hash:
-                            actual_hash = hashlib.sha256(
-                                encryption_key.encode()
-                            ).hexdigest()[:16]
-                            if actual_hash != encryption_key_hash:
-                                logger.error(
-                                    f"Encryption key mismatch for backup {backup.id}: "
-                                    f"expected {encryption_key_hash}, got {actual_hash}"
-                                )
-                                restore.status = "failed"
-                                restore.error_message = (
-                                    "Encryption key does not match the key used for this backup. "
-                                    "The backup may require a different encryption key."
-                                )
-                                db.commit()
-                                return {"status": "held"}
-
-                        # Legacy key is passed as-is (not base64-encoded raw bytes)
-                        enc_type = encryption_type
-                        enc_key = encryption_key
-                        enc_hash = encryption_key_hash
-                        logger.info(f"Restore {restore.id} using legacy encryption key")
-                        dek = None  # Signal that we already set encryption fields
-
-                    # Set encryption fields for envelope-encrypted backups
-                    if dek is not None:
-                        enc_type = encryption_type
-                        enc_key = base64.b64encode(dek).decode()
-                        enc_hash = backup.tags.get("encryption_key_hash")
-                        logger.info(
-                            f"Restore {restore.id} will decrypt with envelope encryption"
-                        )
-
-                agent_request = build_restore_request(
-                    restore_id=restore.id,
-                    backup_path=backup_path,
-                    restore_path=restore.target_vm_name
-                    or f"/var/lib/vnbui/restores/{restore.id}",
-                    selected_disks=restore.selected_disks or None,
-                    target_name=(
-                        restore.target_vm_name
-                        if not restore.restore_to_original
-                        else None
-                    ),
-                    until_checkpoint=restore.until_checkpoint,
-                    auto_define=restore.auto_define,
-                    adjust_config=restore.adjust_config,
-                    encryption_type=enc_type,
-                    encryption_key=enc_key,
-                    encryption_key_hash=enc_hash,
-                )
 
             # Send to agent
             restore, backup, vm, agent = admit_restore(
@@ -323,9 +256,14 @@ class RestoreExecutor:
             )
             if (backup.id, vm.id, agent.id) != source_binding:
                 raise RestoreAdmissionError("Restore source changed before send")
-            agent_url = self._get_agent_url(agent)
+            if self._agent_peer(db, agent) != peer:
+                raise RestoreAdmissionError("Restore target transport changed")
             db.commit()
-            response, _ = await self._send_restore_command(agent_url, agent_request)
+            response, _ = await self._send_restore_command(
+                peer,
+                agent_request,
+                recheck=self._peer_recheck(restore_id, org_id, actor_id, peer),
+            )
 
             if not response:
                 # A transport failure is not evidence the agent did not start.
@@ -339,7 +277,9 @@ class RestoreExecutor:
             restore, backup, vm, agent = admit_restore(
                 db, restore_id, org_id, actor_id, "dispatching"
             )
-            if (backup.id, vm.id, agent.id) != source_binding:
+            if (backup.id, vm.id, agent.id) != source_binding or self._agent_peer(
+                db, agent
+            ) != peer:
                 raise RestoreAdmissionError("Restore source changed after send")
             restore.status = "running"
             restore.started_at = datetime.utcnow()
@@ -350,7 +290,7 @@ class RestoreExecutor:
 
             # Start monitoring task
             task = asyncio.create_task(
-                self.monitor_restore(restore_id, agent_url, org_id, actor_id)
+                self.monitor_restore(restore_id, peer, org_id, actor_id)
             )
             self.monitoring_tasks[restore_id] = task
 
@@ -379,32 +319,49 @@ class RestoreExecutor:
         restore, backup, vm, agent = admit_restore(
             db, restore_id, org_id, actor_id, phase
         )
-        source_binding = (backup.id, vm.id, agent.id)
+        source_binding = (restore.backup_id, vm.id if vm else None, agent.id)
         plan = restore.kubevirt_plan or restore.native_plan
         if plan["agent_id"] != agent.id or plan["org_id"] != org_id:
             raise RestoreAdmissionError("Restore plan owner changed")
-        url = self._get_agent_url(agent)
-        if (
-            not url.startswith("https://")
-            or not settings.orchestrator_to_agent_key
-            or self.http_client._configuration.get("verify", True) is False
-        ):
-            raise RestoreAdmissionError(
-                "Fresh restore requires verified authenticated agent HTTPS"
-            )
+        peer = self._agent_peer(db, agent)
+        self._transport()
         if phase != "running":
             restore.status = "dispatching"
             db.commit()
-            # Recheck the human, selected catalog and key state immediately
-            # before granting custody; idempotent resend retains the same plan.
+            recovery_material = None
+            if getattr(restore, "s3_recovery", None):
+                from core import bucket_recovery
+
+                def load_material():
+                    with TenantContext(org_id, actor_id), SessionLocal() as scoped:
+                        current = (
+                            scoped.query(Restore)
+                            .filter_by(id=restore_id, org_id=org_id)
+                            .one()
+                        )
+                        return bucket_recovery.check_point(scoped, current)
+
+                recovery_material = await run_owned_worker(load_material)
+            # Recheck local authority after the independent bucket read and
+            # before unwrapping a DEK or delivering repository credentials.
             restore, _, _, current_agent = admit_restore(
                 db, restore_id, org_id, actor_id, "dispatching"
             )
-            if self._get_agent_url(current_agent) != url:
+            if self._agent_peer(db, current_agent) != peer:
                 raise RestoreAdmissionError("Restore target transport changed")
-            request = restore_profile.hydrate_request(db, restore)
+            if recovery_material is None:
+                request = restore_profile.hydrate_request(db, restore)
+            else:
+                request = bucket_recovery.hydrate_request(
+                    db, restore, recovery_material
+                )
+                del recovery_material
             db.commit()
-            response, refusal = await self._send_restore_command(url, request)
+            response, refusal = await self._send_restore_command(
+                peer,
+                request,
+                recheck=self._peer_recheck(restore_id, org_id, actor_id, peer),
+            )
             del request
             if response is None:
                 if refusal == "prejournal_target_reserved":
@@ -414,11 +371,15 @@ class RestoreExecutor:
                     restore, backup, vm, agent = admit_restore(
                         db, restore_id, org_id, actor_id, "dispatching"
                     )
-                    if (backup.id, vm.id, agent.id) != source_binding:
+                    if (
+                        restore.backup_id,
+                        vm.id if vm else None,
+                        agent.id,
+                    ) != source_binding:
                         raise RestoreAdmissionError(
                             "Restore source changed after pre-journal refusal"
                         )
-                    if self._get_agent_url(agent) != url:
+                    if self._agent_peer(db, agent) != peer:
                         raise RestoreAdmissionError(
                             "Restore agent transport changed after pre-journal refusal"
                         )
@@ -432,9 +393,11 @@ class RestoreExecutor:
                     return  # Proven pre-journal refusal is a known terminal failure.
                 # An unconfirmed send retains exact-plan custody for /resume.
                 return {"status": "held"}
-            restore, _, _, _ = admit_restore(
+            restore, _, _, current_agent = admit_restore(
                 db, restore_id, org_id, actor_id, "dispatching"
             )
+            if self._agent_peer(db, current_agent) != peer:
+                raise RestoreAdmissionError("Restore target transport changed")
             restore_profile.apply_progress(restore, response)
             if restore.started_at is None:
                 restore.started_at = datetime.utcnow()
@@ -445,129 +408,62 @@ class RestoreExecutor:
             db.commit()
         if restore.status == "running" and restore_id not in self.monitoring_tasks:
             task = asyncio.create_task(
-                self.monitor_restore(restore_id, url, org_id, actor_id)
+                self.monitor_restore(restore_id, peer, org_id, actor_id)
             )
             self.monitoring_tasks[restore_id] = task
 
-    def _get_agent_url(self, agent: Agent) -> str:
-        """Get agent API URL with optional TLS support"""
-        host = agent.ip_address or agent.hostname
-        port = agent.port or 8090
-        scheme = "https" if self.agent_tls_enabled else "http"
-        return f"{scheme}://{host}:{port}"
+    @staticmethod
+    def _agent_peer(db, agent):
+        try:
+            return vm_agent_peer(db, agent)
+        except AgentPeerUnavailable as exc:
+            raise RestoreAdmissionError(str(exc)) from None
 
-    def _get_agent_headers(self) -> Dict[str, str]:
-        """Get headers for agent requests including authentication"""
-        headers = {}
-        if settings.orchestrator_to_agent_key:
-            headers["X-Orchestrator-Key"] = settings.orchestrator_to_agent_key
-        return headers
-
-    async def _build_s3_restore_request(
-        self, restore: Restore, backup: Backup, db: Session
-    ) -> Optional[Dict]:
-        """Build agent restore request for S3-stored chain backups.
-
-        Resolves the full chain up to the requested backup, unwraps each
-        member's DEK, and packages everything for the agent.
-
-        Returns agent_request dict, or None if an error occurred (restore
-        status is set to failed in that case).
-        """
-        from core.backup_service import BackupService
-        from core.settings_service import SettingsService
-
-        backup_svc = BackupService(db)
-        chain = backup_svc.get_chain(backup.chain_id)
-
-        if not chain:
-            restore.status = "failed"
-            restore.error_message = "No chain backups found for S3 restore"
-            db.commit()
-            return None
-
-        s3_config = SettingsService(db).get_s3_config()
-        if not s3_config:
-            restore.status = "failed"
-            restore.error_message = "S3 storage not configured"
-            db.commit()
-            return None
-
-        prefix = s3_config.get("prefix", "backups").strip("/")
-
-        # Build chain members up to the requested backup's position
-        chain_members = []
-        for cb in chain:
-            if cb.chain_position is not None and backup.chain_position is not None:
-                if cb.chain_position > backup.chain_position:
-                    continue  # Only include up to the requested backup
-
-            from core.agent_requests import build_chain_member
-
-            enc_key = None
-            enc_type_str = None
-
-            # Unwrap each member's DEK if encrypted
-            if cb.encryption_key_id and cb.wrapped_dek:
-                try:
-                    from core.kms import get_kms_provider
-
-                    kms = get_kms_provider()
-                    wrapped_dek_bytes = base64.b64decode(cb.wrapped_dek)
-                    dek = await kms.unwrap_dek(wrapped_dek_bytes, cb.encryption_key_id)
-                    enc_key = base64.b64encode(dek).decode()
-                    enc_type_str = (cb.tags or {}).get("encryption_type", "aes-256-gcm")
-                except Exception as e:
-                    logger.error(f"Failed to unwrap DEK for chain member {cb.id}: {e}")
-                    restore.status = "failed"
-                    restore.error_message = (
-                        f"Failed to unwrap encryption key for backup {cb.id}: {e}"
-                    )
-                    db.commit()
-                    return None
-
-            member = build_chain_member(
-                backup_id=cb.id,
-                s3_prefix=f"{prefix}/{cb.id}/",
-                chain_position=cb.chain_position,
-                encryption_key=enc_key,
-                encryption_type=enc_type_str,
+    def _transport(self):
+        if (
+            not self.agent_tls_enabled
+            or not isinstance(self.http_client, FileAgentHTTP)
+            or not settings.orchestrator_to_agent_key
+        ):
+            raise RestoreAdmissionError(
+                "Restore requires configured enrolled agent HTTPS"
             )
-            chain_members.append(member)
+        return self.http_client
 
-        # Build the S3 restore request — agent handles download + assembly
-        from core.agent_requests import build_s3_restore_request, build_s3_config
+    @staticmethod
+    def _get_agent_headers(peer):
+        return {
+            "X-Orchestrator-Key": settings.orchestrator_to_agent_key,
+            "X-Vesta-Agent-ID": peer.agent_id,
+        }
 
-        return build_s3_restore_request(
-            restore_id=restore.id,
-            restore_path=restore.target_vm_name
-            or f"/var/lib/vnbui/restores/{restore.id}",
-            s3_config=build_s3_config(
-                endpoint=s3_config.get("endpoint"),
-                bucket=s3_config["bucket"],
-                region=s3_config.get("region", "us-east-1"),
-                access_key=s3_config["access_key"],
-                secret_key=s3_config["secret_key"],
-            ),
-            chain_members=chain_members,
-            selected_disks=restore.selected_disks or None,
-            target_name=(
-                restore.target_vm_name if not restore.restore_to_original else None
-            ),
-            until_checkpoint=restore.until_checkpoint,
-            auto_define=restore.auto_define,
-            adjust_config=restore.adjust_config,
-        )
+    def _peer_recheck(self, restore_id, org_id, actor_id, peer):
+        def recheck():
+            with TenantContext(org_id, actor_id), SessionLocal() as db:
+                _, _, _, agent = admit_restore(
+                    db, restore_id, org_id, actor_id, "dispatching"
+                )
+                if self._agent_peer(db, agent) != peer:
+                    raise RestoreAdmissionError(
+                        "Restore target transport changed before request"
+                    )
+
+        async def verified():
+            await run_owned_worker(recheck)
+
+        return verified
 
     async def _send_restore_command(
-        self, agent_url: str, request: Dict
+        self, peer: AgentPeer, request: Dict, *, recheck=None
     ) -> Tuple[Optional[Dict], Optional[str]]:
-        """Send once; no provider body/request material escapes on failure."""
+        """Send once to a revalidated TLS peer; redact all remote failure bodies."""
         try:
-            response = await self.http_client.post(
-                f"{agent_url}/api/restores",
+            response = await self._transport().post(
+                peer,
+                "/api/restores",
                 json=request,
-                headers=self._get_agent_headers(),
+                headers=self._get_agent_headers(peer),
+                recheck=recheck,
             )
             if response.status_code == 409 and "kubevirt" in request:
                 try:
@@ -606,7 +502,7 @@ class RestoreExecutor:
             logger.warning("Restore command outcome uncertain")
             return None, "Restore command outcome uncertain"
 
-    async def monitor_restore(self, restore_id: str, agent_url: str, org_id, actor_id):
+    async def monitor_restore(self, restore_id: str, peer: AgentPeer, org_id, actor_id):
         """
         Monitor restore progress by polling agent
         """
@@ -619,19 +515,19 @@ class RestoreExecutor:
                     restore, _, _, agent = admit_restore(
                         db, restore_id, org_id, actor_id, "running"
                     )
+                    if self._agent_peer(db, agent) != peer:
+                        raise RestoreAdmissionError("Restore monitor peer changed")
                 except RestoreAdmissionError:
-                    db.rollback()
-                    break
-                if self._get_agent_url(agent) != agent_url:
                     db.rollback()
                     break
                 db.commit()
 
                 # Get status from agent
                 try:
-                    response = await self.http_client.get(
-                        f"{agent_url}/api/restores/{restore_id}",
-                        headers=self._get_agent_headers(),
+                    response = await self._transport().get(
+                        peer,
+                        f"/api/restores/{restore_id}",
+                        headers=self._get_agent_headers(peer),
                     )
                     response.raise_for_status()
                     status_data = response.json()
@@ -644,7 +540,7 @@ class RestoreExecutor:
                 restore, _, _, agent = admit_restore(
                     db, restore_id, org_id, actor_id, "running"
                 )
-                if self._get_agent_url(agent) != agent_url:
+                if self._agent_peer(db, agent) != peer:
                     db.rollback()
                     break
                 if getattr(restore, "kubevirt_plan", None):
@@ -703,7 +599,8 @@ class RestoreExecutor:
         self.close_admission()
         await self.dispatch_lifetime.drain()
         await drain_monitors(self.monitoring_tasks)
-        await self.http_client.aclose()
+        if self.http_client is not None:
+            await self.http_client.aclose()
         self._shutdown_complete = True
 
 

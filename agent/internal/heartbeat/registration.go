@@ -86,8 +86,12 @@ func Register(cfg *config.Config, vmProvider provider.VMProvider, version string
 	}
 
 	libvirtURI := cfg.LibvirtURI
-	if cfg.Provider == "kubevirt" {
+	if cfg.Provider == "kubevirt" || cfg.Provider == "none" {
 		libvirtURI = ""
+	}
+	var capabilities provider.ProviderCapabilities
+	if vmProvider != nil {
+		capabilities = vmProvider.Capabilities()
 	}
 	reg := models.AgentRegistration{
 		DisplayName: cfg.AgentDisplayName,
@@ -98,13 +102,13 @@ func Register(cfg *config.Config, vmProvider provider.VMProvider, version string
 		Version:     version,
 		Capabilities: map[string]interface{}{
 			"provider":       cfg.Provider,
-			"platform":       map[string]string{"kubevirt": "KubeVirt", "libvirt": "KVM/QEMU"}[cfg.Provider],
-			"incremental":    vmProvider.Capabilities().SupportsIncremental,
-			"checkpoints":    vmProvider.Capabilities().SupportsCheckpoints,
-			"block_jobs":     vmProvider.Capabilities().SupportsBlockJobPoll,
-			"backup_method":  vmProvider.Capabilities().BackupMethod,
-			"stream_through": vmProvider.Capabilities().SupportsStreamThrough,
-			"local_output":   vmProvider.Capabilities().SupportsLocalOutput,
+			"platform":       map[string]string{"kubevirt": "KubeVirt", "libvirt": "KVM/QEMU", "none": "Linux"}[cfg.Provider],
+			"incremental":    capabilities.SupportsIncremental,
+			"checkpoints":    capabilities.SupportsCheckpoints,
+			"block_jobs":     capabilities.SupportsBlockJobPoll,
+			"backup_method":  capabilities.BackupMethod,
+			"stream_through": capabilities.SupportsStreamThrough,
+			"local_output":   capabilities.SupportsLocalOutput,
 		},
 	}
 

@@ -12,7 +12,7 @@ from core.s3_ownership import StorageOwnershipError, storage_identity
 from core.storage_receipt import validate_receipt, verify_stored_receipt
 
 
-def _recorded_target_client(db, claim):
+def _recorded_target_client(db, claim, *, path_style=False):
     """Credentials may rotate; their current target cannot redirect verification."""
     import boto3
     from botocore.config import Config
@@ -31,6 +31,7 @@ def _recorded_target_client(db, claim):
             connect_timeout=5,
             read_timeout=30,
             retries={"max_attempts": 1},
+            s3={"addressing_style": "path"} if path_style else None,
             # The transaction verifies full object SHA-256 itself. Keep generation
             # requests fixed-length instead of the SDK's optional aws-chunked trailer.
             request_checksum_calculation="when_required",

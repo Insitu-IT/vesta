@@ -4,16 +4,14 @@ Replaces mock simulate_backup_execution
 """
 
 import asyncio
-import base64
-import hashlib
 import httpx
 import json
 import logging
 import os
-import shutil
 import threading
 from datetime import datetime
 from typing import Optional, Dict, Tuple
+from urllib.parse import urlsplit
 from sqlalchemy.orm import Session
 
 from database import SessionLocal
@@ -21,23 +19,10 @@ from models import Backup, Agent, VM
 from config import settings
 from core.realtime import emit_backup_event
 from core.agent_http import AgentHTTP
+from core.file_agent_http import FileAgentHTTP
 from core.task_lifetime import DispatchLifetime, owned_dispatch, run_owned_worker
-from core.settings_reader import (
-    get_setting,
-    get_compression_level,
-    get_backup_storage_path,
-)
 
 logger = logging.getLogger(__name__)
-
-# Compression level mapping: UI value -> virtnbdbackup lz4 level (integers only)
-# virtnbdbackup only supports lz4 compression with numeric levels (2-9)
-COMPRESSION_MAP = {
-    "none": None,
-    "fast": "2",  # lz4 level 2 (default/fast)
-    "balanced": "5",  # lz4 level 5 (balanced)
-    "maximum": "9",  # lz4 level 9 (maximum)
-}
 
 
 class BackupExecutor:
@@ -67,6 +52,11 @@ class BackupExecutor:
             client_config["cert"] = (client_cert, client_key)
             logger.info("mTLS enabled for agent communication")
 
+        self.file_agent_http = (
+            FileAgentHTTP(ca=agent_ca_cert, certificate=(client_cert, client_key))
+            if client_cert and client_key
+            else None
+        )
         self.http_client = AgentHTTP(**client_config)
         self.agent_verify_ssl = client_config.get("verify", True) is not False
         self.monitoring_tasks = {}  # backup_id -> asyncio.Task
@@ -120,6 +110,9 @@ class BackupExecutor:
                 timeout=30.0,
                 verify=ca_path,
                 cert=(cert_path, key_path),
+            )
+            self.file_agent_http = FileAgentHTTP(
+                ca=ca_path, certificate=(cert_path, key_path)
             )
             self.agent_tls_enabled = True
             self.agent_verify_ssl = True
@@ -224,225 +217,9 @@ class BackupExecutor:
                 db.close()
                 return await self._execute_supported_in_worker(backup_id, "libvirt")
 
-            # Check storage space before starting
-            storage_path = get_backup_storage_path(db)
-            min_free_gb = get_setting("storage", "min_free_space_gb", 50, "integer", db)
-            try:
-                if os.path.exists(storage_path):
-                    disk_usage = shutil.disk_usage(storage_path)
-                    free_gb = disk_usage.free / (1024**3)
-                    if free_gb < min_free_gb:
-                        error = f"Insufficient storage space: {free_gb:.1f}GB free, need {min_free_gb}GB"
-                        logger.error(error)
-                        backup.status = "failed"
-                        backup.tags = backup.tags or {}
-                        backup.tags["error"] = error
-                        db.commit()
-                        await emit_backup_event(
-                            backup_id=backup_id,
-                            status="failed",
-                            vm_name=vm.name,
-                            error=error,
-                        )
-                        return
-            except OSError as e:
-                logger.warning(f"Could not check storage space: {e}")
-
-            # Find agent for this VM
-            agent = db.query(Agent).filter(Agent.id == vm.agent_id).first()
-            if not agent:
-                error = f"No agent found for VM {vm.name}"
-                logger.error(error)
-                backup.status = "failed"
-                backup.tags = backup.tags or {}
-                backup.tags["error"] = error
-                db.commit()
-                await emit_backup_event(
-                    backup_id=backup_id, status="failed", vm_name=vm.name, error=error
-                )
-                return
-
-            # Check agent is online
-            if agent.status != "online":
-                error = f"Agent {agent.hostname} is {agent.status}"
-                logger.error(error)
-                backup.status = "failed"
-                backup.tags = backup.tags or {}
-                backup.tags["error"] = error
-                db.commit()
-                await emit_backup_event(
-                    backup_id=backup_id, status="failed", vm_name=vm.name, error=error
-                )
-                return
-
-            # Get storage path from backup record (set by create_backup API)
-            # Format: file:///var/lib/vnbui/backups/{backup_id}
-            if backup.storage_path and backup.storage_path.startswith("file://"):
-                output_path = backup.storage_path.replace("file://", "")
-            else:
-                # Fallback for legacy backups without storage_path
-                output_path = f"/var/lib/vnbui/backups/{backup_id}"
-
-            # Send command to agent
-            agent_url = self._get_agent_url(agent)
-
-            # Get backup_type from column (with fallback to tags for legacy)
-            backup_type = backup.backup_type or (
-                backup.tags.get("backup_type", "full") if backup.tags else "full"
-            )
-
-            # Get compression level from settings
-            compression_setting = get_compression_level(db)
-            compression = COMPRESSION_MAP.get(compression_setting)  # None if not in map
-
-            # Convert to agent's BackupRequest format
-            from core.agent_requests import build_backup_request
-
-            # Resolve encryption config
-            enc_type = None
-            enc_key = None
-            encryption_enabled = (
-                os.getenv("ENABLE_ENCRYPTION", "false").lower() == "true"
-            )
-            if encryption_enabled:
-                try:
-                    from core.kms import get_kms_provider
-
-                    kms = get_kms_provider()
-                    active_key = await kms.get_active_key()
-
-                    if active_key:
-                        # Envelope encryption: generate random DEK, wrap with KEK
-                        dek = os.urandom(32)  # Random 256-bit DEK
-                        wrapped_dek = await kms.wrap_dek(dek, active_key.id)
-
-                        enc_type = "aes-256-gcm"
-                        enc_key = base64.b64encode(dek).decode()
-                        logger.info(
-                            f"Backup {backup_id} will use envelope encryption (KEK={active_key.key_hash})"
-                        )
-
-                        # Store envelope encryption references on backup record
-                        backup.encryption_key_id = active_key.id
-                        backup.wrapped_dek = base64.b64encode(wrapped_dek).decode()
-                        backup.tags = backup.tags or {}
-                        backup.tags["encryption_type"] = "aes-256-gcm"
-                        backup.tags["encrypted"] = True
-                        backup.tags["encryption_key_hash"] = active_key.key_hash
-                        db.commit()
-                    else:
-                        # Fallback: legacy env var mode (no KMS key configured)
-                        encryption_key = os.getenv("ENCRYPTION_KEY", "")
-                        if encryption_key:
-                            key_hash = hashlib.sha256(
-                                encryption_key.encode()
-                            ).hexdigest()[:16]
-                            enc_type = os.getenv("ENCRYPTION_TYPE", "fernet")
-                            enc_key = encryption_key
-                            backup.tags = backup.tags or {}
-                            backup.tags["encryption_type"] = enc_type
-                            backup.tags["encrypted"] = True
-                            backup.tags["encryption_key_hash"] = key_hash
-                            db.commit()
-                            logger.info(
-                                f"Backup {backup_id} using legacy encryption (no KMS key)"
-                            )
-                        else:
-                            logger.warning(
-                                "Encryption enabled but no KMS key or ENCRYPTION_KEY set"
-                            )
-                except ValueError as e:
-                    logger.warning(f"KMS not available, trying legacy encryption: {e}")
-                    encryption_key = os.getenv("ENCRYPTION_KEY", "")
-                    if encryption_key:
-                        key_hash = hashlib.sha256(encryption_key.encode()).hexdigest()[
-                            :16
-                        ]
-                        enc_type = os.getenv("ENCRYPTION_TYPE", "fernet")
-                        enc_key = encryption_key
-                        backup.tags = backup.tags or {}
-                        backup.tags["encryption_type"] = enc_type
-                        backup.tags["encrypted"] = True
-                        backup.tags["encryption_key_hash"] = key_hash
-                        db.commit()
-
-            # For incremental/differential, resolve parent backup's local path
-            parent_path = None
-            if backup_type in ("inc", "incremental", "diff", "differential"):
-                if backup.parent_backup_id:
-                    # Construct local path from storage base + parent ID.
-                    # Can't rely on parent.storage_path — it gets overwritten
-                    # to s3:// after S3 upload, losing the local path.
-                    storage_base = get_backup_storage_path(db)
-                    parent_path = f"{storage_base}/{backup.parent_backup_id}"
-
-            # Auto-detect raw disks — pass --raw to virtnbdbackup
-            has_raw_disks = any(
-                (d.get("format") or "").lower() == "raw" for d in (vm.disks or [])
-            )
-
-            agent_request = build_backup_request(
-                backup_id=backup_id,
-                vm_name=vm.name,
-                backup_type=backup_type,
-                output_path=output_path,
-                compression=compression,
-                exclude_disks=backup.exclude_disks or None,
-                workers=backup.workers,
-                encryption_type=enc_type,
-                encryption_key=enc_key,
-                parent_path=parent_path,
-                include_raw=has_raw_disks,
-                vm_namespace=vm.namespace,
-                vm_uid=vm.vm_uid,
-            )
-
-            from core.backup_monitor import MonitorBinding, admit, source_identity
-            from core.tenant_context import TenantContext
-
-            monitor_binding = MonitorBinding(
-                backup.id,
-                backup.org_id,
-                backup.initiating_user_id,
-                agent.id,
-                source_identity(vm),
-                agent_url,
-            )
-            started_event = dict(
-                backup_id=backup_id,
-                status="started",
-                vm_id=str(vm.id),
-                vm_name=vm.name,
-                agent_id=str(agent.id),
-            )
-            # Admission and registration share the original initiating identity.
-            # No ORM object/session is carried across the dispatch await.
-            try:
-                admit(db, monitor_binding, self._get_agent_url)
-                db.rollback()
-                db.close()
-                response, _ = await self._send_backup_command(agent_url, agent_request)
-                if not response:
-                    logger.warning("Backup dispatch uncertain; custody retained")
-                    return {"status": "held"}
-                with TenantContext(monitor_binding.org_id, monitor_binding.actor_id):
-                    with SessionLocal() as registration_db:
-                        current = admit(
-                            registration_db, monitor_binding, self._get_agent_url
-                        )
-                        current.status, current.progress = "running", 0
-                        registration_db.commit()
-            except Exception:
-                logger.warning("Backup monitor registration refused; custody retained")
-                return {"status": "held"}
-            # Register before event delivery so cancellation cannot orphan the child.
-            task = asyncio.create_task(self.monitor_backup(monitor_binding))
-            self.monitoring_tasks[backup_id] = task
-            try:
-                with TenantContext(monitor_binding.org_id, monitor_binding.actor_id):
-                    await emit_backup_event(**started_event)
-            except Exception:
-                logger.warning("Backup event unavailable; monitor custody retained")
+            # Unsupported or historical VM provider values have no live
+            # producer admission. Preserve existing custody for reconciliation.
+            return {"status": "held", "reason": "unsupported_backup_provider"}
 
         except Exception as e:
             db.rollback()
@@ -486,6 +263,51 @@ class BackupExecutor:
 
         return await run_owned_worker(run, on_cancel=cancelled.set)
 
+    async def _post_certified_vm_backup(
+        self, db, agent_id, org_id, request, *, cancellation=None
+    ):
+        from core.s3_ownership import StorageOwnershipError
+        from core.vm_agent_peer import vm_agent_peer
+
+        headers = self._get_agent_headers()
+        if (
+            not self.agent_tls_enabled
+            or not self.agent_verify_ssl
+            or not headers
+            or self.file_agent_http is None
+        ):
+            raise StorageOwnershipError(
+                "Verified authenticated VM transport unavailable"
+            )
+
+        def current_peer():
+            if cancellation is not None and cancellation.is_set():
+                raise StorageOwnershipError("Dispatch continuation cancelled")
+            agent = (
+                db.query(Agent)
+                .filter_by(id=agent_id, org_id=org_id)
+                .populate_existing()
+                .one_or_none()
+            )
+            if agent is None or agent.status != "online":
+                raise StorageOwnershipError("Transaction agent unavailable")
+            return vm_agent_peer(db, agent)
+
+        peer = current_peer()
+
+        async def recheck():
+            if current_peer() != peer:
+                raise StorageOwnershipError("Enrolled VM agent identity changed")
+            return peer
+
+        return await self.file_agent_http.post(
+            peer,
+            "/api/backups",
+            headers={**headers, "X-Vesta-Agent-ID": peer.agent_id},
+            json=request,
+            recheck=recheck,
+        )
+
     async def send_storage_transaction(self, agent_id, request):
         """Send an already admitted transaction; never grant lifecycle authority.
 
@@ -508,21 +330,9 @@ class BackupExecutor:
         ):
             raise StorageOwnershipError("Verified transaction transport unavailable")
         with SessionLocal() as db:
-            agent = (
-                db.query(Agent)
-                .filter_by(id=agent_id, org_id=request["org_id"])
-                .one_or_none()
+            response = await self._post_certified_vm_backup(
+                db, agent_id, request["org_id"], request
             )
-            if agent is None or agent.status != "online":
-                raise StorageOwnershipError("Transaction agent unavailable")
-            url = self._get_agent_url(agent)
-        if not url.startswith("https://"):
-            raise StorageOwnershipError("Transaction agent requires HTTPS")
-        response = await self.http_client.post(
-            f"{url}/api/backups",
-            json=request,
-            headers=headers,
-        )
         expected = dict(
             status="accepted",
             backup_id=request["backup_id"],
@@ -682,19 +492,9 @@ class BackupExecutor:
         ):
             raise StorageOwnershipError("Verified native transport unavailable")
         with SessionLocal() as db:
-            agent = (
-                db.query(Agent)
-                .filter_by(id=agent_id, org_id=intent["org_id"])
-                .one_or_none()
+            response = await self._post_certified_vm_backup(
+                db, agent_id, intent["org_id"], request
             )
-            if agent is None or agent.status != "online":
-                raise StorageOwnershipError("Native agent unavailable")
-            url = self._get_agent_url(agent)
-        if not url.startswith("https://"):
-            raise StorageOwnershipError("Native producer requires HTTPS")
-        response = await self.http_client.post(
-            f"{url}/api/backups", json=request, headers=headers
-        )
         expected = dict(
             status="accepted",
             backup_id=intent["backup_id"],
@@ -790,6 +590,14 @@ class BackupExecutor:
                 if self.monitoring_tasks.get(backup_id) is task:
                     del self.monitoring_tasks[backup_id]
 
+    def has_authenticated_agent_transport(self):
+        return (
+            self.agent_tls_enabled
+            and self.agent_verify_ssl
+            and self.file_agent_http is not None
+            and bool(self._get_agent_headers())
+        )
+
     def _get_agent_url(self, agent: Agent) -> str:
         """
         Get agent API URL with optional TLS support
@@ -822,11 +630,18 @@ class BackupExecutor:
         into an opaque "Failed to send backup command" and read as a generic failure
         for ~110 days before ops-it had to diagnose it host-side.
         """
+        headers = self._get_agent_headers()
+        if (headers or request.get("encryption_key")) and (
+            not self.agent_tls_enabled
+            or not self.agent_verify_ssl
+            or urlsplit(agent_url).scheme != "https"
+        ):
+            return None, "Verified agent HTTPS is required for credentials"
         try:
             response = await self.http_client.post(
                 f"{agent_url}/api/backups",
                 json=request,
-                headers=self._get_agent_headers(),
+                headers=headers,
             )
             response.raise_for_status()
             return response.json(), None

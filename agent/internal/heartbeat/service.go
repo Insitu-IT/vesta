@@ -33,10 +33,12 @@ type Service struct {
 	client  *http.Client
 	version string
 
-	mu            sync.Mutex
-	events        []map[string]interface{}
-	backoffFactor float64
-	maxBackoff    float64
+	mu                sync.Mutex
+	events            []map[string]interface{}
+	backoffFactor     float64
+	maxBackoff        float64
+	controllerRequest uint64
+	controllerApplied uint64
 
 	// Callbacks for dynamic state
 	activeBackups          func() int
@@ -53,9 +55,14 @@ type Service struct {
 
 // New creates a heartbeat service.
 func New(cfg *config.Config, client *http.Client, version string) *Service {
+	// Callback credentials belong to the configured controller origin.
+	clientForHeartbeat := *client
+	clientForHeartbeat.CheckRedirect = func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
 	return &Service{
 		cfg:            cfg,
-		client:         client,
+		client:         &clientForHeartbeat,
 		version:        version,
 		events:         make([]map[string]interface{}, 0),
 		backoffFactor:  1.0,
@@ -130,11 +137,22 @@ func (s *Service) SendImmediate() {
 	go s.sendHeartbeat()
 }
 
+func (s *Service) observeControllers(sequence uint64, vm, files string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if sequence > s.controllerApplied {
+		s.cfg.ObserveControllers(vm, files)
+		s.controllerApplied = sequence
+	}
+}
+
 func (s *Service) sendHeartbeat() {
 	// Collect events atomically
 	s.mu.Lock()
 	queuedEvents := s.events
 	s.events = make([]map[string]interface{}, 0)
+	s.controllerRequest++
+	controllerRequest := s.controllerRequest
 	s.mu.Unlock()
 
 	// Repeatable snapshots are regenerated on every send. Keep them out of the
@@ -158,6 +176,10 @@ func (s *Service) sendHeartbeat() {
 	storagePath := s.cfg.StorageMeasurementPath()
 	storageFree, storageTotal, diskPercent := info.DiskValues()
 	capabilities := s.cfg.CapabilityReport()
+	providerAlive := s.providerAlive()
+	if s.cfg.Provider == "libvirt" && len(s.cfg.ManagedFileSets) > 0 {
+		capabilities["vm_workload_available"] = providerAlive
+	}
 	if capabilities != nil && s.diskAdmissionThreshold != nil {
 		if limit := s.diskAdmissionThreshold(); limit > 0 && limit <= 100 {
 			capabilities["storage_admission_used_percent"] = limit
@@ -184,8 +206,8 @@ func (s *Service) sendHeartbeat() {
 		BackupStoragePath:       &storagePath,
 		BackupStorageFreeBytes:  storageFree,
 		BackupStorageTotalBytes: storageTotal,
-		LibvirtAccessible:       s.providerAlive(),
-		ProviderAccessible:      s.providerAlive(),
+		LibvirtAccessible:       providerAlive,
+		ProviderAccessible:      providerAlive,
 		Events:                  events,
 	}
 
@@ -204,7 +226,7 @@ func (s *Service) sendHeartbeat() {
 	metrics.SystemUptimeSeconds.Set(float64(info.UptimeSeconds))
 	metrics.ActiveBackups.Set(float64(hb.ActiveBackups))
 	metrics.ActiveRestores.Set(float64(hb.ActiveRestores))
-	if s.providerAlive() {
+	if providerAlive {
 		metrics.LibvirtConnectionStatus.Set(1)
 		metrics.ProviderConnectionStatus.Set(1)
 	} else {
@@ -243,7 +265,14 @@ func (s *Service) sendHeartbeat() {
 	}
 	defer resp.Body.Close()
 
+	verified := req.URL.Scheme == "https" && req.URL.User == nil && resp.Request != nil &&
+		resp.Request.URL != nil && resp.Request.URL.String() == req.URL.String() && resp.TLS != nil &&
+		len(resp.TLS.VerifiedChains) > 0 && len(resp.TLS.VerifiedChains[0]) > 0 &&
+		s.cfg.AgentID != "" && s.cfg.AgentAPIKey != ""
 	if resp.StatusCode != http.StatusOK {
+		if verified && (resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden) {
+			s.observeControllers(controllerRequest, "", "")
+		}
 		respBody, _ := io.ReadAll(resp.Body)
 		slog.Warn("heartbeat rejected",
 			"status", resp.StatusCode,
@@ -257,9 +286,22 @@ func (s *Service) sendHeartbeat() {
 	// Parse response
 	var hbResp models.HeartbeatResponse
 	if err := json.NewDecoder(resp.Body).Decode(&hbResp); err != nil {
+		if verified {
+			s.observeControllers(controllerRequest, "", "")
+		}
 		slog.Warn("parse heartbeat response", "error", err)
 		return
 	}
+
+	filePin, _ := hbResp.Config["file_controller_sha256"].(string)
+	vmPin, _ := hbResp.Config["vm_controller_sha256"].(string)
+	delete(hbResp.Config, "file_controller_sha256")
+	delete(hbResp.Config, "vm_controller_sha256")
+	trustedReply := verified && hbResp.Status == "ok" && hbResp.AgentID == s.cfg.AgentID
+	if !trustedReply {
+		vmPin, filePin = "", ""
+	}
+	s.observeControllers(controllerRequest, vmPin, filePin)
 
 	// Apply remote config
 	if len(hbResp.Config) > 0 {
@@ -275,7 +317,7 @@ func (s *Service) sendHeartbeat() {
 	}
 
 	// Apply S3 config from heartbeat response
-	if s.onS3Config != nil && hbResp.S3Config != nil {
+	if trustedReply && s.onS3Config != nil && hbResp.S3Config != nil {
 		s.onS3Config(hbResp.S3Config)
 	}
 

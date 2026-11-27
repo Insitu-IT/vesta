@@ -919,18 +919,6 @@ export class App {
                 }
             },
 
-            openS3Import: () => {
-                if (window.vnbui.currentPage && window.vnbui.currentPage.openS3Import) {
-                    window.vnbui.currentPage.openS3Import();
-                }
-            },
-
-            importS3Chain: (chainId) => {
-                if (window.vnbui.currentPage && window.vnbui.currentPage.importS3Chain) {
-                    window.vnbui.currentPage.importS3Chain(chainId);
-                }
-            },
-
             filterBackups: (filter) => {
                 if (window.vnbui.currentPage && window.vnbui.currentPage.filter !== undefined) {
                     window.vnbui.currentPage.filter = filter;

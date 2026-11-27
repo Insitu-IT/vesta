@@ -74,7 +74,10 @@ def test_mutation_probes_selected_agent_before_dispatch(agent, method):
 
     def respond(request):
         seen.append((request.method, request.url.path))
-        assert request.headers["X-Orchestrator-Key"] == "test-only"
+        if request.method == "GET":
+            assert "X-Orchestrator-Key" not in request.headers
+        else:
+            assert request.headers["X-Orchestrator-Key"] == "test-only"
         return httpx.Response(200, json={"version": agent})
 
     transport = AgentHTTP(transport=httpx.MockTransport(respond))
@@ -86,11 +89,11 @@ def test_mutation_probes_selected_agent_before_dispatch(agent, method):
     )
     if agent == "6.0.0":
         assert asyncio.run(call).status_code == 200
-        assert seen == [("GET", "/api/version"), (method, "/api/backups")]
+        assert seen == [("GET", "/health"), (method, "/api/backups")]
     else:
         with pytest.raises(RuntimeError, match="major version mismatch"):
             asyncio.run(call)
-        assert seen == [("GET", "/api/version")]
+        assert seen == [("GET", "/health")]
 
 
 @pytest.mark.parametrize("method", ["GET", "HEAD", "OPTIONS"])
@@ -154,13 +157,13 @@ def test_cancellation_refusal_does_not_claim_cancelled(
             assert error.value.request.url.path == "/api/backups/b"
             assert backup.status == "running"
             db.commit.assert_not_called()
-        assert seen == [("GET", "/api/version"), ("DELETE", "/api/backups/b")]
+        assert seen == [("GET", "/health"), ("DELETE", "/api/backups/b")]
     else:
         with pytest.raises(RuntimeError):
             asyncio.run(executor.stop_backup("b"))
         assert backup.status == "running"
         db.commit.assert_not_called()
-        assert seen == [("GET", "/api/version")]
+        assert seen == [("GET", "/health")]
 
 
 def test_five_backend_skew_fixture(monkeypatch):

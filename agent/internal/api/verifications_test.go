@@ -46,14 +46,14 @@ func verificationBody(t *testing.T) []byte {
 }
 
 func verificationServer(e *testVerifier) *Server {
-	return NewServer(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}, "test", WithVerificationExecutor(e), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+	return NewServer(testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}), "test", WithVerificationExecutor(e), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 }
 
 func TestVerificationRequiresAuthenticatedHTTPSForAllOperations(t *testing.T) {
 	for _, operation := range []string{"submit", "get", "cancel", "capability"} {
 		for _, fault := range []string{"valid", "http", "server-http", "no-key", "wrong-key", "auth-disabled", "empty-key"} {
 			t.Run(operation+"/"+fault, func(t *testing.T) {
-				cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
+				cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
 				if fault == "auth-disabled" {
 					cfg.EnableAPIKeyValidation = false
 				}
@@ -63,7 +63,7 @@ func TestVerificationRequiresAuthenticatedHTTPSForAllOperations(t *testing.T) {
 				e := &testVerifier{org: "org"}
 				opts := []ServerOption{WithVerificationExecutor(e)}
 				if fault != "server-http" {
-					opts = append(opts, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+					opts = append(opts, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 				}
 				s := NewServer(cfg, "test", opts...)
 				method, path := http.MethodPost, "/api/verifications"
@@ -77,6 +77,7 @@ func TestVerificationRequiresAuthenticatedHTTPSForAllOperations(t *testing.T) {
 					path = "/api/verifications/operation/cancel?org_id=org"
 				}
 				r := httptest.NewRequest(method, "https://agent"+path, bytes.NewReader(verificationBody(t)))
+				certifyTestController(r)
 				r.Header.Set("X-Orchestrator-Key", "expected")
 				if fault == "http" {
 					r.TLS = nil
@@ -104,6 +105,7 @@ func TestVerificationStrictWireErrorsNeverEchoSecrets(t *testing.T) {
 			e := &testVerifier{}
 			s := verificationServer(e)
 			r := httptest.NewRequest(http.MethodPost, "https://agent/api/verifications", strings.NewReader(body))
+			certifyTestController(r)
 			r.Header.Set("X-Orchestrator-Key", "expected")
 			w := httptest.NewRecorder()
 			s.router.ServeHTTP(w, r)
@@ -123,6 +125,7 @@ func TestVerificationErrorMappingAndOrgScopedReadCancel(t *testing.T) {
 			e := &testVerifier{err: test.err}
 			s := verificationServer(e)
 			r := httptest.NewRequest(http.MethodPost, "https://agent/api/verifications", bytes.NewReader(verificationBody(t)))
+			certifyTestController(r)
 			r.Header.Set("X-Orchestrator-Key", "expected")
 			w := httptest.NewRecorder()
 			s.router.ServeHTTP(w, r)
@@ -151,6 +154,7 @@ func TestVerificationErrorMappingAndOrgScopedReadCancel(t *testing.T) {
 			method = http.MethodPost
 		}
 		r := httptest.NewRequest(method, "https://agent"+path+"?org_id=foreign", nil)
+		certifyTestController(r)
 		r.Header.Set("X-Orchestrator-Key", "expected")
 		w := httptest.NewRecorder()
 		s.router.ServeHTTP(w, r)

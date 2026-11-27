@@ -3,7 +3,7 @@
 from sqlalchemy import func, select
 
 from core.tenant_context import TenantContext
-from models import Agent, OrganizationDefault, StorageLineageGeneration, VM
+from models import Agent, FileBackup, OrganizationDefault, StorageLineageGeneration, VM
 
 SCHEDULE_VERSION = "community-usage-v2"
 BACKUP_THRESHOLD = 100
@@ -30,6 +30,10 @@ def observe_usage(db, *, exact):
         .where(generation.org_id == organization, generation.state == "accepted")
         .distinct()
     )
+    accepted_files = select(FileBackup.id).where(
+        FileBackup.org_id == organization, FileBackup.status == "completed"
+    )
+    successful_backups = accepted.union_all(accepted_files)
     agents_in_scope = select(Agent.id).where(
         Agent.org_id == organization, Agent.hostname != "__s3_import__"
     )
@@ -39,7 +43,7 @@ def observe_usage(db, *, exact):
         VM.agent_id.in_(agents_in_scope),
     )
     totals = select(
-        tally(accepted, BACKUP_THRESHOLD),
+        tally(successful_backups, BACKUP_THRESHOLD),
         tally(present, VM_THRESHOLD),
         tally(agents_in_scope, AGENT_THRESHOLD),
     )

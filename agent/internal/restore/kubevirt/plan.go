@@ -109,7 +109,7 @@ func validatePlan(req *models.KubeVirtRestoreRequest, requireCredentials bool) (
 		request := member.Request
 		body, _ := json.Marshal(request)
 		parsed, err := models.DecodeStorageTransaction(body)
-		if err != nil || parsed == nil || request.OrgID != req.OrgID || request.AgentID != req.AgentID || request.Plan.Provider != "kubevirt" {
+		if err != nil || parsed == nil || !req.RecoveryOrigin.Matches(req.OrgID, req.AgentID, request.OrgID, request.AgentID) || request.Plan.Provider != "kubevirt" {
 			return bundle, "", errors.New("restore member belongs to another organization, agent or provider")
 		}
 		_, digest, err := models.CanonicalReceipt(parsed, member.Receipt)
@@ -136,7 +136,7 @@ func validatePlan(req *models.KubeVirtRestoreRequest, requireCredentials bool) (
 			}
 		}
 	}
-	if req.S3.Endpoint != first.Plan.Target.Endpoint || req.S3.Bucket != first.Plan.Target.Bucket || req.S3.Region != first.Plan.Target.Region || req.S3.Region == "" || (requireCredentials && (req.S3.AccessKey == "" || req.S3.SecretKey == "")) {
+	if req.S3.Endpoint != first.Plan.Target.Endpoint || req.S3.Bucket != first.Plan.Target.Bucket || req.S3.Region != req.RecoveryOrigin.SigningRegion(first.Plan.Target.Region) || req.S3.Region == "" || (requireCredentials && (req.S3.AccessKey == "" || req.S3.SecretKey == "")) {
 		return bundle, "", errors.New("trusted read credentials must match the accepted S3 target")
 	}
 	// Credentials are deliberately excluded from immutable destination identity:
@@ -145,7 +145,8 @@ func validatePlan(req *models.KubeVirtRestoreRequest, requireCredentials bool) (
 		Schema, OrgID, AgentID, RestoreID string
 		Target                            models.KubeVirtRestoreTarget
 		Bundle                            Bundle
-	}{req.Schema, req.OrgID, req.AgentID, req.RestoreID, req.Target, bundle}
+		RecoveryOrigin                    *models.RestoreOrigin `json:"recovery_origin,omitempty"`
+	}{req.Schema, req.OrgID, req.AgentID, req.RestoreID, req.Target, bundle, req.RecoveryOrigin}
 	body, err := json.Marshal(identity)
 	if err != nil {
 		return bundle, "", err

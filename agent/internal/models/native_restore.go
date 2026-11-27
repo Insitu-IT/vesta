@@ -20,12 +20,13 @@ type NativeRestoreNetwork struct {
 }
 
 type NativeRestoreRequest struct {
-	Schema    string              `json:"schema"`
-	OrgID     string              `json:"org_id"`
-	AgentID   string              `json:"agent_id"`
-	RestoreID string              `json:"restore_id"`
-	Target    NativeRestoreTarget `json:"target"`
-	Bundle    json.RawMessage     `json:"bundle"`
-	S3        KubeVirtRestoreS3   `json:"s3"`
-	Keys      map[string]string   `json:"keys"`
+	Schema         string              `json:"schema"`
+	OrgID          string              `json:"org_id"`
+	AgentID        string              `json:"agent_id"`
+	RecoveryOrigin *RestoreOrigin      `json:"recovery_origin,omitempty"`
+	RestoreID      string              `json:"restore_id"`
+	Target         NativeRestoreTarget `json:"target"`
+	Bundle         json.RawMessage     `json:"bundle"`
+	S3             KubeVirtRestoreS3   `json:"s3"`
+	Keys           map[string]string   `json:"keys"`
 }

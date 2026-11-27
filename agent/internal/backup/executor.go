@@ -22,9 +22,10 @@ type Executor struct {
 	cfg       *config.Config
 	resources *resources.Manager
 
-	mu      sync.RWMutex
-	jobs    map[string]*models.BackupProgress
-	cancels map[string]context.CancelFunc
+	mu         sync.RWMutex
+	jobs       map[string]*models.BackupProgress
+	cancels    map[string]context.CancelFunc
+	mockStages map[string]mockBackupStage
 
 	s3mu     sync.RWMutex
 	s3Config *S3Config
@@ -36,10 +37,11 @@ type Executor struct {
 // NewExecutor creates a backup executor.
 func NewExecutor(cfg *config.Config, res *resources.Manager) *Executor {
 	return &Executor{
-		cfg:       cfg,
-		resources: res,
-		jobs:      make(map[string]*models.BackupProgress),
-		cancels:   make(map[string]context.CancelFunc),
+		cfg:        cfg,
+		resources:  res,
+		jobs:       make(map[string]*models.BackupProgress),
+		cancels:    make(map[string]context.CancelFunc),
+		mockStages: make(map[string]mockBackupStage),
 	}
 }
 
@@ -100,31 +102,54 @@ func (e *Executor) getS3Config() *S3Config {
 	return e.s3Config
 }
 
+func (e *Executor) legacyMockEnabled() bool {
+	return e.cfg.Provider == "mock" && e.cfg.MockVirtnbdbackup && e.cfg.Environment != "production"
+}
+
 // StartBackup begins a backup job in a goroutine.
 func (e *Executor) StartBackup(req *models.BackupRequest) (*models.BackupProgress, error) {
 	// virtnbdbackup pull-mode cleanup aborts the domain's current job. That is
 	// not safe when another VM-changing client may have replaced it. Native
 	// production is admitted through RunNativePush with an attempt-bound source,
 	// never this old path-only request (the mock remains useful for development).
-	if !e.cfg.MockVirtnbdbackup {
+	if !e.legacyMockEnabled() {
 		return nil, fmt.Errorf("libvirt requires an attempt-bound native push request; path-only backup execution is not supported")
 	}
-	// Check capacity
+	if req == nil || e.cfg.VirtnbdbackupPath == "" || e.cfg.VirtnbdbackupPath == "/usr/bin/virtnbdbackup" {
+		return nil, fmt.Errorf("legacy backup requires an explicit local mock executable and request")
+	}
+	hasEncryption := req.EncryptionType != "" && req.EncryptionType != models.EncryptionTypeNone
+	hasKey := req.EncryptionKey != nil && *req.EncryptionKey != ""
+	if hasEncryption != hasKey {
+		return nil, fmt.Errorf("mock encryption type and key must be provided together")
+	}
+	var key []byte
+	if hasEncryption {
+		var err error
+		key, err = encryption.DeriveKey(*req.EncryptionKey, string(req.EncryptionType))
+		if err != nil {
+			return nil, fmt.Errorf("invalid mock encryption configuration: %w", err)
+		}
+	}
+	args, err := BuildCommand(e.cfg, req)
+	if err != nil {
+		return nil, fmt.Errorf("build command: %w", err)
+	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if e.jobs[req.BackupID] != nil {
+		return nil, fmt.Errorf("mock backup ID is already admitted")
+	}
 	if err := e.resources.AcquireBackupSlot(); err != nil {
 		return nil, fmt.Errorf("no capacity: %w", err)
 	}
-
-	// Create output directory
-	if err := os.MkdirAll(req.OutputPath, 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(req.OutputPath), 0700); err != nil {
 		e.resources.ReleaseBackupSlot()
-		return nil, fmt.Errorf("create output dir: %w", err)
+		return nil, fmt.Errorf("create mock staging parent: %w", err)
 	}
-
-	// Build command
-	args, err := BuildCommand(e.cfg, req)
-	if err != nil {
+	if err := os.Mkdir(req.OutputPath, 0700); err != nil {
 		e.resources.ReleaseBackupSlot()
-		return nil, fmt.Errorf("build command: %w", err)
+		return nil, fmt.Errorf("create fresh mock staging directory: %w", err)
 	}
 
 	// Create progress tracker
@@ -136,13 +161,11 @@ func (e *Executor) StartBackup(req *models.BackupRequest) (*models.BackupProgres
 	// user-initiated cancellation.
 	ctx, cancel := context.WithCancel(context.Background())
 
-	e.mu.Lock()
 	e.jobs[req.BackupID] = progress
 	e.cancels[req.BackupID] = cancel
-	e.mu.Unlock()
 
 	// Run in goroutine
-	go e.runBackup(ctx, cancel, req, args, progress)
+	go e.runBackup(ctx, cancel, req, args, progress, key)
 
 	return progress, nil
 }
@@ -172,26 +195,25 @@ func (e *Executor) CancelBackup(backupID string) error {
 // StartUpload begins an S3 upload for an existing local backup.
 // Triggered by the backend as a separate phase after backup+encrypt completes.
 func (e *Executor) StartUpload(backupID, outputPath string) (*models.BackupProgress, error) {
-	if !e.cfg.MockVirtnbdbackup {
+	if !e.legacyMockEnabled() {
 		return nil, fmt.Errorf("native upload requires its durable closed-file admission; path-only retries are unsupported")
 	}
 	s3Cfg := e.getS3Config()
-	if s3Cfg == nil {
-		return nil, fmt.Errorf("S3 not configured")
+	if s3Cfg == nil || !s3Cfg.UseSSL {
+		return nil, fmt.Errorf("mock upload requires HTTPS S3")
 	}
 
-	// Check output path exists
-	if _, err := os.Stat(outputPath); err != nil {
-		return nil, fmt.Errorf("backup output not found: %s", outputPath)
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	stage, ok := e.mockStages[backupID]
+	if !ok || stage.path != outputPath || stage.uploading {
+		return nil, fmt.Errorf("mock upload requires this job's closed local stage")
 	}
-
-	// Check for existing active job for this backup
-	e.mu.RLock()
-	existing := e.jobs[backupID]
-	e.mu.RUnlock()
-	if existing != nil && existing.Status == models.TaskStatusRunning {
-		return nil, fmt.Errorf("job already running for %s", backupID)
+	if err := stage.recheck(); err != nil {
+		return nil, err
 	}
+	stage.uploading = true
+	e.mockStages[backupID] = stage
 
 	progress := &models.BackupProgress{
 		BackupID:        backupID,
@@ -204,18 +226,17 @@ func (e *Executor) StartUpload(backupID, outputPath string) (*models.BackupProgr
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	e.mu.Lock()
 	e.jobs[backupID] = progress
 	e.cancels[backupID] = cancel
-	e.mu.Unlock()
 
-	go e.runUpload(ctx, cancel, backupID, outputPath, s3Cfg, progress)
+	go e.runUpload(ctx, cancel, backupID, stage, s3Cfg, progress)
 
 	return progress, nil
 }
 
-func (e *Executor) runUpload(ctx context.Context, cancel context.CancelFunc, backupID string, outputPath string, s3Cfg *S3Config, progress *models.BackupProgress) {
+func (e *Executor) runUpload(ctx context.Context, cancel context.CancelFunc, backupID string, stage mockBackupStage, s3Cfg *S3Config, progress *models.BackupProgress) {
 	defer cancel()
+	outputPath := stage.path
 	uploadStart := time.Now()
 
 	slog.Info("starting S3 upload", "backup_id", backupID, "bucket", s3Cfg.Bucket)
@@ -228,8 +249,12 @@ func (e *Executor) runUpload(ctx context.Context, cancel context.CancelFunc, bac
 		}
 	}
 
-	s3Location, err := UploadToS3(ctx, *s3Cfg, outputPath, backupID, onProgress)
+	s3Location, err := uploadMockStage(ctx, *s3Cfg, stage, backupID, onProgress)
 	if err != nil {
+		e.mu.Lock()
+		stage.uploading = false
+		e.mockStages[backupID] = stage
+		e.mu.Unlock()
 		msg := fmt.Sprintf("[uploading to S3, %d%%] S3 upload paused (resumable): %v", progress.ProgressPercent, err)
 		progress.Status = models.TaskStatusFailed
 		progress.ErrorMessage = &msg
@@ -250,11 +275,19 @@ func (e *Executor) runUpload(ctx context.Context, cancel context.CancelFunc, bac
 		progress.BytesTransferred = meta.TotalSizeBytes
 	}
 
-	// Clean up local data files, keep metadata for chains
+	// The completed transfer consumes the stage admission even if local
+	// cleanup fails. Do not retry a second upload to resolve local cleanup.
+	e.mu.Lock()
+	delete(e.mockStages, backupID)
+	e.mu.Unlock()
 	if s3Cfg.DeleteLocal {
-		os.RemoveAll(outputPath)
+		err = os.RemoveAll(outputPath)
 	} else {
-		cleanupDataFiles(outputPath)
+		err = cleanupDataFiles(outputPath)
+	}
+	if err != nil {
+		e.failBackup(progress, fmt.Sprintf("mock post-upload cleanup failed: %v", err))
+		return
 	}
 
 	progress.Status = models.TaskStatusCompleted
@@ -285,7 +318,7 @@ func (e *Executor) ActiveCount() int {
 	return e.resources.ActiveBackups()
 }
 
-func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req *models.BackupRequest, args []string, progress *models.BackupProgress) {
+func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req *models.BackupRequest, args []string, progress *models.BackupProgress, key []byte) {
 	defer cancel()
 	defer e.resources.ReleaseBackupSlot()
 
@@ -312,7 +345,7 @@ func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req
 	progressLog := filepath.Join(req.OutputPath, "progress.log")
 	scriptArgs := WrapWithScript(args, progressLog)
 
-	hasEncryption := req.EncryptionType != models.EncryptionTypeNone && req.EncryptionKey != nil && *req.EncryptionKey != ""
+	hasEncryption := len(key) != 0
 	hasS3 := e.getS3Config() != nil
 
 	setOp := func(op string) {
@@ -363,9 +396,13 @@ func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req
 
 	// Clean up progress log and parent symlinks (not needed in final backup output)
 	if err := os.Remove(progressLog); err != nil && !os.IsNotExist(err) {
-		slog.Debug("failed to remove progress log", "error", err)
+		e.failBackup(progress, fmt.Sprintf("remove mock progress log: %v", err))
+		return
 	}
-	cleanupParentSymlinks(req.OutputPath)
+	if err := cleanupParentSymlinks(req.OutputPath); err != nil {
+		e.failBackup(progress, fmt.Sprintf("clean mock parent symlinks: %v", err))
+		return
+	}
 
 	// Parse metadata
 	meta, err := ParseMetadata(req.OutputPath)
@@ -381,11 +418,6 @@ func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req
 		progress.ProgressPercent = encPctStart
 		slog.Info("encrypting backup", "backup_id", req.BackupID, "type", req.EncryptionType)
 
-		key, err := encryption.DeriveKey(*req.EncryptionKey, string(req.EncryptionType))
-		if err != nil {
-			e.failBackup(progress, fmt.Sprintf("derive encryption key: %v", err))
-			return
-		}
 		if err := encryption.EncryptDirectory(ctx, req.OutputPath, key); err != nil {
 			e.failBackup(progress, fmt.Sprintf("encrypt backup: %v", err))
 			return
@@ -416,10 +448,16 @@ func (e *Executor) runBackup(ctx context.Context, cancel context.CancelFunc, req
 	}
 	progress.BytesTransferred = sizeBytes
 
-	// Mark complete — backup + encryption done, local data ready.
-	// S3 upload is a separate phase triggered by the backend.
+	stage, err := closeMockStage(req.OutputPath, hasEncryption)
+	if err != nil {
+		e.failBackup(progress, fmt.Sprintf("close mock upload stage: %v", err))
+		return
+	}
+	e.mu.Lock()
+	e.mockStages[req.BackupID] = stage
 	progress.Status = models.TaskStatusCompleted
 	progress.ProgressPercent = 100
+	e.mu.Unlock()
 
 	// Record metrics
 	metrics.BackupOperationsTotal.WithLabelValues("completed", string(req.BackupType)).Inc()
@@ -509,29 +547,16 @@ func (e *Executor) failBackup(progress *models.BackupProgress, errMsg string) {
 // cleanupDataFiles deletes large data files from a backup output dir,
 // keeping metadata (checkpoints, vmconfig, cpt, log, qcow.json) for
 // incremental chain continuity.
-func cleanupDataFiles(outputPath string) {
-	entries, err := os.ReadDir(outputPath)
-	if err != nil {
-		return
-	}
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
+func cleanupDataFiles(outputPath string) error {
+	return filepath.WalkDir(outputPath, func(path string, entry os.DirEntry, err error) error {
+		if err != nil || entry.IsDir() {
+			return err
 		}
-		name := entry.Name()
-		for _, suffix := range backupDataPatterns {
-			pattern := strings.TrimPrefix(suffix, "*")
-			if strings.HasSuffix(name, pattern) {
-				path := filepath.Join(outputPath, name)
-				if rmErr := os.Remove(path); rmErr != nil {
-					slog.Warn("failed to remove data file", "file", name, "error", rmErr)
-				} else {
-					slog.Info("cleaned up local data file after S3 upload", "file", name)
-				}
-				break
-			}
+		if mockDataFile(entry.Name()) {
+			return os.Remove(path)
 		}
-	}
+		return nil
+	})
 }
 
 // isActiveBlockJobError checks the progress log for active block job errors.

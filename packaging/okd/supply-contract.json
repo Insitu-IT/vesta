@@ -137,6 +137,34 @@
           "support": "Customer host/libvirt/QEMU operations; S2 native agent integration"
         }
       }
+    ],
+    "files-rpm": [
+      {
+        "id": "file-agent-and-restore-binaries",
+        "supplier": "S2",
+        "origin": "Vesta files-only RPM and statically linked Go components",
+        "integrity": "RPM SHA-256, payload file hashes, ELF dynamic-section and Go build evidence",
+        "notices": "RPM LICENSE, NOTICE and the packaged notices for both binaries",
+        "source_fulfilment": "Retain the release Go toolchain source and exact module source with the RPM-specific inventory",
+        "responsibility": {
+          "install": "Customer installs the reviewed EL9 or EL10 package",
+          "update": "S2 prepares the RPM and customer schedules the update",
+          "support": "S2 supports the file agent and restore software"
+        }
+      },
+      {
+        "id": "file-agent-host-prerequisites",
+        "supplier": "customer",
+        "origin": "Customer-approved EL9 or EL10 repositories provide systemd, shadow-utils and their dependencies",
+        "integrity": "Clean installation from the approved distribution and package-owned configuration and service verification",
+        "notices": "Customer/vendor notices for external host dependencies",
+        "source_fulfilment": "Customer/vendor source route",
+        "responsibility": {
+          "install": "Customer installs operating-system prerequisites and configures the agent",
+          "update": "Customer updates the operating system",
+          "support": "Customer operates the host, recovery keys and storage"
+        }
+      }
     ]
   },
   "qualification_required": [

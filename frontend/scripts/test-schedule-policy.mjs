@@ -32,7 +32,8 @@ const context = vm.createContext({window, console, URL, URLSearchParams,
 async function load(path) {
     const module = new vm.SourceTextModule(fs.readFileSync(new URL(path, import.meta.url), 'utf8'), {context});
     await module.link(specifier => {
-        const values = specifier.includes('authenticated-startup') ? {startAuthenticatedServices: async () => {}}
+        const values = specifier.includes('/components/file-backups') ? {FileBackupsPanel: class {mount() {} destroy() {}}}
+            : specifier.includes('authenticated-startup') ? {startAuthenticatedServices: async () => {}}
         : specifier.includes('installation.service') ? {installationService: {}}
             : specifier.includes('theme.service') ? {themeService: {button: () => ''}}
             : specifier.includes('vm-inventory') ? {renderDiskSummary: () => '', renderCbtObservation: () => ''}

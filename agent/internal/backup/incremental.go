@@ -2,6 +2,7 @@ package backup
 
 import (
 	"fmt"
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -97,24 +98,17 @@ func symlinkDirContents(srcDir, dstDir string) error {
 // Called after backup completes to keep only real files for S3 upload.
 // Recurses into real directories to clean symlinks inside them (e.g.
 // checkpoints/ is a real dir with symlinked parent checkpoint XMLs).
-func cleanupParentSymlinks(outputPath string) {
-	entries, err := os.ReadDir(outputPath)
-	if err != nil {
-		return
-	}
-
-	for _, entry := range entries {
-		path := filepath.Join(outputPath, entry.Name())
-		fi, err := os.Lstat(path)
+func cleanupParentSymlinks(outputPath string) error {
+	return filepath.WalkDir(outputPath, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
-			continue
+			return err
 		}
-		if fi.Mode()&os.ModeSymlink != 0 {
-			os.Remove(path)
-			slog.Debug("removed parent symlink", "name", entry.Name())
-		} else if fi.IsDir() {
-			// Recurse into real directories to clean symlinks inside
-			cleanupParentSymlinks(path)
+		if entry.Type()&os.ModeSymlink == 0 {
+			return nil
 		}
-	}
+		if path == outputPath {
+			return fmt.Errorf("backup staging root is a symlink")
+		}
+		return os.Remove(path)
+	})
 }

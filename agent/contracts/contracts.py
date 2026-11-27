@@ -11,7 +11,7 @@ Used by backend/tests/test_contracts.py and test_consistency.py to validate
 backend→agent payloads without importing Go agent code.
 """
 
-AGENT_VERSION = "6.1.1"
+AGENT_VERSION = "6.2.0"
 
 # Enum values
 STORAGE_PROTOCOLS = {"vnbui-storage-transaction/1"}

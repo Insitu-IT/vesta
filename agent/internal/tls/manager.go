@@ -34,6 +34,7 @@ func New(certsPath string) *Manager {
 }
 
 func (m *Manager) CertPath() string { return filepath.Join(m.certsPath, certFile) }
+func (m *Manager) CAPath() string   { return filepath.Join(m.certsPath, caFile) }
 func (m *Manager) KeyPath() string  { return filepath.Join(m.certsPath, keyFile) }
 
 // HasCerts returns true if agent certificates exist.
@@ -199,12 +200,30 @@ func (m *Manager) ClientTLSConfig() (*tls.Config, error) {
 
 // ServerTLSConfig creates a TLS config for the agent's HTTPS server.
 func (m *Manager) ServerTLSConfig(verifyClient bool) (*tls.Config, error) {
-	return ServerTLSConfigFromFiles(
+	return ReloadingServerTLSConfigFromFiles(
 		filepath.Join(m.certsPath, certFile),
 		filepath.Join(m.certsPath, keyFile),
 		filepath.Join(m.certsPath, caFile),
 		verifyClient,
 	)
+}
+
+// ReloadingServerTLSConfigFromFiles validates the pair before startup, then
+// follows atomic journal or projected-file renewal on every new handshake.
+func ReloadingServerTLSConfigFromFiles(certPath, keyPath, caPath string, verifyClient bool) (*tls.Config, error) {
+	cfg, err := ServerTLSConfigFromFiles(certPath, keyPath, caPath, verifyClient)
+	if err != nil {
+		return nil, err
+	}
+	cfg.Certificates = nil
+	cfg.GetCertificate = func(_ *tls.ClientHelloInfo) (*tls.Certificate, error) {
+		pair, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			return nil, err
+		}
+		return &pair, nil
+	}
+	return cfg, nil
 }
 
 // ServerTLSConfigFromFiles serves certificates supplied by the installation's

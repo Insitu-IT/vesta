@@ -34,10 +34,13 @@ from models import (
 
 ROOT = Path(__file__).resolve().parents[2]
 PREDECESSOR = "add_demo_rate_buckets"
-EXPECTED_HEAD = "backup_admission_pause"
+EXPECTED_HEAD = "managed_file_backups"
 
 # Independent acceptance contract, not imported from the migration under test.
 TENANT_POLICY_TABLES = {
+    "recovery_publications",
+    "file_backups",
+    "file_schedules",
     "operator_requests",
     "operator_dispatches",
     "agent_key_rotations",
@@ -151,6 +154,8 @@ def assert_current_policy_contract(connection):
         "storage_capability_revocations",
         "storage_configuration_generations",
         "storage_configuration_activations",
+        "file_schedules",
+        "file_backups",
     ):
         row = next(row for row in policies if row.tablename == table)
         assert normalized(row.qual) == normalized(result.qual)
@@ -998,6 +1003,69 @@ def test_operator_stages_migration_grants_restart_and_runtime_login(
         args.migrator_role = "missing_migration_identity"
         with pytest.raises(RuntimeError, match="selected migrator"):
             run_stage(runtime_url, args)
+
+
+def test_recovery_signer_runtime_bootstrap_preserves_the_public_identity(monkeypatch):
+    import json
+
+    from cryptography.fernet import Fernet
+    from sqlalchemy.orm import sessionmaker
+
+    from core import settings_service
+    from core.recovery_signing import (
+        RecoveryUnavailable,
+        SIGNING_SEED,
+        recovery_trust,
+        signing_key,
+    )
+    from core.tenant_context import PlatformContext, TenantContext
+    from core.tenant_database import TenantSession, install_tenant_enforcement
+    from core.transition_stages import run_stage
+
+    monkeypatch.setattr(settings_service, "_fernet", Fernet(Fernet.generate_key()))
+    with operator_stage_database() as (owner, runtime, engine, args):
+        for stage in ("migration", "current-grants"):
+            args.stage = stage
+            run_stage(owner, args)
+        with engine.connect() as connection:
+            org_id = connection.scalar(
+                text("SELECT org_id FROM organization_defaults WHERE slot='oss'")
+            )
+        app = create_engine(runtime)
+        install_tenant_enforcement(app)
+        factory = sessionmaker(bind=app, class_=TenantSession)
+        try:
+            with TenantContext(org_id), factory() as db:
+                with pytest.raises(RecoveryUnavailable, match="not initialized"):
+                    recovery_trust(db, org_id, factory=factory)
+            signing_key(factory)
+            with TenantContext(org_id), factory() as db:
+                issued = recovery_trust(db, org_id, factory=factory)
+            with PlatformContext(), factory.begin() as db:
+                db.execute(
+                    text("DELETE FROM secrets_v3 WHERE key=:key"), {"key": SIGNING_SEED}
+                )
+            with pytest.raises(RecoveryUnavailable, match="custody is incomplete"):
+                signing_key(factory)
+            replacements = (
+                "UPDATE settings_v3 SET value='{}' WHERE key=:key",
+                "DELETE FROM settings_v3 WHERE key=:key",
+            )
+            for statement in replacements:
+                with (
+                    pytest.raises(IntegrityError, match="Recovery signer identity"),
+                    PlatformContext(),
+                    factory.begin() as db,
+                ):
+                    db.execute(text(statement), {"key": "recovery.signing_identity.v1"})
+            with PlatformContext(), factory() as db:
+                observed = db.scalar(
+                    text("SELECT value FROM settings_v3 WHERE key=:key"),
+                    {"key": "recovery.signing_identity.v1"},
+                )
+            assert json.loads(observed)["key_id"] == issued["key_id"]
+        finally:
+            app.dispose()
 
 
 def test_operator_effective_grants_membership_public_columns_and_defaults():

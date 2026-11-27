@@ -20,7 +20,7 @@ import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import HTTPSHandler, HTTPRedirectHandler, Request, build_opener
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import check_fresh_target
 import kit
@@ -33,6 +33,34 @@ INSTALL_ROUTE_TIMEOUT = 180
 INSTALL_ROUTE_REQUEST_TIMEOUT = 15
 INSTALL_ROUTE_READ_LIMIT = 65536
 INSTALL_ROUTE_POLL_LIMIT = 8
+
+
+UPGRADE_TARGET = ("6.2.0", "managed_file_backups")
+UPGRADE_SOURCES = {"6.1.0": "backup_admission_pause", "6.1.1": "backup_admission_pause"}
+RUNTIME_OBSERVATION = """
+import json
+from sqlalchemy import create_engine, text
+from config import settings
+from core.postgres_profile import connection_parameters
+from core.schema_parity import assert_schema_current
+from core.tenant_database import assert_non_bypass_role
+from version import __version__
+
+url, parameters = connection_parameters(settings.database_url)
+with create_engine(url, connect_args=parameters, hide_parameters=True).connect() as db:
+    db.execute(text("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY"))
+    db.execute(text("SET LOCAL statement_timeout = '15s'"))
+    assert_non_bypass_role(db)
+    db.execute(text("SELECT set_config('app.platform_admin','true',true)"))
+    database, role = db.execute(text("SELECT current_database(), current_user")).one()
+    revision = db.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
+    installation = db.execute(text(
+        "SELECT installation_id FROM storage_configuration_clock WHERE slot=1"
+    )).scalar_one()
+    assert_schema_current(db)
+print(json.dumps(dict(version=__version__, revision=revision, database=database,
+                      role=role, installation_id=installation)))
+"""
 
 
 class SiteError(ValueError):
@@ -111,7 +139,10 @@ def integration_settings(document):
     integrations = {}
     if "s3" in document:
         s3 = object_fields(
-            document["s3"], "s3", ("endpoint", "bucket", "region", "prefix", "secret")
+            document["s3"],
+            "s3",
+            ("endpoint", "bucket", "region", "prefix"),
+            ("secret", "recovery_secret"),
         )
         endpoint = "" if s3["endpoint"] == "" else https(s3["endpoint"], "s3.endpoint")
         prefix = nonempty(s3["prefix"], "s3.prefix")
@@ -124,14 +155,26 @@ def integration_settings(document):
             "storage.s3.region": nonempty(s3["region"], "s3.region"),
             "storage.s3.prefix": prefix,
         }
-        integrations["s3"] = (
-            fields,
-            secret_ref(s3["secret"], "s3"),
-            {
-                "storage.s3.access_key": "access_key",
-                "storage.s3.secret_key": "secret_key",
-            },
-        )
+        if "secret" in s3:
+            integrations["s3"] = (
+                fields,
+                secret_ref(s3["secret"], "s3"),
+                {
+                    "storage.s3.access_key": "access_key",
+                    "storage.s3.secret_key": "secret_key",
+                },
+            )
+        if "recovery_secret" in s3:
+            integrations["s3-recovery"] = (
+                {} if "secret" in s3 else fields,
+                secret_ref(s3["recovery_secret"], "s3 recovery"),
+                {
+                    "storage.s3.recovery_access_key": "access_key",
+                    "storage.s3.recovery_secret_key": "secret_key",
+                },
+            )
+        if not integrations:
+            raise SiteError("s3 requires a writer secret or a separate recovery_secret")
     if "oidc" in document:
         oidc = object_fields(
             document["oidc"],
@@ -324,6 +367,11 @@ class Site:
                     raise SiteError(
                         f"{self.names[name]} requires a TCP PostgreSQL URL with verified TLS"
                     )
+        serving_trust = self.config.get("agent_serving_trust_config_map")
+        if serving_trust:
+            resource = self.resource(self.namespace, "configmap", serving_trust)
+            if not resource or not (resource.get("data") or {}).get("agent-serving-trust.json"):
+                raise SiteError("Agent serving trust ConfigMap requires agent-serving-trust.json")
         if self.postgres:
             self.secret(
                 self.namespace,
@@ -459,6 +507,117 @@ class Site:
             + (["agent"] if self.agent == "kubevirt" else []),
             "agent": self.agent_id if self.agent == "kubevirt" else "external",
         }
+
+    def _deployed_image(self, component, namespace, *, ready=False):
+        name = render.kube_name(self.config, component)
+        resource = self.resource(namespace, "deployment", name)
+        if resource is None:
+            if ready:
+                raise SiteError("An installed backend Deployment is required to observe an upgrade")
+            return None
+        metadata, spec = resource.get("metadata", {}), resource.get("spec", {})
+        status = resource.get("status", {})
+        replicas = spec.get("replicas", 1)
+        if ready and (
+            not replicas
+            or metadata.get("generation") != status.get("observedGeneration")
+            or status.get("updatedReplicas") != replicas
+            or status.get("readyReplicas") != replicas
+        ):
+            raise SiteError("Allow the installed backend Deployment to finish rolling out before observing an upgrade")
+        entries = spec.get("template", {}).get("spec", {}).get("containers", [])
+        container = next((entry for entry in entries if entry.get("name") == component), None)
+        if container is None:
+            raise SiteError(f"The deployed {component} workload does not match the accepted site manifest")
+        if ready:
+            runtime_binding = next(
+                (entry.get("valueFrom", {}).get("secretKeyRef") for entry in container.get("env", [])
+                 if entry.get("name") == "DATABASE_URL"),
+                None,
+            )
+            if not isinstance(runtime_binding, dict) or (
+                runtime_binding.get("name"), runtime_binding.get("key")
+            ) != (self.names["database_runtime"], "DATABASE_URL"):
+                raise SiteError("The running backend database Secret differs from the accepted site manifest")
+        return container.get("image")
+
+    def upgrade_plan(self):
+        """Read the selected site's running schema using its regular runtime login."""
+        target, self.oc = cluster_access(self.context)
+        self.check_api_route()
+        backend = self._deployed_image("backend", self.namespace, ready=True)
+        result = self.kubectl(
+            "--request-timeout=45s", "-n", self.namespace,
+            "exec", "deployment/" + render.kube_name(self.config, "backend"), "-c", "backend",
+            "--", "python", "-c", RUNTIME_OBSERVATION,
+            label="read installed product version and PostgreSQL schema",
+        )
+        try:
+            observed = object_fields(
+                json.loads(result), "runtime observation",
+                ("version", "revision", "database", "role", "installation_id"),
+            )
+            identity = UUID(observed["installation_id"])
+            if identity.int == 0 or str(identity) != observed["installation_id"]:
+                raise ValueError("invalid installation identity")
+        except (TypeError, ValueError, AttributeError):
+            raise SiteError("The backend returned an invalid upgrade observation") from None
+        if (observed["database"], observed["role"]) != (
+            self.config["database"], self.config["runtime_role"]
+        ):
+            raise SiteError("The running database or runtime role differs from the site manifest")
+
+        version, revision = observed["version"], observed["revision"]
+        stages = []
+        if (version, revision) == UPGRADE_TARGET:
+            frontend = self._deployed_image("frontend", self.namespace)
+            if (backend, frontend) != (self.images["backend"], self.images["frontend"]):
+                stages.append("api")
+            if self.agent == "kubevirt" and self._deployed_image("agent", self.agent_namespace) != self.images["agent"]:
+                stages.append("agent")
+        elif isinstance(version, str) and UPGRADE_SOURCES.get(version) == revision and revision:
+            stages = ["upgrade", "api"]
+            if self.agent == "kubevirt":
+                stages.append("agent")
+        else:
+            raise SiteError("The installed Vesta release and database schema do not have a reviewed transition in this kit")
+        return {
+            "schema": "vesta-upgrade-plan/1",
+            "status": "review_required" if stages else "already_current",
+            "target": target,
+            "namespace": self.namespace,
+            "observed": observed,
+            "destination": {"version": UPGRADE_TARGET[0], "revision": UPGRADE_TARGET[1]},
+            "stages": stages,
+            "images": {
+                name: self.images[name]
+                for name in ("backend", "frontend", "agent")
+                if name != "agent" or self.agent == "kubevirt"
+            },
+            "agent_management": self.agent,
+        }
+
+    def prepare_reviewed_upgrade(self, destination):
+        if destination.resolve().is_relative_to(self.root):
+            raise SiteError("Keep upgrade targets outside the extracted kit")
+        plan = self.upgrade_plan()
+        destination.mkdir(mode=0o700)
+        try:
+            # A setgid parent can add an inherited mode bit at mkdir time.
+            destination.chmod(0o700)
+            for stage in plan["stages"]:
+                if stage == "upgrade":
+                    config = {**self.config, "upgrade_installation_id": plan["observed"]["installation_id"]}
+                    render.write_kustomize(config, stage, destination / stage)
+                else:
+                    self.prepare(stage, destination / stage)
+            with private_output(destination / "upgrade-plan.json") as stream:
+                json.dump(plan, stream, indent=2)
+                stream.write("\n")
+        except BaseException:
+            shutil.rmtree(destination)
+            raise
+        return plan
 
     def check_fresh(self, directory, preflight_output=None):
         stages = self.plan()["install_order"]
@@ -755,7 +914,7 @@ class Site:
                 if snapshot["settings"].get(key) != value
             }
             if (
-                name == "s3"
+                name in {"s3", "s3-recovery"}
                 and changes
                 and (
                     snapshot["settings"].get("storage.s3.bucket")
@@ -1127,6 +1286,19 @@ def run_reconfiguration(root, args):
     print(f"Reconfiguration: {state['status']}", flush=True)
 
 
+
+def add_upgrade_commands(commands):
+    command = commands.add_parser("upgrade", help="observe and prepare the reviewed release transition")
+    actions = command.add_subparsers(dest="change", required=True)
+    actions.add_parser("plan", help="observe the installed version and database schema")
+    prepare = actions.add_parser("prepare", help="write reviewed targets for the observed site")
+    prepare.add_argument("--output-dir", type=Path, required=True)
+    for step in actions.choices.values():
+        step.add_argument(
+            "--manifest", type=Path, default=Path("vesta.json"),
+            help="accepted site manifest (default: vesta.json)",
+        )
+
 def main(root):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -1193,6 +1365,7 @@ def main(root):
                 help="retain the KubeVirt preflight report in a new private directory",
             )
     add_reconfiguration_commands(commands)
+    add_upgrade_commands(commands)
     args = parser.parse_args()
     try:
         if args.command == "reconfigure":
@@ -1229,6 +1402,16 @@ def main(root):
         site = Site(root, args.manifest)
         if args.command == "plan":
             print(json.dumps(site.plan(), indent=2))
+        elif args.command == "upgrade":
+            site.verify()
+            if args.change == "plan":
+                print(json.dumps(site.upgrade_plan(), indent=2))
+            else:
+                plan = site.prepare_reviewed_upgrade(args.output_dir)
+                if plan["stages"]:
+                    print("Prepared the observed upgrade targets for review. See upgrade-plan.json for the order.")
+                else:
+                    print("The site already uses the target release and schema. No rollout targets were generated.")
         elif args.command == "import-images":
             site.verify()
             if not shutil.which("skopeo"):

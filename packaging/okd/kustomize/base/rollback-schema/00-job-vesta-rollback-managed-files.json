@@ -2,7 +2,7 @@
   "apiVersion": "batch/v1",
   "kind": "Job",
   "metadata": {
-    "name": "vesta-upgrade-operation-safety",
+    "name": "vesta-rollback-managed-files",
     "namespace": "vesta",
     "labels": {
       "app.kubernetes.io/part-of": "vesta"
@@ -67,11 +67,13 @@
               "python",
               "-m",
               "core.portable_install",
-              "--upgrade-operation-safety",
+              "--rollback-managed-files",
               "--database",
               "vesta",
               "--runtime-role",
-              "vesta_runtime"
+              "vesta_runtime",
+              "--installation-id",
+              "observed-uuid-required"
             ],
             "env": [
               {

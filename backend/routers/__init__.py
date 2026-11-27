@@ -8,6 +8,7 @@ from routers.auth import router as auth_router
 from routers.agents import router as agents_router
 from routers.backups import router as backups_router
 from routers.schedules import router as schedules_router
+from routers.file_backups import router as file_backups_router
 from routers.groups import router as groups_router
 from routers.users import router as users_router
 from routers.health import router as health_router
@@ -29,6 +30,7 @@ from routers.realtime import router as realtime_router
 from routers.encryption import router as encryption_router
 from routers.pki import router as pki_router
 from routers.s3_import import router as s3_import_router
+from routers.recovery_trust import router as recovery_trust_router
 from routers.demo import router as demo_router
 from routers.operator import router as operator_router
 
@@ -37,6 +39,7 @@ __all__ = [
     "agents_router",
     "backups_router",
     "schedules_router",
+    "file_backups_router",
     "groups_router",
     "users_router",
     "health_router",
@@ -58,6 +61,7 @@ __all__ = [
     "encryption_router",
     "pki_router",
     "s3_import_router",
+    "recovery_trust_router",
     "demo_router",
     "operator_router",
 ]

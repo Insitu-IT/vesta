@@ -51,10 +51,9 @@ def test_callback_decoding_and_stream_size_errors():
     asyncio.run(exercise())
 
 
-def test_s3_config_absence_and_request_validation_are_distinct(monkeypatch):
+def test_unsigned_s3_retirement_publishes_typed_gone_response():
     from routers.s3_import import router
     from deps import get_current_user
-    from database import get_db
 
     app = FastAPI()
     app.include_router(router)
@@ -62,29 +61,18 @@ def test_s3_config_absence_and_request_validation_are_distinct(monkeypatch):
     async def user():
         return SimpleNamespace(role="admin")
 
-    async def db():
-        return None
-
     app.dependency_overrides[get_current_user] = user
-    app.dependency_overrides[get_db] = db
-    monkeypatch.setattr("routers.s3_import.SettingsService", None, raising=False)
-    # The client helper imports SettingsService locally, so patch the provider.
-    monkeypatch.setattr(
-        "core.settings_service.SettingsService.get_s3_config", lambda _: None
-    )
     document = apply_error_contracts(app.openapi(), app.routes)
 
     async def exercise():
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="https://test"
         ) as client:
-            missing = await client.get("/api/v1/s3/discover")
-            assert missing.status_code == 404
-            validate(document, "/api/v1/s3/discover", "get", 404, missing.json())
-            invalid = await client.post("/api/v1/s3/import", json={})
-            assert invalid.status_code == 422
-            assert isinstance(invalid.json()["detail"], list)
-            validate(document, "/api/v1/s3/import", "post", 422, invalid.json())
+            for method, path in (("post", "/api/v1/s3/import"),):
+                result = await client.request(method, path)
+                assert result.status_code == 410
+                assert document["paths"][path][method]["deprecated"] is True
+                validate(document, path, method, 410, result.json())
 
     asyncio.run(exercise())
 

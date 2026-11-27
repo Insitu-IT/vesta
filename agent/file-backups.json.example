@@ -1,0 +1,18 @@
+{
+  "sets": [
+    {
+      "name": "documents",
+      "root": "/srv/documents",
+      "recipient": "replace-with-an-age-X25519-public-recipient"
+    }
+  ],
+  "s3": {
+    "endpoint": "https://s3.example.org",
+    "bucket": "versioned-backups",
+    "region": "us-east-1",
+    "prefix": "site-a/linux-host-1",
+    "access_key": "replace-with-prefix-scoped-access-key",
+    "secret_key": "replace-with-secret-key"
+  },
+  "max_archive_bytes": 34359738368
+}

@@ -36,6 +36,18 @@ vesta-cli auth whoami
 
 For unattended use, point `VESTA_TOKEN_FILE` at the private token file provided for that site and role. Keep separate credentials for different API origins. Run `vesta-cli doctor` to check discovery and report which reads your identity can make.
 
+## Work with Linux file backups
+
+Use the same operator login as the console. List the sets enrolled by each host, inspect recent runs, or view schedules:
+
+```sh
+vesta-cli file-sets list
+vesta-cli file-backups list
+vesta-cli file-schedules list
+```
+
+For an immediate run, `vesta-cli file-backups run-now --help` shows how to pass the target and a saved request ID. Reuse that same ID after an interrupted response. The [file backup guide](../packaging/okd/runbooks/file-backups.md) covers the host configuration and independent recovery command.
+
 ## Find a VM or follow a backup
 
 List one page of VMs. JSON is the default output.
@@ -52,5 +64,24 @@ vesta-cli backups wait --request-id "$REQUEST_ID" --until-status completed --dea
 ```
 
 The wait command emits newline-delimited JSON with `--stream`. Reaching the requested status tells you what the API observed. To verify recovery, restore a fresh copy and compare a known file from the guest. [Recover your first VM](first-recovery.md)
+
+## Find a VM recovery point in S3
+
+On the original installation, save its public recovery trust once and check when a backup’s signed record is ready. Here `source` and `recovery` are CLI profiles for your installations.
+
+```sh
+vesta-cli --profile source bucket-recovery trust --out-file ./source-trust.json
+vesta-cli --profile source bucket-recovery readiness "$BACKUP_ID"
+```
+
+On the recovery installation, configure a read-only S3 account and import the matching keys for encrypted VMs. List recovery points, then use the backup ID from the list to inspect the disks and network mappings.
+
+```sh
+trust=$(cat ./source-trust.json)
+vesta-cli --profile recovery bucket-recovery discover --trust "$trust"
+vesta-cli --profile recovery bucket-recovery preview "$BACKUP_ID" --trust "$trust"
+```
+
+Use `bucket-recovery restore --help` to choose a fresh destination and supply the mappings from the preview. Save one request ID before starting and reuse it if the response is interrupted. A workstation without a running Vesta API can use the standalone `vesta-restore` executable. [Recover directly from S3](../packaging/okd/runbooks/bucket-recovery.md)
 
 Use `vesta-cli COMMAND --help` for command-specific inputs and the [versioned API reference](https://vestabackup.com/docs/api/) for request and response fields. [Operate Vesta with an automation agent](operating-with-agents.md)

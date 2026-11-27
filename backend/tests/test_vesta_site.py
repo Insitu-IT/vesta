@@ -409,6 +409,55 @@ def test_packaged_install_waits_only_for_transient_route_failures(
         assert expected in result.stderr
 
 
+def test_recovery_only_site_configures_reader_without_writer_probe(
+    monkeypatch, tmp_path
+):
+    import vesta_site
+
+    site = object.__new__(vesta_site.Site)
+    site.integrations = vesta_site.integration_settings(
+        {
+            "s3": {
+                "endpoint": "https://objects.test",
+                "bucket": "fixture",
+                "region": "test",
+                "prefix": "a/b",
+                "recovery_secret": "recovery-fixture",
+            }
+        }
+    )
+    site.namespace = "vesta"
+    site.agent = "external"
+
+    def read_secret(namespace, name, keys):
+        assert namespace == "vesta" and name == "recovery-fixture"
+        return {key: "reader-" + key for key in keys}
+
+    monkeypatch.setattr(site, "secret", read_secret)
+    calls = []
+
+    class Api:
+        def request(self, method, path, patch=None):
+            calls.append((method, path))
+            if method == "PUT":
+                assert patch["storage.s3.recovery_access_key"] == "reader-access_key"
+                assert patch["storage.s3.recovery_secret_key"] == "reader-secret_key"
+                assert "storage.s3.access_key" not in patch
+                assert patch["storage.s3.bucket"] == "fixture"
+            else:
+                return {
+                    "settings": {"storage.type": "s3"},
+                    "secrets": {
+                        "storage.s3.recovery_access_key": {"configured": False},
+                        "storage.s3.recovery_secret_key": {"configured": False},
+                    },
+                    "encryption_configured": True,
+                }
+
+    site.configure(Api(), tmp_path, False)
+    assert calls == [("GET", "/settings/v3"), ("PUT", "/settings/v3")]
+
+
 def test_settings_apply_once_and_refuse_repointing(monkeypatch, tmp_path):
     import vesta_site
 
@@ -922,3 +971,127 @@ def test_scoped_vm_preflight_refuses_out_of_scope_and_cleans_temp_report(
         assert result.returncode == expected, result.stderr
         assert "Private report saved" not in result.stdout
         assert not list(tmp_path.glob("vesta-preflight-*"))
+
+
+FAKE_UPGRADE_OC = r"""
+import json
+import os
+import sys
+
+args = sys.argv[1:]
+assert args[:2] == ["--context", "test-context"]
+args = args[2:]
+assert args == ["whoami", "--show-server"] or args[:2] == ["--server", "https://cluster.test"]
+if args == ["whoami", "--show-server"]:
+    print("https://cluster.test")
+    sys.exit(0)
+args = args[2:]
+with open(os.environ["FIXTURE_OC_LOG"], "a") as events:
+    events.write(json.dumps(args) + "\n")
+if args[0] == "--request-timeout=45s":
+    assert args[1:9] == [
+        "-n", "vesta", "exec", "deployment/vesta-backend", "-c", "backend", "--", "python"
+    ]
+    assert args[9] == "-c"
+    assert "REPEATABLE READ READ ONLY" in args[10]
+    assert "assert_non_bypass_role" in args[10] and "assert_schema_current" in args[10]
+    if os.environ.get("FIXTURE_SCHEMA_DRIFT"):
+        print("private driver diagnostic", file=sys.stderr)
+        sys.exit(1)
+    print(os.environ["FIXTURE_UPGRADE_OBSERVED"])
+    sys.exit(0)
+assert args[2] == "get", args
+if args[3] == "route":
+    print(json.dumps({"spec": {"host": "vesta-api.example.org", "to": {"name": "vesta-backend"}}}))
+else:
+    assert args[3] == "deployment", args
+    component = args[4].removeprefix("vesta-")
+    images = json.loads(os.environ["FIXTURE_UPGRADE_IMAGES"])
+    image = images[component]
+    print(json.dumps({
+        "metadata": {"generation": 1},
+        "status": {"observedGeneration": 1, "updatedReplicas": 1, "readyReplicas": 1},
+        "spec": {"template": {"spec": {"containers": [{
+          "image": image, "name": component,
+          "env": [{"name": "DATABASE_URL", "valueFrom": {"secretKeyRef": {
+              "name": "vesta-db-runtime", "key": "DATABASE_URL"
+          }}}]
+        }]}}}
+    }))
+"""
+
+
+@pytest.mark.parametrize(
+    "version,revision,drift,expected",
+    [
+        ("6.1.0", "backup_admission_pause", False, ["upgrade", "api", "agent"]),
+        ("6.1.1", "backup_admission_pause", False, ["upgrade", "api", "agent"]),
+        ("6.2.0", "managed_file_backups", False, []),
+        ("6.1.0", "operator_requests", False, None),
+        ("6.0.0", "backup_admission_pause", False, None),
+        ("6.1.1", "backup_admission_pause", True, None),
+    ],
+)
+def test_observed_upgrade_prepares_only_reviewed_stages(
+    release, tmp_path, version, revision, drift, expected
+):
+    root, _ = release
+    assert run(root, "init").returncode == 0
+    fill_manifest(root / "vesta.json")
+    binary = tmp_path / "oc"
+    binary.write_text(f"#!{sys.executable}\n" + FAKE_UPGRADE_OC)
+    binary.chmod(0o700)
+    log = tmp_path / "oc-upgrade.jsonl"
+    offline = json.loads(run(root, "plan").stdout)
+    installation = "10111111-1111-4111-8111-111111111111"
+    env = {
+        **os.environ,
+        "PATH": f"{tmp_path}:{os.environ['PATH']}",
+        "FIXTURE_OC_LOG": str(log),
+        "FIXTURE_UPGRADE_IMAGES": json.dumps(offline["images"]),
+        "FIXTURE_UPGRADE_OBSERVED": json.dumps(
+            {
+                "version": version,
+                "revision": revision,
+                "database": "vesta",
+                "role": "vesta_runtime",
+                "installation_id": installation,
+            }
+        ),
+    }
+    if drift:
+        env["FIXTURE_SCHEMA_DRIFT"] = "yes"
+    planned = run(root, "upgrade", "plan", env=env)
+    output = tmp_path / "prepared"
+    prepared = run(root, "upgrade", "prepare", "--output-dir", output, env=env)
+    if expected is None:
+        assert planned.returncode == prepared.returncode == 2, prepared.stderr
+        assert not output.exists()
+        assert "private driver diagnostic" not in prepared.stderr
+    else:
+        assert planned.returncode == prepared.returncode == 0, prepared.stderr
+        plan = json.loads((output / "upgrade-plan.json").read_text())
+        assert plan == json.loads(planned.stdout)
+        assert (
+            plan["stages"] == expected
+            and plan["target"]["server"] == "https://cluster.test"
+        )
+        assert {entry.name for entry in output.iterdir()} == {
+            *expected,
+            "upgrade-plan.json",
+        }
+        assert stat.S_IMODE(output.stat().st_mode) == 0o700
+        assert stat.S_IMODE((output / "upgrade-plan.json").stat().st_mode) == 0o600
+        if expected:
+            stage = "\n".join(
+                path.read_text()
+                for path in (output / "upgrade").rglob("*")
+                if path.is_file()
+            )
+            assert "--upgrade-managed-files" in stage and "--installation-id" in stage
+            assert installation in stage and "--fresh" not in stage
+        else:
+            assert plan["status"] == "already_current"
+    calls = [json.loads(line) for line in log.read_text().splitlines()]
+    assert all(call[0] in ("-n", "--request-timeout=45s") for call in calls)
+    assert all(call[0] == "--request-timeout=45s" or call[2] == "get" for call in calls)

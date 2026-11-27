@@ -1,5 +1,7 @@
 # Restore into fresh resources
 
+If the original installation is unavailable, [recover directly from S3](bucket-recovery.md). A separately saved chain bundle is also supported.
+
 Restore a selected accepted point in a full/incremental chain into fresh disks
 and a new VM identity. Preserve the source and the accepted backups. Never use
 an existing important VM, PVC or raw disk as a convenient test destination.
@@ -53,7 +55,9 @@ under the site's policy. Do not remove the source or accepted chain as test clea
 
 ## Native raw disk recovery
 
-On a trusted Linux amd64 workstation, download `vesta-restore-linux-amd64` from the [matching GitHub release](https://github.com/Insitu-IT/vesta/releases). Check its entry in the signed checksums, then run `chmod +x vesta-restore-linux-amd64`. Run `./vesta-restore-linux-amd64 -h` to see its inputs. You can use it when the Vesta server and libvirt are unavailable. For native libvirt backup chains, the recovery workstation also needs Python 3 at `/usr/bin/python3` and `qemu-img` 10.1.x. Supply your saved chain catalog, read access to the S3 backup objects and the corresponding keys for encrypted backups.
+For a directory captured by a Linux file agent, use [file archive recovery](file-backups.md#recover-a-file-on-a-clean-workstation).
+
+On a trusted Linux amd64 workstation, download `vesta-restore-linux-amd64` from the [matching GitHub release](https://github.com/Insitu-IT/vesta/releases). Check its entry in the signed checksums, then run `chmod +x vesta-restore-linux-amd64`. Run `./vesta-restore-linux-amd64 -h` to see its inputs. You can use it when the Vesta server and libvirt are unavailable. For native libvirt backup chains, the recovery workstation also needs Python 3 at `/usr/bin/python3` and `qemu-img` 10.1.x. For the saved-bundle mode below, supply the chain catalog, read access to the S3 backup objects and the corresponding keys. The [bucket-first workflow](bucket-recovery.md) obtains the chain directly from S3.
 
 The installed `vesta-restore` command and the KubeVirt agent image's
 `/vesta-restore` can reconstruct raw images from a trusted catalog bundle. Export

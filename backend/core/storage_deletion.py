@@ -9,8 +9,9 @@ from datetime import datetime, timezone
 import hashlib
 from types import SimpleNamespace
 
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 
+from core.legacy_recovery import LEGACY_RECOVERY_REFUSAL, legacy_s3_unverified
 from core.s3_ownership import StorageOwnershipError
 from core.storage_receipt_v2 import validate, canonical
 from models import (
@@ -57,6 +58,8 @@ def _locked_plan(db, backup_id):
         .with_for_update()
         .one()
     )
+    if legacy_s3_unverified(backup):
+        raise BackupDependencyError(LEGACY_RECOVERY_REFUSAL)
     if (
         not org.enabled
         or backup.capacity_state != "released"
@@ -107,6 +110,24 @@ def _locked_plan(db, backup_id):
     ):
         raise BackupDependencyError(
             "An active or uncertain restore still needs this VM's chain"
+        )
+    recovery_holds = db.query(Restore.id).filter(
+        Restore.org_id == org.id,
+        Restore.status.in_(ACTIVE_RESTORES),
+        Restore.s3_recovery.is_not(None),
+    )
+    if db.get_bind().dialect.name == "postgresql":
+        recovery_holds = recovery_holds.filter(
+            Restore.s3_recovery.contains({"local_chain": [backup.id]})
+        )
+    else:
+        members = func.json_each(Restore.s3_recovery, "$.local_chain").table_valued(
+            "value", joins_implicitly=True
+        )
+        recovery_holds = recovery_holds.filter(members.c.value == backup.id)
+    if recovery_holds.first():
+        raise BackupDependencyError(
+            "An active or uncertain signed recovery still needs this backup"
         )
     if backup.chain_id and backup.chain_position is not None:
         if (
@@ -189,7 +210,9 @@ def _locked_plan(db, backup_id):
         or payload.prepared_receipt.get("response", {}).get("accepted") is not True
     ):
         raise StorageOwnershipError("Generation object receipt is unavailable")
-    objects.append(dict(key=m["key"], etag=m["etag"], version_id=m["version_id"]))
+    # Withdraw the exact generation before removing any payload version. Signed
+    # records remain immutable and discovery can observe the withdrawal.
+    objects.insert(0, dict(key=m["key"], etag=m["etag"], version_id=m["version_id"]))
     return backup, payload, request["plan"]["target"], objects
 
 

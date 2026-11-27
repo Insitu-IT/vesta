@@ -1,3 +1,4 @@
+import { FileBackupsPanel } from '../components/file-backups.js';
 import { contextHelp } from '../components/context-help.js';
 /**
  * Schedules Page
@@ -10,6 +11,7 @@ import { assetResolver } from '../assets/resolver.js';
 
 export class SchedulesPage {
     constructor() {
+        this.files = new FileBackupsPanel('schedules');
         this.schedules = [];
         this.vms = [];
         this.groups = [];
@@ -113,6 +115,7 @@ export class SchedulesPage {
                         </div>
                         ${this.schedules.length === 0 ? this.renderEmptyState() : ''}
                     </div>
+                    <section id="managed-file-schedules" hidden></section>
                 </div>
             </div>
 
@@ -122,6 +125,7 @@ export class SchedulesPage {
     }
 
     setupEventListeners() {
+        this.files.mount(document.getElementById('managed-file-schedules'));
         const searchInput = document.getElementById('schedule-search');
         if (searchInput) {
             searchInput.value = this.searchQuery;
@@ -515,6 +519,11 @@ export class SchedulesPage {
         }
 
         return t('schedules.preview_custom');
+    }
+
+    destroy() {
+        this.files.destroy();
+        clearTimeout(this._searchTimeout);
     }
 
 }

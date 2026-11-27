@@ -1,8 +1,10 @@
 ![Vesta Backup](branding/vesta/readme-mark.png)
 
-# Back up your virtual machines with Vesta
+# Back up your virtual machines and Linux files with Vesta
 
 Protect virtual machines on OpenShift Virtualization, OKD and native libvirt hosts. On compatible VM and storage configurations, Vesta sends full and incremental backups to the S3-compatible storage you choose. With client-side encryption, the data is encrypted before it reaches the bucket and the recovery keys stay with you.
+
+Protect a directory of finished exports with the same console. The Linux agent encrypts each file backup before upload. On a clean workstation you can list the archive and recover an individual file using your own key. [Back up a Linux directory](packaging/okd/runbooks/file-backups.md)
 
 Run the control plane on your own infrastructure, including in an air-gapped network. The Community edition includes single sign-on for operators and mutual TLS for agents. The [Community license](https://vestabackup.com/docs/legal/terms/) lets you study, modify and redistribute the covered code. Your ability to recover must never depend on your license status.
 
@@ -20,9 +22,11 @@ Try the [interactive console demo](https://vestabackup.com/#recovery-demo), or s
 |---|---|
 | Check whether my storage and VM can use incrementals | [Storage compatibility](packaging/community/storage-compatibility.md) |
 | Size a cluster and check its installed APIs | [Installation requirements](packaging/community/installation-requirements.md) |
+| Locate and recover VM disks after losing the original catalog | [Recover from S3](packaging/okd/runbooks/bucket-recovery.md) |
 | Understand the data path and recovery without the console | [Backup and recovery architecture](packaging/community/backup-and-recovery.md) |
 | Plan recovery time and bucket growth | [Sizing and recovery time](packaging/community/sizing-and-recovery-time.md) |
 | Recover when an agent, bucket or the control plane fails | [Incident recovery](packaging/community/recovery-incidents.md) |
+| Schedule a directory backup and recover one file | [Linux file backups](packaging/okd/runbooks/file-backups.md) |
 | Connect an OpenShift, OKD or libvirt host | [VM agents](agent/README.md) |
 | Schedule a backup or investigate a delay | [Daily operations](packaging/okd/runbooks/operations.md) |
 | Restore a VM or recover individual disks | [Restore guide](packaging/okd/runbooks/restore.md) |

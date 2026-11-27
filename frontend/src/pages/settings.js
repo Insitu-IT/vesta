@@ -8,6 +8,169 @@ import { apiClient } from '../api/client.js';
 import { escapeHtml } from '../utils/security.js';
 import { authService } from '../services/auth.service.js';
 
+const MIN_EXPORT_PASSPHRASE_LENGTH = 20;
+const MAX_TRIVIAL_EXPORT_PERIOD = 8;
+
+// Match the server's validation view without changing the passphrase we submit.
+function exportPassphraseProblem(value) {
+    if (new TextEncoder().encode(value).length > 4096) return 'settings.export_passphrase_too_long';
+    const visible = Array.from(value.normalize('NFKC')).filter(character =>
+        /[\p{L}\p{N}\p{P}\p{S}]/u.test(character) && !/[\u115f\u1160\u2800]/u.test(character));
+    if (visible.length < MIN_EXPORT_PASSPHRASE_LENGTH) return 'settings.export_password_error';
+
+    const pattern = Array.from(visible.join('').toLowerCase());
+    for (let period = 1; period <= MAX_TRIVIAL_EXPORT_PERIOD; period++) {
+        if (pattern.every((character, index) => character === pattern[index % period])) {
+            return 'settings.export_passphrase_repeated';
+        }
+    }
+    return null;
+}
+
+function generateExportPassphrase() {
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+function keyRecoveryInput(action) {
+    if (document.getElementById('key-recovery-dialog')) return Promise.resolve(null);
+    const isExport = action === 'export';
+    const isConfirm = action === 'confirm';
+    const t = key => escapeHtml(window.t(key));
+    const title = isExport ? 'settings.export_btn' : isConfirm ? 'settings.confirm_export_btn' : 'settings.import_btn';
+    const dialog = document.createElement('dialog');
+    dialog.id = 'key-recovery-dialog';
+    dialog.className = 'border-0 rounded shadow p-0 bg-body text-body';
+    dialog.style.width = 'min(34rem, calc(100% - 2rem))';
+    dialog.setAttribute('aria-labelledby', 'key-recovery-title');
+    dialog.innerHTML = `
+        <form class="p-4">
+            <h2 id="key-recovery-title" class="h3">${t(title)}</h2>
+            ${isExport ? `
+                <p>${t('settings.export_separate_custody')}</p>
+                <label for="key-recovery-mode" class="form-label">${t('settings.export_passphrase_method')}</label>
+                <select id="key-recovery-mode" class="form-select mb-3" name="mode">
+                    <option value="generated">${t('settings.export_generated')}</option>
+                    <option value="custom">${t('settings.export_custom')}</option>
+                </select>
+            ` : `
+                <label for="key-recovery-file" class="form-label">${t('settings.recovery_archive_file')}</label>
+                <input id="key-recovery-file" class="form-control mb-3" type="file" name="archive" accept=".bin" required>
+            `}
+            <label for="key-recovery-password" class="form-label">${t(isExport ? 'settings.export_password' : 'settings.import_password')}</label>
+            <input id="key-recovery-password" class="form-control mb-3" type="password" name="password" dir="auto"
+                autocomplete="${isExport ? 'new-password' : 'off'}" autocapitalize="off" spellcheck="false"
+                ${isExport ? '' : 'minlength="8"'} required>
+            ${isExport ? `
+                <div data-generated-controls class="d-flex flex-wrap gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-secondary" data-copy>${t('settings.export_copy_passphrase')}</button>
+                    <button type="button" class="btn btn-outline-secondary" aria-pressed="false" data-reveal>${t('settings.export_show_passphrase')}</button>
+                </div>
+                <div data-custom-fields class="mb-3" hidden>
+                    <label for="key-recovery-confirmation" class="form-label">${t('settings.export_repeat_passphrase')}</label>
+                    <input id="key-recovery-confirmation" class="form-control" type="password" name="confirmation"
+                        dir="auto" autocomplete="new-password" autocapitalize="off" spellcheck="false">
+                    <p class="form-hint">${t('settings.export_passphrase_guidance')}</p>
+                </div>
+                <label class="form-check mb-3">
+                    <input class="form-check-input" name="custody" type="checkbox" required>
+                    <span class="form-check-label">${t('settings.export_custody_ack')}</span>
+                </label>
+            ` : ''}
+            ${isConfirm ? `
+                <label for="key-recovery-location" class="form-label">${t('settings.confirm_export_location')}</label>
+                <input id="key-recovery-location" class="form-control mb-3" type="text" name="location" maxlength="128" required>
+            ` : ''}
+            <p class="mb-3" role="status" data-recovery-status hidden></p>
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary" data-cancel>${t('common.cancel')}</button>
+                <button type="submit" class="btn btn-primary">${t(title)}</button>
+            </div>
+        </form>`;
+    const form = dialog.querySelector('form');
+    const { mode, password, confirmation, custody, archive, location } = form.elements;
+    const status = dialog.querySelector('[data-recovery-status]');
+    const report = key => {
+        status.textContent = window.t(key);
+        status.hidden = false;
+    };
+    dialog.querySelector('[data-cancel]').addEventListener('click', () => dialog.close());
+
+    if (isExport) {
+        const generated = dialog.querySelector('[data-generated-controls]');
+        const custom = dialog.querySelector('[data-custom-fields]');
+        const reveal = dialog.querySelector('[data-reveal]');
+        if (!globalThis.crypto?.getRandomValues) {
+            mode.querySelector('[value="generated"]').disabled = true;
+            mode.value = 'custom';
+        }
+        const selectMode = () => {
+            const useGenerator = mode.value === 'generated';
+            password.type = 'password';
+            password.readOnly = useGenerator;
+            password.value = useGenerator ? generateExportPassphrase() : '';
+            confirmation.value = '';
+            confirmation.disabled = useGenerator;
+            confirmation.required = !useGenerator;
+            generated.classList.toggle('d-none', !useGenerator);
+            generated.classList.toggle('d-flex', useGenerator);
+            custom.hidden = useGenerator;
+            custody.checked = false;
+            status.textContent = '';
+            status.hidden = true;
+            reveal.setAttribute('aria-pressed', 'false');
+            reveal.textContent = window.t('settings.export_show_passphrase');
+        };
+        mode.addEventListener('change', selectMode);
+        reveal.addEventListener('click', () => {
+            const show = password.type === 'password';
+            password.type = show ? 'text' : 'password';
+            reveal.setAttribute('aria-pressed', String(show));
+            reveal.textContent = window.t(show ? 'settings.export_hide_passphrase' : 'settings.export_show_passphrase');
+        });
+        dialog.querySelector('[data-copy]').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(password.value);
+                report('settings.export_passphrase_copied');
+            } catch {
+                report('settings.export_copy_unavailable');
+            }
+        });
+        selectMode();
+    }
+
+    return new Promise(resolve => {
+        let result = null;
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const problem = isExport && exportPassphraseProblem(password.value);
+            if (problem) {
+                report(problem);
+                return;
+            }
+            if (isExport && mode.value === 'custom' && password.value !== confirmation.value) {
+                report('settings.export_passphrase_mismatch');
+                return;
+            }
+            if (isConfirm && !location.value.trim()) {
+                report('settings.confirm_export_location');
+                return;
+            }
+            result = { password: password.value, file: archive?.files[0], location: location?.value.trim() };
+            dialog.close();
+        });
+        dialog.addEventListener('close', () => {
+            form.reset();
+            password.value = '';
+            if (confirmation) confirmation.value = '';
+            dialog.remove();
+            resolve(result);
+        }, { once: true });
+        document.body.append(dialog);
+        dialog.showModal();
+    });
+}
+
 export class SettingsPage {
     constructor() {
         this.licensingPanel = new LicensingPanel();
@@ -92,15 +255,20 @@ export class SettingsPage {
         if (storageType !== 's3') return false;
 
         const bucket = document.getElementById('setting-v3-s3-bucket')?.value?.trim();
-        const accessKeyStatus = this.v3Secrets['storage.s3.access_key'];
-        const secretKeyStatus = this.v3Secrets['storage.s3.secret_key'];
-        const accessKeyInput = document.getElementById('setting-v3-s3-access-key')?.value?.trim();
-        const secretKeyInput = document.getElementById('setting-v3-s3-secret-key')?.value?.trim();
+        const writer = this.s3CredentialFields();
+        const reader = this.s3CredentialFields(true);
+        return Boolean(bucket && (writer.every(field => field.available) || reader.every(field => field.available)) &&
+            (!reader.some(field => field.entered) || reader.every(field => field.available)));
+    }
 
-        const hasAccessKey = accessKeyStatus?.configured || accessKeyInput;
-        const hasSecretKey = secretKeyStatus?.configured || secretKeyInput;
-
-        return bucket && hasAccessKey && hasSecretKey;
+    s3CredentialFields(recovery = false) {
+        return ['access', 'secret'].map(name => {
+            const key = 'storage.s3.' + (recovery ? 'recovery_' : '') + name + '_key';
+            const id = 'setting-v3-s3-' + (recovery ? 'recovery-' : '') + name + '-key';
+            const entered = document.getElementById(id)?.value ?? '';
+            return {key, entered, available: this.v3Secrets[key]?.configured ||
+                (!!entered.trim() && !/^[*•]+$/.test(entered.trim()))};
+        });
     }
 
     isS3ConfigSaved() {
@@ -338,15 +506,8 @@ export class SettingsPage {
                 'storage.s3.prefix': document.getElementById('setting-v3-s3-prefix')?.value,
             };
 
-            // Include secrets only if provided (non-empty)
-            const accessKey = document.getElementById('setting-v3-s3-access-key')?.value;
-            const secretKey = document.getElementById('setting-v3-s3-secret-key')?.value;
-
-            if (accessKey) {
-                settingsData['storage.s3.access_key'] = accessKey;
-            }
-            if (secretKey) {
-                settingsData['storage.s3.secret_key'] = secretKey;
+            for (const field of [...this.s3CredentialFields(), ...this.s3CredentialFields(true)]) {
+                if (field.entered) settingsData[field.key] = field.entered;
             }
 
             // Remove undefined/null/empty values
@@ -376,43 +537,11 @@ export class SettingsPage {
                 }, 100);
             }
 
-            // Propose S3 discovery if storage type is S3
-            if (settingsData['storage.type'] === 's3') {
-                this.checkS3Discovery();
-            }
         } catch (error) {
             console.error('Failed to save v3 settings:', error);
             if (window.vnbui && window.vnbui.showToast) {
                 window.vnbui.showToast(window.t('settings.storage_save_failed', {error: error.message}), 'error');
             }
-        }
-    }
-
-    async checkS3Discovery() {
-        try {
-            const data = await apiClient.get('/api/v1/s3/discover');
-            const importable = (data.chains || []).filter(c => c.status === 'available' || c.status === 'partial');
-            if (importable.length === 0) return;
-
-            const t = window.t;
-            // Remove any existing discovery banner
-            document.getElementById('s3-discovery-banner')?.remove();
-
-            const banner = document.createElement('div');
-            banner.id = 's3-discovery-banner';
-            banner.className = 'alert alert-info alert-dismissible fade show mt-3';
-            banner.innerHTML = `
-                ${t('s3_import.settings_discovery', { count: importable.length })}
-                <a href="#" onclick="window.vnbui.navigate('/backups'); return false;" class="alert-link ms-1">${t('s3_import.settings_discovery_link')} →</a>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-
-            const storagePane = document.getElementById('settings-storage');
-            if (storagePane) {
-                storagePane.appendChild(banner);
-            }
-        } catch (e) {
-            // Silent — don't break save flow
         }
     }
 
@@ -891,109 +1020,62 @@ export class SettingsPage {
     }
 
     async exportEncryptionKeys() {
-        const password = prompt(window.t('settings.export_password'));
-        if (!password || password.length < 8) {
-            if (password !== null) {
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.export_password_error'), 'error');
-                }
-            }
+        const keyIds = this.encryptionKeys.filter(key => key.status !== 'revoked').map(key => key.id);
+        if (keyIds.length === 0) {
+            window.vnbui?.showToast?.(window.t('settings.export_no_keys'), 'warning');
             return;
         }
+        const input = await keyRecoveryInput('export');
+        if (!input) return;
 
         try {
-            const keyIds = this.encryptionKeys.filter(k => k.status !== 'revoked').map(k => k.id);
-            if (keyIds.length === 0) {
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.export_no_keys'), 'warning');
-                }
-                return;
-            }
-
             const blob = await apiClient.postForBlob('/api/v1/encryption/keys/export', {
-                key_ids: keyIds, password
+                key_ids: keyIds, password: input.password
             });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vesta-keys-${new Date().toISOString().split('T')[0]}.bin`;
-            a.click();
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `vesta-keys-${new Date().toISOString().split('T')[0]}.bin`;
+            link.click();
             URL.revokeObjectURL(url);
-
-            if (window.vnbui && window.vnbui.showToast) {
-                window.vnbui.showToast(window.t('settings.export_success', {count: keyIds.length}), 'success');
-            }
-        } catch (error) {
-            if (window.vnbui && window.vnbui.showToast) {
-                window.vnbui.showToast(window.t('settings.export_error', {error: error.message}), 'error');
-            }
+            window.vnbui?.showToast?.(window.t('settings.export_success', {count: keyIds.length}), 'success');
+        } catch {
+            window.vnbui?.showToast?.(window.t('settings.export_error'), 'error');
         }
     }
 
     async confirmEncryptionExport() {
-        const password = prompt(window.t('settings.import_password'));
-        if (!password) return;
-        const location = prompt(window.t('settings.confirm_export_location'));
-        if (!location || !location.trim()) return;
-
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.bin';
-        fileInput.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('password', password);
-                formData.append('location', location.trim());
-                const result = await apiClient.upload('/api/v1/encryption/keys/confirm-export', formData);
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.confirm_export_success', {count: result.key_ids.length}), 'success');
-                }
-                await this.loadEncryptionKeys();
-                const tabContent = document.getElementById('settings-encryption');
-                if (tabContent) tabContent.innerHTML = this.renderEncryptionSettings();
-            } catch (error) {
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.confirm_export_error', {error: error.message}), 'error');
-                }
-            }
-        };
-        fileInput.click();
+        await this.uploadEncryptionArchive('confirm');
     }
 
     async importEncryptionKeys() {
-        const password = prompt(window.t('settings.import_password'));
-        if (!password) return;
+        await this.uploadEncryptionArchive('import');
+    }
 
-        // Create file input
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = '.bin';
-        fileInput.onchange = async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+    async uploadEncryptionArchive(action) {
+        const input = await keyRecoveryInput(action);
+        if (!input) return;
 
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('password', password);
+        const isConfirm = action === 'confirm';
+        const form = new FormData();
+        form.append('file', input.file);
+        form.append('password', input.password);
+        if (isConfirm) form.append('location', input.location);
 
-                const response = await apiClient.upload('/api/v1/encryption/keys/import', formData);
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.import_success', {count: response.count}), 'success');
-                }
-                await this.loadEncryptionKeys();
-                const tabContent = document.getElementById('settings-encryption');
-                if (tabContent) tabContent.innerHTML = this.renderEncryptionSettings();
-            } catch (error) {
-                if (window.vnbui && window.vnbui.showToast) {
-                    window.vnbui.showToast(window.t('settings.import_error', {error: error.message}), 'error');
-                }
-            }
-        };
-        fileInput.click();
+        try {
+            const result = isConfirm
+                ? await apiClient.upload('/api/v1/encryption/keys/confirm-export', form)
+                : await apiClient.upload('/api/v1/encryption/keys/import', form);
+            const count = isConfirm ? result.key_ids.length : result.count;
+            const message = isConfirm ? 'settings.confirm_export_success' : 'settings.import_success';
+            window.vnbui?.showToast?.(window.t(message, {count}), 'success');
+            await this.loadEncryptionKeys();
+            const tabContent = document.getElementById('settings-encryption');
+            if (tabContent) tabContent.innerHTML = this.renderEncryptionSettings();
+        } catch {
+            const message = isConfirm ? 'settings.confirm_export_error' : 'settings.import_error';
+            window.vnbui?.showToast?.(window.t(message), 'error');
+        }
     }
 
     // ── PKI / Certificates (mTLS) ─────────────────────────────────────────
@@ -1627,6 +1709,23 @@ export class SettingsPage {
                                         placeholder="${secretKeyStatus?.configured ? t('experience.keep_existing') : t('settings.s3_secret_key_placeholder')}">
                                 </div>
                             </div>
+                        </div>
+
+                        <h4 class="mt-4">S3 recovery credentials</h4>
+                        <p class="text-secondary">Use a separate read-only S3 account for recovery. Leave saved fields blank to keep their current values.</p>
+                        <div class="row">
+                            ${['access', 'secret'].map(name => {
+                                const status = this.v3Secrets['storage.s3.recovery_' + name + '_key'];
+                                const id = 'setting-v3-s3-recovery-' + name + '-key';
+                                return `<div class="col-md-6 mb-3">
+                                    <label class="form-label" for="${id}">
+                                        ${name === 'access' ? 'Recovery access key' : 'Recovery secret key'}
+                                        ${status?.configured ? `<span class="badge bg-success ms-2">${status.source === 'env' ? 'ENV' : t('experience.saved')}</span>` : ''}
+                                    </label>
+                                    <input type="password" class="form-control font-monospace" id="${id}" autocomplete="new-password"
+                                        placeholder="${status?.configured ? t('experience.keep_existing') : ''}">
+                                </div>`;
+                            }).join('')}
                         </div>
 
                         <!-- Action buttons at bottom of S3 section -->

@@ -123,6 +123,8 @@ def test_standalone_helpers_retain_commit_ownership(monkeypatch):
         {"oidc.default_role": "admin"},
         {"oidc.scopes": ""},
         {"oidc.scopes": "profile"},
+        {"storage.s3.recovery_access_key": "retained"},
+        {"storage.s3.recovery_secret_key": "retained"},
         {"oidc.enabled": True, "oidc.issuer": "http://idp.example"},
         {"oidc.enabled": True, "oidc.client_id": " "},
     ],

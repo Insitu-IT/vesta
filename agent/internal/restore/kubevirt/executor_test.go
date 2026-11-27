@@ -4,9 +4,13 @@ package kubevirt
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -253,7 +257,109 @@ func TestControllerCollisionAndUncertainAbsenceNeverAdopt(t *testing.T) {
 }
 
 func TestJournalRestartAndIdempotentAdmission(t *testing.T) {
+	for _, historical := range []bool{false, true} {
+		name := "catalog"
+		if historical {
+			name = "verified-s3-recovery"
+		}
+		t.Run(name, func(t *testing.T) { testJournalRestartAndIdempotentAdmission(t, historical) })
+	}
+}
+
+func TestHistoricalCaptureUsesEffectiveSigningRegionWithoutChangingBundle(t *testing.T) {
+	objects := make(map[string][]byte)
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, found := objects[r.URL.Path]
+		if !found || r.Header.Get("If-Match") != `"etag"` ||
+			!strings.Contains(r.Header.Get("Authorization"), "/us-east-1/s3/aws4_request,") {
+			http.Error(w, "scope", http.StatusPreconditionFailed)
+			return
+		}
+		w.Header().Set("ETag", `"etag"`)
+		w.Header().Set("Last-Modified", "Thu, 01 Oct 2026 00:00:00 GMT")
+		_, _ = w.Write(body)
+	}))
+	defer server.Close()
+	executor, state, _ := controllerFixture(t)
+	bundle, _, err := ValidatePlan(&state.Request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	member := &bundle.Members[0]
+	plan := &member.Request.Plan
+	plan.Target.Endpoint, plan.Target.Region = server.URL, ""
+	canonical, err := models.StorageCanonical(*plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	member.Request.PlanSHA256 = digest(canonical)
+	member.Receipt.Endpoint = server.URL
+	vm := capturedFixture()
+	vm["metadata"] = map[string]any{
+		"name": plan.VMName, "namespace": plan.Source.Namespace,
+		"uid": plan.Source.VMUID, "resourceVersion": "10",
+	}
+	definition, err := json.Marshal(vm)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, object := range member.Receipt.Objects {
+		if object.Role != "volume_manifest" {
+			continue
+		}
+		var volume string
+		for _, match := range plan.Source.Volumes {
+			if match.PVCUID == object.VolumeID {
+				volume = match.Name
+			}
+		}
+		var payload string
+		for _, match := range member.Receipt.Objects {
+			if match.VolumeID == object.VolumeID && match.Role == "volume_payload" {
+				payload = match.Key
+			}
+		}
+		body, err := json.Marshal(map[string]any{
+			"vm_namespace": plan.Source.Namespace, "vm_uid": plan.Source.VMUID,
+			"format": "vnbui-kubevirt-cbt-v1", "backup_type": "full", "checkpoint": "fixture",
+			"volume": volume, "virtual_size": 1, "encrypted": false, "payload_key": payload,
+			"stored_extents": []map[string]uint64{{"disk_offset": 0, "length": 1, "payload_offset": 0}},
+			"vm_definition":  base64.StdEncoding.EncodeToString(definition),
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		object.PlaintextBytes, object.CiphertextBytes = int64(len(body)), int64(len(body))
+		object.PlaintextSHA256, object.CiphertextSHA256 = digest(body), digest(body)
+		member.Receipt.Objects[i] = object
+		objects["/"+plan.Target.Bucket+"/"+object.Key] = body
+	}
+	input, err := json.Marshal(bundle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := &state.Request
+	req.RecoveryOrigin = &models.RestoreOrigin{OrgID: req.OrgID, AgentID: req.AgentID}
+	req.OrgID, req.AgentID = "local-org", "local-agent"
+	req.S3.Endpoint = server.URL
+	req.Bundle = input
+	expectedBundle := digest(input)
+	state.CAPEM = string(pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw}))
+	if err := executor.capturedVM(context.Background(), state); err != nil {
+		t.Fatal(err)
+	}
+	if state.Phase != "provisioning" || digest(req.Bundle) != expectedBundle {
+		t.Fatal("historical restore mutated retained coordinates or failed to capture the VM")
+	}
+}
+
+func testJournalRestartAndIdempotentAdmission(t *testing.T, historical bool) {
 	req := restoreFixture(t)
+	if historical {
+		req.RecoveryOrigin = &models.RestoreOrigin{OrgID: req.OrgID, AgentID: req.AgentID}
+		req.OrgID = "33333333-3333-4333-8333-333333333333"
+		req.AgentID = "44444444-4444-4444-8444-444444444444"
+	}
 	root := t.TempDir()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel() // Keep background work from reaching provider.

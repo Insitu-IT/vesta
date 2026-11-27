@@ -10,6 +10,7 @@ import pytest
 
 from backend.tests.test_backup_verification import fixture, response
 from core import backup_verification as scrub
+from core.file_agent_http import AgentPeer, FileAgentHTTP
 from core import verification_executor as runtime
 from models import Agent as AgentModel, BackupVerification
 
@@ -29,7 +30,9 @@ class Agent:
     def reply(self, url, status, value):
         return httpx.Response(status, json=value, request=httpx.Request("GET", url))
 
-    async def get(self, url, **kw):
+    async def get(self, peer, path, **kw):
+        assert kw["headers"]["X-Vesta-Agent-ID"] == peer.agent_id
+        url = "https://" + peer.hostname + path
         self.calls.append(("GET", url, deepcopy(kw)))
         if url.endswith("/capability"):
             plan, _ = scrub.load_plan(self.row)
@@ -62,7 +65,10 @@ class Agent:
             )
         return self.reply(url, 404 if self.remote is None else 200, self.remote or {})
 
-    async def post(self, url, **kw):
+    async def post(self, peer, path, *, recheck, **kw):
+        await recheck()
+        assert kw["headers"]["X-Vesta-Agent-ID"] == peer.agent_id
+        url = "https://" + peer.hostname + path
         self.calls.append(("POST", url, deepcopy(kw)))
         if url.endswith("/cancel"):
             assert kw["params"]["plan_sha256"] == self.row.verification_plan_sha256
@@ -109,6 +115,17 @@ def setup(db_session, session_factory, monkeypatch):
     plan, _ = scrub.load_plan(row)
     target = plan["bundle"]["members"][0]["request"]["plan"]["target"]
     monkeypatch.setattr(runtime, "SessionLocal", session_factory)
+    monkeypatch.setattr(
+        runtime,
+        "vm_agent_peer",
+        lambda db, agent: AgentPeer(
+            agent.ip_address or agent.hostname,
+            agent.port or 8090,
+            agent.hostname,
+            "a" * 64,
+            agent.id,
+        ),
+    )
     monkeypatch.setattr(
         "core.settings_service.SettingsService.get_s3_config",
         lambda self: dict(target, access_key="read", secret_key="must-not-log"),
@@ -359,45 +376,14 @@ async def test_failed_exact_worker_fact_survives_revocation(
         id=row.id,
         org_id=row.org_id,
         actor_id=row.created_by,
-        url=runtime._url(
-            db_session.query(AgentModel).filter_by(id=row.verification_agent_id).one()
+        peer=runtime.vm_agent_peer(
+            db_session,
+            db_session.query(AgentModel).filter_by(id=row.verification_agent_id).one(),
         ),
     )
     assert runtime._observe(info, agent.remote) == "failed"
     db_session.refresh(row)
     assert row.status == "failed" and row.verification_result is None
-
-
-@pytest.mark.parametrize(
-    "host, expected",
-    [
-        ("ctrl01", "https://ctrl01:8090"),
-        ("agent.ns.svc", "https://agent.ns.svc:8090"),
-        ("2001:db8::1", "https://[2001:db8::1]:8090"),
-    ],
-)
-def test_agent_endpoint_literal_hosts(host, expected):
-    assert (
-        runtime._url(SimpleNamespace(ip_address=host, hostname="unused", port=8090))
-        == expected
-    )
-
-
-@pytest.mark.parametrize(
-    "host",
-    [
-        "user@other",
-        "https://other",
-        "host/path",
-        "host:443",
-        "host\nother",
-        "-bad",
-        "bad.",
-    ],
-)
-def test_agent_endpoint_rejects_url_credential_and_path_injection(host):
-    with pytest.raises(scrub.StorageOwnershipError):
-        runtime._url(SimpleNamespace(ip_address=host, hostname="unused", port=8090))
 
 
 @pytest.mark.asyncio
@@ -549,33 +535,34 @@ async def test_automatic_readmissions_are_bounded_and_original_operator_can_resu
 
 
 @pytest.mark.parametrize(
-    "enabled,key,verify,allowed",
+    "enabled,key,pinned,allowed",
     [
         (True, "key", True, True),
-        (True, "key", "/private/ca.crt", True),
         (False, "key", True, False),
         (True, "", True, False),
         (True, "key", False, False),
-        (True, "key", None, False),
-        (True, "key", "", False),
     ],
 )
-def test_scrub_never_inherits_http_or_unverified_tls(
-    monkeypatch, enabled, key, verify, allowed
+def test_scrub_requires_the_enrolled_transport(
+    monkeypatch, enabled, key, pinned, allowed
 ):
     from core import restore_executor as restore_module
     from config import settings
+    from core.agent_http import AgentHTTP
 
-    client = SimpleNamespace(_configuration={"verify": verify})
-    monkeypatch.setattr(
-        restore_module,
-        "restore_executor",
-        SimpleNamespace(http_client=client, agent_tls_enabled=enabled),
+    executor = restore_module.RestoreExecutor()
+    executor.agent_tls_enabled = enabled
+    client = (
+        FileAgentHTTP(ca="/fixture/ca", certificate=("/fixture/cert", "/fixture/key"))
+        if pinned
+        else AgentHTTP()
     )
+    executor.http_client = client
+    monkeypatch.setattr(restore_module, "restore_executor", executor)
     monkeypatch.setattr(settings, "orchestrator_to_agent_key", key)
     if allowed:
         actual, headers = runtime.VerificationExecutor._transport()
         assert actual is client and headers == {"X-Orchestrator-Key": key}
     else:
-        with pytest.raises(scrub.StorageOwnershipError):
+        with pytest.raises(restore_module.RestoreAdmissionError):
             runtime.VerificationExecutor._transport()

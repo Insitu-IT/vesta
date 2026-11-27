@@ -137,20 +137,29 @@ func (c *Config) ScopeReport() map[string]interface{} {
 
 // CapabilityReport refreshes existing registrations after provider upgrades.
 func (c *Config) CapabilityReport() map[string]interface{} {
-	method := ""
+	var report map[string]interface{}
 	switch c.Provider {
-	case "kubevirt":
-		method = "kubevirt_pull_transaction"
-	case "libvirt":
-		method = "native_push"
+	case "kubevirt", "libvirt":
+		report = map[string]interface{}{
+			"provider": c.Provider, "platform": map[string]string{"kubevirt": "KubeVirt", "libvirt": "KVM/QEMU"}[c.Provider],
+			"backup_method":       map[string]string{"kubevirt": "kubevirt_pull_transaction", "libvirt": "native_push"}[c.Provider],
+			"s3_recovery_restore": true,
+			"incremental":         true, "stream_through": c.Provider == "kubevirt", "local_output": c.Provider == "libvirt",
+		}
+	case "none":
+		report = map[string]interface{}{"provider": "none", "platform": "Linux"}
 	default:
 		return nil
 	}
-	report := map[string]interface{}{"provider": c.Provider, "platform": map[string]string{"kubevirt": "KubeVirt", "libvirt": "KVM/QEMU"}[c.Provider], "backup_method": method, "incremental": true, "stream_through": c.Provider == "kubevirt", "local_output": c.Provider == "libvirt"}
 	if c.Provider == "kubevirt" {
 		report["kubevirt_transfer_profiles"] = []string{models.KubevirtTransfer32}
 		report["kubevirt_native_disk_profiles"] = []string{models.KubevirtNativeDisks}
+		report["s3_recovery_restore_namespaces"] = slices.Clone(c.KubevirtRestoreNamespaces)
 		report["kubevirt_restore_profiles"] = []string{models.KubeVirtSelectedDiskRestore}
+	}
+	if len(c.ManagedFileSets) > 0 {
+		report["managed_file_sets"] = c.ManagedFileSets
+		report["managed_file_storage"] = c.ManagedFileStorage
 	}
 	return report
 }

@@ -1,4 +1,4 @@
-// vesta-restore reconstructs fresh raw disks from accepted provider-specific chains.
+// vesta-restore recovers file archives and accepted provider-specific VM chains.
 package main
 
 import (
@@ -13,10 +13,13 @@ import (
 	"syscall"
 	"time"
 
+	"vnbui/agent/internal/filearchive"
 	"vnbui/agent/internal/models"
 	"vnbui/agent/internal/nativerestore"
 	"vnbui/agent/internal/storagerestore"
 )
+
+var version = "dev"
 
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -28,6 +31,22 @@ func main() {
 }
 
 func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
+	if len(args) == 1 {
+		switch args[0] {
+		case "-version", "--version":
+			_, err := fmt.Fprintln(stdout, "vesta-restore", version)
+			return err
+		case "-file-archive-format", "--file-archive-format":
+			_, err := fmt.Fprintln(stdout, filearchive.Format)
+			return err
+		}
+	}
+	if len(args) != 0 && args[0] == "files" {
+		return runFiles(ctx, args[1:], stdout, stderr)
+	}
+	if len(args) != 0 && args[0] == "s3" {
+		return runS3(ctx, args[1:], stdout, stderr)
+	}
 	flags := flag.NewFlagSet("vesta-restore", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 	chainPath := flags.String("chain", "", "restore-bundle JSON exported by the backend")
@@ -43,6 +62,9 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	workerCA := flags.String("worker-ca", "", "controller-projected S3 trust bundle for worker mode")
 	flags.Usage = func() {
 		fmt.Fprintln(stderr, "Usage: vesta-restore -chain chain.json (-output NEW-DIRECTORY | -inspect-definition NEW-FILE | -verify-only) (-objects-dir ROOT | -s3-config FILE) [-keys-dir DIRECTORY]")
+		filesUsage(stderr)
+		s3Usage(stderr)
+		fmt.Fprintln(stderr, "       vesta-restore --version | --file-archive-format")
 		flags.PrintDefaults()
 	}
 	if err := flags.Parse(args); err != nil {

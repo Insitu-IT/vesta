@@ -5,10 +5,10 @@ Dashboard analytics endpoints.
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from database import get_db
-from models import Backup, BackupQueue, VM, Agent, Schedule
+from models import Backup, BackupQueue, FileSchedule, Organization, VM, Agent, Schedule
 from deps import get_current_user, iso_utc
 
 router = APIRouter(prefix="/api/v1", tags=["dashboard"])
@@ -28,6 +28,23 @@ async def get_dashboard_summary(
     agents = db.query(Agent).filter(Agent.org_id == org_id)
     backups = db.query(Backup).filter(Backup.org_id == org_id)
     schedules = db.query(Schedule).filter(Schedule.org_id == org_id)
+    file_schedules = (
+        db.query(FileSchedule)
+        .join(Organization, Organization.id == FileSchedule.org_id)
+        .filter(
+            FileSchedule.org_id == org_id,
+            FileSchedule.enabled.is_(True),
+            FileSchedule.retired_at.is_(None),
+            FileSchedule.org_epoch == Organization.scheduler_epoch,
+            Organization.enabled.is_(True),
+        )
+    )
+    file_now = now.replace(tzinfo=timezone.utc)
+    active_file_schedules = file_schedules.count()
+    upcoming_file_schedules = file_schedules.filter(
+        FileSchedule.next_run_at >= file_now,
+        FileSchedule.next_run_at < file_now + timedelta(hours=24),
+    ).count()
     by_state = dict(
         vms.with_entities(VM.state, func.count(VM.id)).group_by(VM.state).all()
     )
@@ -160,12 +177,14 @@ async def get_dashboard_summary(
             "total_gb": round(total_size / (1024**3), 2),
         },
         "schedules": {
-            "active": schedules.filter(Schedule.enabled.is_(True)).count(),
+            "active": schedules.filter(Schedule.enabled.is_(True)).count()
+            + active_file_schedules,
             "upcoming": schedules.filter(
                 Schedule.enabled.is_(True),
                 Schedule.next_run_at >= now,
                 Schedule.next_run_at < now + timedelta(hours=24),
-            ).count(),
+            ).count()
+            + upcoming_file_schedules,
         },
         "attention": {
             "offline_agents": total_agents - online_agents,

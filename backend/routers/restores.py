@@ -13,6 +13,12 @@ from database import get_db
 from models import Backup, Restore, VM
 from deps import get_current_user, check_role, log_activity, iso_utc
 from core.restore_executor import restore_executor
+from core.bucket_recovery import public_point
+from core.legacy_recovery import (
+    LEGACY_RECOVERY_REFUSAL,
+    legacy_s3_unverified,
+    recorded_legacy_local_path,
+)
 from core.operator_requests import begin_admission, request_identity, dispatch_metadata
 
 router = APIRouter(prefix="/api/v1", tags=["restores"])
@@ -60,6 +66,9 @@ def create_restore(
     if not backup:
         raise HTTPException(status_code=404, detail="Backup not found")
 
+    if legacy_s3_unverified(backup):
+        raise HTTPException(409, LEGACY_RECOVERY_REFUSAL)
+
     if backup.status != "completed":
         raise HTTPException(
             status_code=400,
@@ -74,6 +83,9 @@ def create_restore(
         return _create_native_restore(
             restore_data, backup, background_tasks, current_user, db, admission
         )
+
+    if recorded_legacy_local_path(backup) is None:
+        raise HTTPException(409, LEGACY_RECOVERY_REFUSAL)
 
     restore_to_original = restore_data.get("restore_to_original", True)
     target_vm_name = restore_data.get("target_vm_name")
@@ -340,6 +352,9 @@ def get_restores(
             "result": restore.kubevirt_result or restore.native_result,
         }
 
+        if restore.s3_recovery:
+            item["recovery_source"] = public_point(restore.s3_recovery["point"])
+
         if restore.backup:
             item["backup"] = {
                 "id": restore.backup.id,
@@ -392,6 +407,9 @@ def get_restore(
         "native_target": (restore.native_plan or {}).get("target"),
         "result": restore.kubevirt_result or restore.native_result,
     }
+
+    if restore.s3_recovery:
+        result["recovery_source"] = public_point(restore.s3_recovery["point"])
 
     if restore.backup:
         result["backup"] = {

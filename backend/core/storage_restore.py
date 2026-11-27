@@ -8,6 +8,7 @@ or sorting backup timestamps cannot establish this chain.
 from copy import deepcopy
 from types import SimpleNamespace
 
+from core.legacy_recovery import legacy_s3_unverified
 from core.s3_ownership import StorageOwnershipError
 from core.storage_lineage import stable_source
 from core.storage_receipt_v2 import validate
@@ -70,7 +71,7 @@ def build_restore_bundle(db, backup_id, org_id):
             )
             .one_or_none()
         )
-        if backup is None or claim is None:
+        if backup is None or claim is None or legacy_s3_unverified(backup):
             _refuse()
         saved = claim.prepared_receipt
         response = saved.get("response") if isinstance(saved, dict) else None

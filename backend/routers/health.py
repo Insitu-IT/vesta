@@ -4,7 +4,7 @@ Health monitoring endpoints: agent health, heartbeat, system health, pending job
 
 import asyncio
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from core import metrics as prom
@@ -911,25 +911,40 @@ async def agent_heartbeat(
     except Exception:
         heartbeat_data = {}
 
-    # Update heartbeat and status
+    from core.file_backups import bind_file_capabilities, certified_file_fingerprint
+    from core.verified_tls import verified_peer
+
+    fingerprint = verified_peer(request.scope)
+    trusted_file_observation = False
+    if fingerprint:
+        enrolled = db.get(Agent, agent.id, populate_existing=True, with_for_update=True)
+        if enrolled is None or enrolled.org_id != agent.org_id:
+            raise HTTPException(401, "Verified agent enrollment is no longer available")
+        agent = enrolled
+        trusted_file_observation = fingerprint == certified_file_fingerprint(
+            db, agent, datetime.now(timezone.utc)
+        )
+
     progress_updates = []
     agent.last_heartbeat = datetime.utcnow()
     agent.status = heartbeat_data.get("status", "online")
-
-    from core.storage_transfer import refreshed_capabilities
-
     capabilities = heartbeat_data.get("capabilities")
-    if isinstance(capabilities, dict) and capabilities.get("provider") in {
-        "kubevirt",
-        "libvirt",
-    }:
-        agent.capabilities = refreshed_capabilities(agent.capabilities, capabilities)
-        agent.platform = (
-            "KubeVirt" if capabilities["provider"] == "kubevirt" else "KVM/QEMU"
-        )
-
-    else:
-        agent.capabilities = refreshed_capabilities(agent.capabilities, {})
+    reported = (
+        capabilities
+        if isinstance(capabilities, dict)
+        and capabilities.get("provider") in {"kubevirt", "libvirt", "none"}
+        else {}
+    )
+    agent.capabilities = bind_file_capabilities(
+        agent.capabilities, reported, trusted=trusted_file_observation
+    )
+    provider = agent.capabilities.get("provider")
+    if provider in {"kubevirt", "libvirt", "none"}:
+        agent.platform = {
+            "kubevirt": "KubeVirt",
+            "libvirt": "KVM/QEMU",
+            "none": "Linux",
+        }[provider]
 
     # Store metrics if provided
     if heartbeat_data:
@@ -1041,17 +1056,35 @@ async def agent_heartbeat(
     # Prometheus: count heartbeat
     prom.agent_heartbeats_total.labels(agent_id=agent_id).inc()
 
-    # v3.0: Include S3 config if storage type is S3
-    svc = SettingsService(db)
-    s3_config = svc.get_s3_config()  # Returns None if not configured
-
     from core.agent_requests import build_heartbeat_response
 
+    # File and VM dispatch identity comes only from installation custody.
+    config = dict(agent.config or {})
+    config.pop("file_controller_sha256", None)
+    config.pop("vm_controller_sha256", None)
+    advertised = agent.capabilities or {}
+    identity_fields = []
+    if advertised.get("managed_file_sets"):
+        identity_fields.append("file_controller_sha256")
+    if trusted_file_observation and advertised.get("provider") in {
+        "libvirt",
+        "kubevirt",
+    }:
+        identity_fields.append("vm_controller_sha256")
+    if identity_fields:
+        from core.file_controller_identity import current_file_controller_fingerprint
+
+        try:
+            fingerprint = current_file_controller_fingerprint(SettingsService(db))
+        except Exception:
+            logger.warning("Agent dispatch certificate unavailable")
+            fingerprint = ""
+        for field in identity_fields:
+            config[field] = fingerprint
     return build_heartbeat_response(
         agent_id=agent.id,
         timestamp=iso_utc(agent.last_heartbeat),
-        config=agent.config,
-        s3_config=s3_config,
+        config=config,
     )
 
 

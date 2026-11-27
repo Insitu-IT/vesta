@@ -18,6 +18,9 @@ class TableScope:
 SCOPES = {
     name: TableScope("tenant", "org_id", "Immutable persisted organization")
     for name in (
+        "file_schedules",
+        "file_backups",
+        "recovery_publications",
         "operator_requests",
         "operator_dispatches",
         "agent_key_rotations",

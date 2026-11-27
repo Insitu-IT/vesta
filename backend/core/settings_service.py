@@ -22,9 +22,12 @@ from datetime import datetime
 from cryptography.fernet import Fernet, InvalidToken
 from sqlalchemy.orm import Session
 from core.vesta_environment import vesta_encryption_key
-from core.installation_config import read_configuration
+from core.installation_config import RESERVED_RECOVERY_SETTINGS, read_configuration
 
 logger = logging.getLogger(__name__)
+
+RECOVERY_S3_ACCESS_KEY = "storage.s3.recovery_access_key"
+RECOVERY_S3_SECRET_KEY = "storage.s3.recovery_secret_key"
 
 # Encryption key from environment (set via ESO or manually)
 # Generate with: python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
@@ -84,6 +87,8 @@ class SettingsService:
         "storage.s3.secret_key": {
             "env": "S3_SECRET_KEY",
         },
+        "storage.s3.recovery_access_key": {"env": "S3_RECOVERY_ACCESS_KEY"},
+        "storage.s3.recovery_secret_key": {"env": "S3_RECOVERY_SECRET_KEY"},
         "oidc.client_secret": {
             "env": "OIDC_CLIENT_SECRET",
         },
@@ -97,8 +102,8 @@ class SettingsService:
     def validate_update(self, values: dict) -> dict:
         """Validate a complete flat patch before any persistence or encryption.
 
-        Empty/masked credential inputs mean retain. Existing secrets are read only
-        to check an effective enabled OIDC configuration, never returned.
+        Empty and masked credential inputs retain existing values. Existing
+        secrets are used to validate effective configuration.
         """
         if type(values) is not dict:
             raise ValueError("Expected a settings object")
@@ -171,6 +176,11 @@ class SettingsService:
                     normalized[key] = value
             else:
                 raise ValueError("Unknown setting")
+        if {
+            RECOVERY_S3_ACCESS_KEY,
+            RECOVERY_S3_SECRET_KEY,
+        } & normalized.keys() and self._recovery_s3_credentials(normalized) is None:
+            raise ValueError("Configure a distinct S3 recovery credential pair")
         enabled = normalized.get("oidc.enabled", self.get("oidc.enabled"))
         effective = dict(normalized)
         if enabled:
@@ -229,6 +239,9 @@ class SettingsService:
         """
         from models import SettingV3
 
+        if key in RESERVED_RECOVERY_SETTINGS:
+            return None
+
         # 1. Check database (UI-entered values take priority)
         rows = read_configuration(self.db, SettingV3, key)
         setting = rows[0] if rows else None
@@ -252,6 +265,8 @@ class SettingsService:
         """Persist a setting; commit=False flushes into the caller's transaction."""
         from models import SettingV3
 
+        if key in RESERVED_RECOVERY_SETTINGS:
+            raise ValueError("Recovery signing custody is reserved")
         setting = self.db.query(SettingV3).filter(SettingV3.key == key).first()
         value_type = self.DEFINITIONS.get(key, {}).get("type", "string")
 
@@ -292,6 +307,9 @@ class SettingsService:
         2. Environment variable (seeds initial config)
         """
         from models import SecretV3
+
+        if key in RESERVED_RECOVERY_SETTINGS:
+            return None
 
         # 1. Check database (UI-entered values take priority)
         rows = (
@@ -335,6 +353,8 @@ class SettingsService:
         """
         from models import SecretV3
 
+        if key in RESERVED_RECOVERY_SETTINGS:
+            raise ValueError("Recovery signing custody is reserved")
         if not _fernet:
             raise ValueError("VESTA_ENCRYPTION_KEY not set, cannot encrypt secrets")
 
@@ -359,6 +379,8 @@ class SettingsService:
         """Delete a secret from the database (doesn't affect env-based secrets)."""
         from models import SecretV3
 
+        if key in RESERVED_RECOVERY_SETTINGS:
+            raise ValueError("Recovery signing custody is reserved")
         secret = self.db.query(SecretV3).filter(SecretV3.key == key).first()
         if secret:
             self.db.delete(secret)
@@ -425,7 +447,7 @@ class SettingsService:
         return result
 
     def get_s3_config(self) -> Optional[Dict[str, Any]]:
-        """Get S3 configuration for agent heartbeat response.
+        """Get the installation's ordinary S3 storage configuration.
 
         Returns None if storage type is not S3 or not properly configured.
         """
@@ -449,6 +471,39 @@ class SettingsService:
             "access_key": access_key,
             "secret_key": secret_key,
             "delete_local": self.get("storage.s3.delete_local"),
+        }
+
+    def _recovery_s3_credentials(self, patch):
+        def effective(key):
+            return patch[key] if key in patch else self.get_secret(key)
+
+        access = effective(RECOVERY_S3_ACCESS_KEY)
+        secret = effective(RECOVERY_S3_SECRET_KEY)
+        if (
+            not access
+            or not access.strip()
+            or not secret
+            or not secret.strip()
+            or access == effective("storage.s3.access_key")
+            or secret == effective("storage.s3.secret_key")
+        ):
+            return None
+        return access, secret
+
+    def get_s3_recovery_config(self) -> Optional[Dict[str, Any]]:
+        """Resolve the dedicated S3 reader bound to the configured repository."""
+        if self.get("storage.type") != "s3":
+            return None
+        credentials = self._recovery_s3_credentials({})
+        if credentials is None:
+            return None
+        access, secret = credentials
+        return {
+            "endpoint": self.get("storage.s3.endpoint"),
+            "bucket": self.get("storage.s3.bucket"),
+            "region": self.get("storage.s3.region"),
+            "access_key": access,
+            "secret_key": secret,
         }
 
     def get_oidc_config(self) -> Optional[Dict[str, Any]]:

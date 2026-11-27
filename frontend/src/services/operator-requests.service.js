@@ -8,6 +8,7 @@ const ACTIONS = [
     [/^\/api\/v1\/backups\/queue$/, 'queue.create'],
     [/^\/api\/v1\/backups\/bulk-create$/, 'backup.bulk_create'],
     [/^\/api\/v1\/restores$/, 'restore.create'],
+    [/^\/api\/v1\/recovery\/s3\/points\/[0-9a-f-]+\/restore$/, 'restore.create'],
     [/^\/api\/v1\/orchestrator-keys$/, 'credential.orchestrator.create'],
     [/^\/api\/v1\/registration-keys$/, 'credential.registration.create'],
     [/^\/api\/v1\/agents\/[^/]+\/rotate-key$/, 'credential.agent.rotate'],

@@ -81,7 +81,7 @@ def install_asset_names():
         result.append(prefix + "kustomization.yaml")
         result.extend(
             prefix + resource_name(index, item)
-            for index, item in enumerate(render(base_config(), stage)["items"])
+            for index, item in enumerate(render(base_config(), stage, structural=True)["items"])
         )
     return tuple(result)
 
@@ -113,6 +113,12 @@ RUNBOOK_ASSETS = {
     "packaging/okd/runbooks/held-backup-review.md": "runbooks/held-backup-review.md",
     "packaging/okd/runbooks/kubevirt-transfer-performance.md": "runbooks/kubevirt-transfer-performance.md",
     "packaging/okd/runbooks/restore.md": "runbooks/fresh-vm-restore.md",
+    "packaging/okd/runbooks/file-backups.md": "runbooks/file-backups.md",
+    "packaging/okd/runbooks/encryption-custody.md": "runbooks/encryption-custody.md",
+    "packaging/okd/runbooks/bucket-recovery.md": "runbooks/bucket-recovery.md",
+    "packaging/okd/runbooks/installation-key-rotation.md": "runbooks/installation-key-rotation.md",
+    "packaging/rpm/README.files.md": "runbooks/file-agent.md",
+    "agent/cmd/vnbui-restore/README.md": "runbooks/standalone-recovery.md",
     "packaging/okd/runbooks/upgrade-recovery.md": "runbooks/upgrade-recovery.md",
     "packaging/okd/runbooks/installation-checklist.md": "runbooks/installation-checklist.md",
     "packaging/okd/runbooks/postgresql.md": "runbooks/postgresql.md",
@@ -402,7 +408,7 @@ def assemble_release(image_source, destination, source_revision):
             base = base_config()
             base["delivery_profile"] = profile
             for stage in STAGES:
-                for index, item in enumerate(render(base, stage)["items"]):
+                for index, item in enumerate(render(base, stage, structural=True)["items"]):
                     target = install / "kustomize/base" / stage / resource_name(index, item)
                     target.write_text(json.dumps(item, indent=2) + "\n")
     for source, target in EXTERNAL_INSTALL_ASSETS.items():

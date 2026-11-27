@@ -39,6 +39,8 @@ def refreshed_capabilities(previous, reported):
     # advertisement that the current binary no longer sends or understands.
     result = dict(previous or {})
     result.pop(CAPABILITY, None)
+    result.pop("managed_file_sets", None)
+    result.pop("managed_file_storage", None)
     result.pop("kubevirt_native_disk_profiles", None)
     result.pop("kubevirt_restore_profiles", None)
     result.pop("storage_admission_used_percent", None)

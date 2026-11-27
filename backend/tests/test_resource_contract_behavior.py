@@ -136,7 +136,7 @@ def backup_row(db, vm, **kw):
         backup_type="full",
         tags={},
         capacity_state="unreserved",
-        **kw
+        **kw,
     )
     db.add(row)
     db.commit()
@@ -212,28 +212,27 @@ def test_settings_empty_accepted_read_null_but_patch_null_refused(
 def test_resume_handler_actual_worker_transport_fakes(
     schema, db_session, actor, inventory, monkeypatch, mode
 ):
-    from core import backup_recovery as recovery
     import threading
 
-    _, vm = inventory
+    from backend.tests.test_manual_kubevirt_execution import (
+        install_certified_backup_transport,
+    )
+    from core import backup_recovery as recovery
+    from core.backup_executor import BackupExecutor
+
+    agent, vm = inventory
     row = backup_row(db_session, vm)
     if mode != "completed":
         row.status = "running"
     db_session.commit()
     expected = {"status": "accepted", "attempt_id": "original-attempt"}
-    sends = []
-
-    class Provider:
-        async def post(self, url, **kw):
-            sends.append((url, kw))
-            return NS(status_code=423 if mode == "held" else 202, json=lambda: expected)
-
-    executor = NS(
-        agent_tls_enabled=True,
-        agent_verify_ssl=True,
-        _get_agent_headers=lambda: {"X-Agent-Key": "test-only"},
-        _get_agent_url=lambda _: "https://agent.test",
-        http_client=Provider(),
+    executor = BackupExecutor()
+    transport = install_certified_backup_transport(
+        db_session,
+        executor,
+        agent,
+        monkeypatch,
+        NS(status_code=423 if mode == "held" else 202, json=lambda: expected),
     )
     monkeypatch.setattr(
         recovery,
@@ -277,7 +276,15 @@ def test_resume_handler_actual_worker_transport_fakes(
         )
         assert response.status_code == (200 if mode == "completed" else 202)
         assert result["resumed"] == (mode == "accepted")
-    assert len(sends) == (0 if mode == "completed" else 1)
+    if mode == "completed":
+        transport.assert_not_contacted()
+    else:
+        assert transport.assert_sent() == {"frozen": "original"}
+    if mode == "held":
+        assert (
+            exc.value.detail["reason"]
+            == "agent_attempt_not_resumable_unsealed_or_uncertain"
+        )
     assert response.headers["Cache-Control"] == "no-store"
 
 
@@ -487,36 +494,9 @@ def test_verification_cancel_terminal_race_omits_type(
     assert result["verification_type"] == verification.scrub.TYPE and len(notified) == 1
 
 
-def test_s3_discovery_conflicts_and_nullable_manifest_dates_endpoint(
-    schema, db_session, actor, inventory, monkeypatch
-):
-    _, vm = inventory
-    row = backup_row(db_session, vm)
-    row.chain_id = None
-    db_session.commit()
-    manifests = [
-        dict(
-            chain_id="manifest-chain",
-            vm_name="other-vm",
-            backups=[dict(backup_id=row.id, size_bytes=None)],
-        ),
-        dict(chain_id="empty", vm_name="none", backups=[]),
-    ]
-    monkeypatch.setattr(
-        s3_import,
-        "_get_s3_client_and_config",
-        lambda db: (object(), {"bucket": "test-bucket", "endpoint": None}),
-    )
-    monkeypatch.setattr(s3_import, "_download_manifests", lambda *a: manifests)
-    result = run(s3_import.discover_chains(actor, db_session))
-    validate(schema, "/s3/discover", "get", result)
-    conflict = result["chains"][0]
-    assert (
-        conflict["status"] == "conflict"
-        and conflict["oldest_backup"] is None
-        and conflict["newest_backup"] is None
-    )
-    assert (
-        conflict["conflicts"][0]["existing_chain_id"] is None
-        and result["s3_endpoint"] is None
-    )
+def test_retired_s3_family_declares_no_success_responses(schema):
+    result = schema["paths"]["/api/v1/s3/import"]["post"]
+    assert result["deprecated"] is True
+    assert "410" in result["responses"]
+    assert not any(code.startswith("2") for code in result["responses"])
+    assert "200" in schema["paths"]["/api/v1/s3/discover"]["get"]["responses"]

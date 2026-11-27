@@ -3,6 +3,15 @@
 from core.tenant_context import PlatformContext
 from sqlalchemy import select
 
+RECOVERY_SIGNING_SEED = "recovery.ed25519_seed.v1"
+RECOVERY_SIGNER_IDENTITY = "recovery.signing_identity.v1"
+RECOVERY_PUBLICATION_CURSOR = "recovery.publication_cursor.v1"
+RESERVED_RECOVERY_SETTINGS = (
+    RECOVERY_SIGNING_SEED,
+    RECOVERY_SIGNER_IDENTITY,
+    RECOVERY_PUBLICATION_CURSOR,
+)
+
 
 def read_configuration(db, model, key=None):
     """Return plain rows only; never elevate or flush the caller's ORM session.
@@ -15,7 +24,11 @@ def read_configuration(db, model, key=None):
 
     if model not in (SettingV3, SecretV3, SystemSettings):
         raise ValueError("Unsupported installation configuration table")
-    statement = select(model.__table__)
+    # Recovery signing custody has a separate installation-local reader. An
+    # unfiltered list or exact generic lookup must not expose it.
+    statement = select(model.__table__).where(
+        model.__table__.c.key.notin_(RESERVED_RECOVERY_SETTINGS)
+    )
     if key is not None:
         statement = statement.where(model.__table__.c.key == key)
     engine = db.get_bind()

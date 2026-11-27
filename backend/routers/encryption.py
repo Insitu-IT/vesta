@@ -11,19 +11,85 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from fastapi.responses import Response
-from pydantic import BaseModel, Field
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, Response
+from fastapi.routing import APIRoute
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from pydantic import BaseModel, Field, SecretStr
 from sqlalchemy.orm import Session
 
 from database import get_db
 from deps import get_current_user, check_role, log_activity
 from core.kms import get_kms_provider
+from core.kms.export_passphrase import (
+    ExportPassphraseError,
+    MIN_EXPORT_PASSPHRASE_LENGTH,
+    require_export_passphrase,
+)
 from core.kms.local import LocalKMSProvider, StaleKeyRotation
 from core.operator_requests import begin_admission, request_identity
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/v1/encryption", tags=["encryption"])
+_RECOVERY_ACTIONS = {"export_keys", "import_keys", "confirm_export_custody"}
+_RECOVERY_HEADERS = {"Cache-Control": "no-store", "Pragma": "no-cache"}
+
+
+class RecoveryKeyRoute(APIRoute):
+    """Return safe errors and cache headers even when request parsing fails."""
+
+    def get_route_handler(self):
+        handler = super().get_route_handler()
+        if self.name not in _RECOVERY_ACTIONS:
+            return handler
+
+        async def guarded(request):
+            try:
+                response = await handler(request)
+            except RequestValidationError:
+                return JSONResponse(
+                    {
+                        "detail": [
+                            {
+                                "loc": ["body"],
+                                "msg": "Invalid key recovery request",
+                                "type": "value_error",
+                            }
+                        ]
+                    },
+                    status_code=422,
+                    headers=_RECOVERY_HEADERS,
+                )
+            except StarletteHTTPException as error:
+                error.headers = {
+                    **{
+                        name: value
+                        for name, value in (error.headers or {}).items()
+                        if name.casefold() not in {"cache-control", "pragma"}
+                    },
+                    **_RECOVERY_HEADERS,
+                }
+                raise error from None
+            except Exception:
+                logger.error(
+                    "Key recovery request failed", extra={"operation": self.name}
+                )
+                return JSONResponse(
+                    {"detail": "Key recovery request failed"},
+                    status_code=500,
+                    headers=_RECOVERY_HEADERS,
+                )
+            response.headers.update(_RECOVERY_HEADERS)
+            return response
+
+        return guarded
+
+
+router = APIRouter(
+    prefix="/api/v1/encryption",
+    tags=["encryption"],
+    route_class=RecoveryKeyRoute,
+)
 
 
 # ── Request/Response models ──────────────────────────────────────────────
@@ -40,7 +106,13 @@ class RotateKeyRequest(BaseModel):
 
 class ExportKeysRequest(BaseModel):
     key_ids: list[str]
-    password: str = Field(..., min_length=8)
+    password: SecretStr = Field(
+        ...,
+        description=(
+            f"At least {MIN_EXPORT_PASSPHRASE_LENGTH} significant characters after Unicode NFKC. "
+            "Padding and short repeated patterns do not qualify."
+        ),
+    )
 
 
 class ImportKeysRequest(BaseModel):
@@ -234,7 +306,9 @@ async def export_keys(
         )
 
     try:
-        data = await kms.export_keys(req.key_ids, req.password)
+        password = req.password.get_secret_value()
+        require_export_passphrase(password)
+        data = await kms.export_keys(req.key_ids, password)
         log_activity(
             db,
             current_user,
@@ -250,8 +324,10 @@ async def export_keys(
                 "Content-Disposition": f'attachment; filename="vesta-keys-{datetime.utcnow().strftime("%Y%m%d")}.bin"'
             },
         )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ExportPassphraseError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from None
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Key export failed") from None
 
 
 @router.post("/keys/import")
@@ -275,9 +351,16 @@ async def import_keys(
             status_code=400, detail="Password must be at least 8 characters"
         )
 
+    data = await file.read(4 * 1024 * 1024 + 1)
+    if len(data) > 4 * 1024 * 1024:
+        raise HTTPException(413, detail="Key export exceeds 4 MiB")
+
     try:
-        data = await file.read()
-        imported_ids = await kms.import_keys(data, password)
+        trust = None
+        if isinstance(kms, LocalKMSProvider):
+            imported_ids, trust = await kms.import_recovery_export(data, password)
+        else:
+            imported_ids = await kms.import_keys(data, password)
         log_activity(
             db,
             current_user,
@@ -286,9 +369,14 @@ async def import_keys(
             None,
             {"imported_count": len(imported_ids)},
         )
-        return {"imported_key_ids": imported_ids, "count": len(imported_ids)}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        response = {"imported_key_ids": imported_ids, "count": len(imported_ids)}
+        if trust is not None:
+            response["recovery_trust"] = trust
+        return response
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid passphrase or key export file"
+        ) from None
 
 
 @router.post("/keys/confirm-export")
@@ -311,8 +399,10 @@ async def confirm_export_custody(
         raise HTTPException(status_code=413, detail="Key export exceeds 4 MiB")
     try:
         key_ids = await kms.confirm_export_custody(data, password, location)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Could not verify the supplied key export"
+        ) from None
     digest = hashlib.sha256(data).hexdigest()
     log_activity(
         db,
@@ -320,7 +410,7 @@ async def confirm_export_custody(
         "encryption_export_custody_confirmed",
         "encryption_key",
         None,
-        {"key_ids": key_ids, "sha256": digest, "location": location.strip()},
+        {"key_count": len(key_ids), "sha256": digest},
     )
     return {"key_ids": key_ids, "sha256": digest, "location": location.strip()}
 

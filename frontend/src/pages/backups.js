@@ -1,3 +1,4 @@
+import { FileBackupsPanel } from '../components/file-backups.js';
 import { renderOperatorDispatch } from '../utils/operator-dispatch.js';
 import { renderBackupSafety } from '../utils/backup-safety.js';
 import { contextHelp } from '../components/context-help.js';
@@ -18,13 +19,13 @@ const activeStatuses = ['pending', 'running', 'uploading'];
 
 export class BackupsPage {
     constructor() {
+        this.files = new FileBackupsPanel('backups');
         this.backups = [];
         this.loading = false;
         this.filter = 'all'; // all, completed, failed, running
         this.searchQuery = '';
         this.updateSubscription = null;
         this.pollingInterval = null;
-        this.s3Configured = false;
         this._searchTimeout = null;
         this.schedulerDecisionRequests = new Map();
     }
@@ -38,13 +39,6 @@ export class BackupsPage {
         } catch (error) {
             console.error('Failed to load backups:', error);
             this.backups = [];
-        }
-        // Check if S3 is configured (for import button visibility)
-        try {
-            const settings = await apiClient.get('/api/v1/settings/v3');
-            this.s3Configured = (settings.settings || {})['storage.type'] === 's3';
-        } catch (e) {
-            this.s3Configured = false;
         }
         this.loading = false;
         return loaded;
@@ -77,17 +71,6 @@ export class BackupsPage {
                         </div>
                         <div class="col-auto ms-auto d-print-none">
                             <div class="btn-list">
-                                ${this.s3Configured ? `
-                                <button class="btn btn-ghost-primary d-none d-sm-inline-block" onclick="window.vnbui.openS3Import()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" />
-                                        <polyline points="7 9 12 4 17 9" />
-                                        <line x1="12" y1="4" x2="12" y2="16" />
-                                    </svg>
-                                    ${t('s3_import.button')}
-                                </button>
-                                ` : ''}
                                 <button class="btn btn-primary d-none d-sm-inline-block" onclick="window.vnbui.refreshPage()">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -167,16 +150,17 @@ export class BackupsPage {
                         </div>
                         ${this.backups.length === 0 ? this.renderEmptyState() : ''}
                     </div>
+                    <section id="managed-file-backups" hidden></section>
                 </div>
             </div>
 
             ${this.renderRestoreModal()}
             ${this.renderDeleteModal()}
-            ${this.renderS3ImportModal()}
         `;
     }
 
     setupEventListeners() {
+        this.files.mount(document.getElementById('managed-file-backups'));
         const table = document.getElementById('backups-table-body');
         table?.addEventListener('click', (event) => {
             if (event.target.closest?.('button, a, input, select, .backup-error-preview')) return;
@@ -203,6 +187,7 @@ export class BackupsPage {
     async loadSchedulerDecision(id, details) {
         const target = details.querySelector('[data-scheduler-decision]');
         if (!target) return;
+        const recovery = details.querySelector('[data-recovery-publication]');
         target.hidden = false;
         target.textContent = window.t('backups.scheduler_decision_loading');
         try {
@@ -218,10 +203,25 @@ export class BackupsPage {
             } else {
                 target.innerHTML = this.renderSchedulerDecision(backup.scheduler_decision);
             }
+            if (recovery) recovery.innerHTML = this.renderRecoveryPublication(backup.recovery_publication);
+            if (backup.recovery_publication) this.schedulerDecisionRequests.delete(id);
         } catch {
-            this.schedulerDecisionRequests.delete(id); // Re-expansion can retry a failed read.
+            this.schedulerDecisionRequests.delete(id);
             target.textContent = window.t('backups.scheduler_decision_unavailable');
         }
+    }
+
+    renderRecoveryPublication(publication) {
+        const state = publication?.state;
+        if (!['pending', 'retrying', 'ready', 'unavailable'].includes(state)) return '';
+        const t = window.t;
+        const retry = state === 'retrying' && publication.next_attempt_at
+            ? escapeHtml(t('backups.recovery_publication_retry_at', {time: formatDate(publication.next_attempt_at)})) : '';
+        const settings = state === 'retrying'
+            ? `<div>${escapeHtml(t('backups.recovery_publication_help'))}
+                <a href="#settings">${escapeHtml(t('backups.recovery_publication_settings'))}</a></div>` : '';
+        return `<div class="small mt-1"><strong>${escapeHtml(t(`backups.recovery_publication_${state}`))}</strong>
+            ${retry} ${settings}</div>`;
     }
 
     renderSchedulerDecision(decision) {
@@ -277,7 +277,7 @@ export class BackupsPage {
                 </td>
                 <td>
                     <span class="badge backup-status bg-${getStatusColor(backup.status, 'backup')}">
-                        ${escapeHtml(enumLabel(backup.status || 'unknown'))}
+                        ${backup.unverified_legacy_s3 ? 'Unverified legacy S3' : escapeHtml(enumLabel(backup.status || 'unknown'))}
                     </span>
                     <div class="backup-dispatch">${renderOperatorDispatch(backup.operator_dispatch)}</div>
                     ${renderBackupSafety(backup.safety_diagnostic)}
@@ -338,7 +338,7 @@ export class BackupsPage {
                 </td>
                 <td>
                     <div class="btn-list flex-nowrap">
-                        ${backup.status === 'completed' ? `
+                        ${backup.status === 'completed' && !backup.unverified_legacy_s3 ? `
                             <button class="btn btn-sm btn-success" onclick="window.vnbui.restoreBackup('${escapeHtml(backup.id)}', '${escapeHtml(backup.vm_name)}')" title="${t('backups.restore_tooltip')}" data-bs-toggle="tooltip">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -392,6 +392,7 @@ export class BackupsPage {
                     <div class="backup-dispatch-details">${renderOperatorDispatch(backup.operator_dispatch)}</div>
                     ${renderBackupSafety(backup.safety_diagnostic, true)}
                     <div data-scheduler-decision hidden aria-live="polite"></div>
+                    <div data-recovery-publication aria-live="polite"></div>
                 </td>
             </tr>
         `).join('');
@@ -553,177 +554,6 @@ export class BackupsPage {
                 </div>
             </div>
         `;
-    }
-
-    renderS3ImportModal() {
-        const t = window.t;
-        return `
-            <div class="modal modal-blur fade" id="modal-s3-import" tabindex="-1" role="dialog" aria-hidden="true">
-                <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">${t('s3_import.title')}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${t('common.close')}"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="text-secondary mb-3">${t('s3_import.context')}</p>
-                            <div id="s3-import-content">
-                                <div class="text-center py-4">
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                    ${t('s3_import.discovering')}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn" data-bs-dismiss="modal">${t('common.close')}</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    async openS3Import() {
-        const modal = new bootstrap.Modal(document.getElementById('modal-s3-import'));
-        modal.show();
-
-        const container = document.getElementById('s3-import-content');
-        const t = window.t;
-
-        // Show loading
-        container.innerHTML = `
-            <div class="text-center py-4">
-                <span class="spinner-border spinner-border-sm me-2"></span>
-                ${t('s3_import.discovering')}
-            </div>
-        `;
-
-        try {
-            const data = await apiClient.get('/api/v1/s3/discover');
-            const chains = data.chains || [];
-
-            if (chains.length === 0) {
-                container.innerHTML = `
-                    <div class="empty py-4">
-                        <p class="empty-title">${t('s3_import.no_chains')}</p>
-                        <p class="empty-subtitle text-secondary">${t('s3_import.no_chains_hint')}</p>
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = `
-                <div class="table-responsive">
-                    <table class="table table-vcenter table-striped">
-                        <thead>
-                            <tr>
-                                <th>${t('s3_import.col_vm_name')}</th>
-                                <th>${t('s3_import.col_backups')}</th>
-                                <th>${t('s3_import.col_size')}</th>
-                                <th>${t('s3_import.col_date_range')}</th>
-                                <th>${t('s3_import.col_encrypted')}</th>
-                                <th>${t('s3_import.col_status')}</th>
-                                <th>${t('s3_import.col_actions')}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${chains.map(chain => this.renderS3ChainRow(chain)).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        } catch (error) {
-            console.error('S3 discover failed:', error);
-            container.innerHTML = `
-                <div class="alert alert-danger">${t('s3_import.error_discover', { error: error.message })}</div>
-            `;
-        }
-    }
-
-    renderS3ChainRow(chain) {
-        const t = window.t;
-        const statusBadge = this.getS3ImportStatusBadge(chain.status);
-        const dateRange = chain.oldest_backup && chain.newest_backup
-            ? `${new Date(chain.oldest_backup).toLocaleDateString()} — ${new Date(chain.newest_backup).toLocaleDateString()}`
-            : '—';
-
-        let actionHtml = '';
-        if (chain.status === 'available') {
-            actionHtml = `<button class="btn btn-sm btn-primary" onclick="window.vnbui.importS3Chain('${escapeHtml(chain.chain_id)}')" data-chain-id="${escapeHtml(chain.chain_id)}">${t('s3_import.import_button')}</button>`;
-        } else if (chain.status === 'partial') {
-            actionHtml = `<button class="btn btn-sm btn-info" onclick="window.vnbui.importS3Chain('${escapeHtml(chain.chain_id)}')" data-chain-id="${escapeHtml(chain.chain_id)}">${t('s3_import.resume_button')}</button>`;
-        } else if (chain.status === 'kek_missing') {
-            actionHtml = `<span class="text-secondary small" title="${t('s3_import.kek_hint')}" data-bs-toggle="tooltip">${t('s3_import.kek_hint')}</span>`;
-        }
-
-        const conflictRows = chain.status === 'conflict' && chain.conflicts?.length
-            ? `<tr class="bg-danger-lt"><td colspan="7" class="small text-danger ps-4">
-                ${chain.conflicts.map(c => t('s3_import.conflict_detail', { backup_id: c.backup_id.substring(0, 8) })).join('<br>')}
-               </td></tr>`
-            : '';
-
-        return `
-            <tr data-chain-id="${escapeHtml(chain.chain_id)}">
-                <td><strong>${escapeHtml(chain.vm_name)}</strong></td>
-                <td>${chain.status === 'partial' ? `${chain.imported_count}/${chain.backup_count}` : chain.backup_count}</td>
-                <td>${formatSize(chain.total_size_bytes)}</td>
-                <td class="text-secondary small">${dateRange}</td>
-                <td>${chain.encrypted
-                    ? `<span class="badge bg-yellow-lt">${chain.kek_available ? t('common.yes') : 'KEK ✗'}</span>`
-                    : `<span class="text-secondary">—</span>`}</td>
-                <td>${statusBadge}</td>
-                <td>${actionHtml}</td>
-            </tr>
-            ${conflictRows}
-        `;
-    }
-
-    getS3ImportStatusBadge(status) {
-        const t = window.t;
-        const badges = {
-            'available': `<span class="badge bg-success-lt">${t('s3_import.status_available')}</span>`,
-            'imported': `<span class="badge bg-secondary">${t('s3_import.status_imported')}</span>`,
-            'partial': `<span class="badge bg-info-lt">${t('s3_import.status_partial')}</span>`,
-            'conflict': `<span class="badge bg-danger-lt">${t('s3_import.status_conflict')}</span>`,
-            'kek_missing': `<span class="badge bg-warning-lt">${t('s3_import.status_kek_missing')}</span>`,
-        };
-        return badges[status] || `<span class="badge bg-secondary">${escapeHtml(enumLabel(status))}</span>`;
-    }
-
-    async importS3Chain(chainId) {
-        const t = window.t;
-        const btn = document.querySelector(`button[data-chain-id="${chainId}"]`);
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
-        }
-
-        try {
-            const result = await apiClient.post('/api/v1/s3/import', { chain_id: chainId });
-            window.vnbui.showToast('success', t('s3_import.success', {
-                count: result.imported_count,
-                vm_name: result.vm_name
-            }));
-
-            // Update the row status
-            const row = document.querySelector(`tr[data-chain-id="${chainId}"]`);
-            if (row) {
-                const statusCell = row.querySelector('td:nth-child(6)');
-                const actionCell = row.querySelector('td:nth-child(7)');
-                if (statusCell) statusCell.innerHTML = this.getS3ImportStatusBadge('imported');
-                if (actionCell) actionCell.innerHTML = '';
-            }
-
-            // Refresh backup list behind the modal
-            this.loadData();
-        } catch (error) {
-            console.error('S3 import failed:', error);
-            window.vnbui.showToast('error', t('s3_import.error_import', { error: error.message }));
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = t('s3_import.import_button');
-            }
-        }
     }
 
     getFilteredBackups() {
@@ -979,6 +809,7 @@ export class BackupsPage {
      * Cleanup when leaving page
      */
     destroy() {
+        this.files.destroy();
         this.updateGeneration = (this.updateGeneration || 0) + 1;
         this.resyncSubscription?.();
         this.resyncSubscription = null;

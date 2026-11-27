@@ -359,23 +359,9 @@ class TestHeartbeatResponseContract:
         )
         assert HEARTBEAT_RESPONSE_FIELDS == set(d.keys())
 
-    def test_heartbeat_response_with_s3(self):
-        d = build_heartbeat_response(
-            agent_id="agent-001",
-            timestamp="2026-03-08T12:00:00Z",
-            config={"backup_path": "/var/lib/vnbui"},
-            s3_config={
-                "endpoint": "https://minio:9000",
-                "bucket": "backups",
-                "region": "us-east-1",
-                "access_key": "key",
-                "secret_key": "secret",
-                "prefix": "backups",
-                "delete_local_after_upload": False,
-            },
-        )
-        assert HEARTBEAT_RESPONSE_FIELDS.issubset(set(d.keys()))
-        assert d["s3_config"]["bucket"] == "backups"
+    def test_heartbeat_retains_nullable_s3_compatibility_field(self):
+        heartbeat = build_heartbeat_response("agent-001", "2026-03-08T12:00:00Z", {})
+        assert heartbeat["s3_config"] is None
 
     def test_heartbeat_response_null_config(self):
         """Backend passes agent.config which can be None."""

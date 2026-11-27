@@ -8,6 +8,7 @@ previously absent-head case. Runtime grants are SELECT only on both tables.
 from copy import deepcopy
 import re
 
+from core.legacy_recovery import legacy_s3_unverified
 from core.s3_ownership import StorageOwnershipError
 from core.storage_semantics import UUID, IDENTITY
 from core.storage_wire import TransactionRequest
@@ -164,7 +165,11 @@ def select_parent(db, backup, vm, plan):
             .with_for_update()
             .one_or_none()
         )
-        if ancestor_backup is None or ancestor_backup.status != "completed":
+        if (
+            ancestor_backup is None
+            or ancestor_backup.status != "completed"
+            or legacy_s3_unverified(ancestor_backup)
+        ):
             refuse()
         try:
             request = TransactionRequest.model_validate(

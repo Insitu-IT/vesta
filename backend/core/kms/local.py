@@ -22,6 +22,7 @@ from cryptography.hazmat.primitives import hashes
 
 from core.vesta_environment import vesta_encryption_key
 from core.kms.base import KMSProvider, KeyMetadata
+from core.kms.export_passphrase import require_export_passphrase
 from database import SessionLocal
 
 logger = logging.getLogger(__name__)
@@ -317,8 +318,7 @@ class LocalKMSProvider(KMSProvider):
     async def export_keys(self, key_ids: List[str], password: str) -> bytes:
         from models import EncryptionKey
 
-        if not password or len(password) < 8:
-            raise ValueError("Export password must be at least 8 characters")
+        require_export_passphrase(password)
 
         db = self._session()
         try:
@@ -351,12 +351,21 @@ class LocalKMSProvider(KMSProvider):
                     }
                 )
 
+            from core.recovery_signing import recovery_trust
+
+            organizations = {row.org_id for row in rows}
+            if len(organizations) != 1:
+                raise ValueError("Recovery export requires one organization")
+            trust = recovery_trust(
+                db, organizations.pop(), factory=SessionLocal, create=True
+            )
             payload = json.dumps(
                 {
                     "version": 1,
                     "format": "vnbui-key-export",
                     "exported_at": datetime.utcnow().isoformat(),
                     "keys": keys_data,
+                    "recovery_trust": trust,
                 }
             ).encode()
 
@@ -458,9 +467,8 @@ class LocalKMSProvider(KMSProvider):
         finally:
             db.close()
 
-    async def import_keys(self, data: bytes, password: str) -> List[str]:
-        from models import EncryptionKey
-
+    @staticmethod
+    def _read_key_export(data: bytes, password: str) -> dict:
         if len(data) < 17:
             raise ValueError("Invalid export data")
 
@@ -473,11 +481,35 @@ class LocalKMSProvider(KMSProvider):
         try:
             payload = f.decrypt(encrypted)
         except InvalidToken:
-            raise ValueError("Invalid password or corrupted export file")
+            raise ValueError("Invalid password or corrupted export file") from None
 
-        export_data = json.loads(payload.decode())
-        if export_data.get("format") != "vnbui-key-export":
+        try:
+            export_data = json.loads(payload.decode())
+        except (UnicodeError, ValueError):
+            raise ValueError("Invalid export format") from None
+        if (
+            not isinstance(export_data, dict)
+            or export_data.get("format") != "vnbui-key-export"
+        ):
             raise ValueError("Invalid export format")
+
+        return export_data
+
+    async def import_keys(self, data: bytes, password: str) -> List[str]:
+        return self._import_key_rows(self._read_key_export(data, password))
+
+    async def import_recovery_export(self, data: bytes, password: str):
+        from core.recovery_signing import validate_recovery_trust, RecoveryUnavailable
+
+        export = self._read_key_export(data, password)
+        try:
+            trust = validate_recovery_trust(export.get("recovery_trust"))
+        except RecoveryUnavailable:
+            trust = None
+        return self._import_key_rows(export), trust
+
+    def _import_key_rows(self, export_data):
+        from models import EncryptionKey
 
         imported_ids = []
         db = self._session()
@@ -487,7 +519,7 @@ class LocalKMSProvider(KMSProvider):
                 computed_hash = hashlib.sha256(raw_material).hexdigest()[:16]
 
                 if computed_hash != key_entry["key_hash"]:
-                    logger.warning(f"Hash mismatch for key {key_entry['id']}, skipping")
+                    logger.warning("Hash mismatch for a key in the import archive")
                     continue
 
                 # Skip duplicates
@@ -497,9 +529,7 @@ class LocalKMSProvider(KMSProvider):
                     .first()
                 )
                 if existing:
-                    logger.info(
-                        f"Key {key_entry['id']} already exists (hash={key_entry['key_hash']}), skipping"
-                    )
+                    logger.info("A key in the import archive already exists")
                     imported_ids.append(existing.id)
                     continue
 

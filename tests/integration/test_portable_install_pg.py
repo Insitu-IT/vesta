@@ -8,7 +8,7 @@ from sqlalchemy import inspect, text
 from core.portable_install import (
     install_empty,
     grant_restored,
-    transition_operation_safety,
+    transition_managed_files,
 )
 from core.tenant_database import assert_non_bypass_role
 from tests.integration.test_schema_parity_pg import database
@@ -26,44 +26,38 @@ def test_fresh_portable_install_and_nonowner_runtime():
         organizations = connection.execute(
             text("SELECT id,name FROM organizations ORDER BY id")
         ).all()
-        options = dict(runtime_role=role, expected_database=url.database)
-        for rollback, revision, prior in (
-            (True, "operator_requests", "operator_requests"),
-            (False, "backup_admission_pause", "operator_requests"),
-            (True, "verification_budget", "verification_budget"),
-            (False, "backup_admission_pause", "verification_budget"),
-            (True, "storage_upload_progress", "storage_upload_progress"),
-            (False, "backup_admission_pause", "storage_upload_progress"),
-            (True, "backup_verification", "backup_verification"),
-            (False, "backup_admission_pause", "backup_verification"),
+        installation_id = connection.scalar(
+            text("SELECT installation_id FROM storage_configuration_clock WHERE slot=1")
+        )
+        options = dict(
+            runtime_role=role,
+            expected_database=url.database,
+            installation_id=installation_id,
+        )
+        with pytest.raises(RuntimeError, match="observed database installation UUID"):
+            transition_managed_files(connection, **{**options, "installation_id": None})
+        for rollback, revision in (
+            (True, "backup_admission_pause"),
+            (False, "managed_file_backups"),
         ):
-            changed = transition_operation_safety(
-                connection,
-                **options,
-                rollback=rollback,
-                rollback_revision=prior,
-            )
+            changed = transition_managed_files(connection, **options, rollback=rollback)
             assert changed["revision"] == revision
-            columns = {c["name"] for c in inspect(connection).get_columns("backups")}
-            assert ("storage_progress" in columns) is (
-                revision != "backup_verification"
-            )
-            columns = {
-                c["name"]
-                for c in inspect(connection).get_columns("backup_verifications")
-            }
-            assert ("verification_admission_budget" in columns) is (
-                revision not in {"backup_verification", "storage_upload_progress"}
-            )
+            tables = set(inspect(connection).get_table_names())
+            assert ("file_backups" in tables) is not rollback
+            assert ("file_schedules" in tables) is not rollback
             assert (
                 connection.execute(
                     text("SELECT id,name FROM organizations ORDER BY id")
                 ).all()
                 == organizations
             )
-            with pytest.raises(RuntimeError, match="transition source"):
-                transition_operation_safety(
-                    connection, **options, rollback=rollback, rollback_revision=prior
+            if rollback:
+                with pytest.raises(RuntimeError, match="transition source"):
+                    transition_managed_files(connection, **options, rollback=True)
+            else:
+                assert (
+                    transition_managed_files(connection, **options)["revision"]
+                    == revision
                 )
         endpoint = next(
             column

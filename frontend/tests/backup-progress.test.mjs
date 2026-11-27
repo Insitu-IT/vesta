@@ -33,7 +33,7 @@ async function harness() {
     const subscriptions = new Map();
     await module.link(specifier => {
         const imports = [...source.matchAll(/import\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)['"]/g)].find(m => m[2] === specifier);
-        const values = {apiClient, renderBackupSafety: safetyModule.namespace.renderBackupSafety, renderOperatorDispatch: dispatchModule.namespace.renderOperatorDispatch, loadSnapshot: snapshotModule.namespace.loadSnapshot, updateService: {connectionMode: 'websocket', subscribeResync: callback => {subscriptions.set('resync', callback); return () => {};}, subscribe: (type, callback) => {subscriptions.set(type, callback); return () => {};}},
+        const values = {apiClient, FileBackupsPanel: class { mount() {} destroy() {} }, renderBackupSafety: safetyModule.namespace.renderBackupSafety, renderOperatorDispatch: dispatchModule.namespace.renderOperatorDispatch, loadSnapshot: snapshotModule.namespace.loadSnapshot, updateService: {connectionMode: 'websocket', subscribeResync: callback => {subscriptions.set('resync', callback); return () => {};}, subscribe: (type, callback) => {subscriptions.set(type, callback); return () => {};}},
             enumLabel: value => value, escapeHtml: value => String(value ?? ''), formatSize: value => `${value} B`,
             formatDate: () => '', formatRelativeTime: () => '', stripAnsi: value => value,
             getStatusColor: () => 'info', contextHelp: () => '', assetResolver: {}};
@@ -67,6 +67,26 @@ test('cleanup required rows retain the specific safety predicate and explicit ze
     assert.match(html, /native_volume_count_mismatch/);
     assert.match(html, /backups.safety_guidance/);
     assert.match(html, /<code>0<\/code>/);
+});
+
+test('backup details refresh signed recovery publication and guide a retry to storage settings', async () => {
+    const {page, apiClient} = await harness();
+    const target = {}, recovery = {};
+    const details = {querySelector: name => name === '[data-scheduler-decision]' ? target : recovery};
+    let reply;
+    apiClient.get = async () => ({id: 'vm', scheduler_decision: null, recovery_publication: reply});
+
+    await page.loadSchedulerDecision('vm', details);
+    assert.equal(recovery.innerHTML, '');
+    page.schedulerDecisionRequests.clear();
+    reply = {state: 'retrying', attempts: 2, next_attempt_at: '2026-11-27T20:15:00Z'};
+    await page.loadSchedulerDecision('vm', details);
+    assert.match(recovery.innerHTML, /backups.recovery_publication_retry_at/);
+    assert.match(recovery.innerHTML, /href="#settings"/);
+    reply = {state: 'ready', attempts: 3, next_attempt_at: null};
+    await page.loadSchedulerDecision('vm', details);
+    assert.match(recovery.innerHTML, /backups.recovery_publication_ready/);
+    assert.doesNotMatch(recovery.innerHTML, /href="#settings"/);
 });
 
 test('connected sockets still reconcile all active states and update the visible status', async () => {

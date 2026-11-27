@@ -42,6 +42,23 @@ def occurrence_key(db, schedule, scheduled_at):
     )
 
 
+def due_schedule_minute(cron_expression, next_run_at, now):
+    if next_run_at is not None:
+        due = (
+            next_run_at.replace(tzinfo=timezone.utc)
+            if next_run_at.tzinfo is None
+            else next_run_at
+        )
+        if due > now:
+            return None
+    instant = croniter(cron_expression, now + timedelta(microseconds=1)).get_prev(
+        datetime
+    )
+    if now - instant > timedelta(minutes=5):
+        raise ScopeRefused("scheduled_window_missed")
+    return instant
+
+
 def create_due_occurrence(factory, schedule_id, org_id, *, now=None):
     """Create the latest due minute once; no unbounded missed-run catch-up."""
     now = now or datetime.now(timezone.utc)
@@ -57,20 +74,11 @@ def create_due_occurrence(factory, schedule_id, org_id, *, now=None):
                 or schedule.retired_at is not None
             ):
                 return None
-            if schedule.next_run_at is not None:
-                due = (
-                    schedule.next_run_at.replace(tzinfo=timezone.utc)
-                    if schedule.next_run_at.tzinfo is None
-                    else schedule.next_run_at
-                )
-                if due > now:
-                    return None
-            instant = croniter(
-                schedule.cron_expression, now + timedelta(microseconds=1)
-            ).get_prev(datetime)
-            # A late callback must not manufacture an arbitrarily old occurrence.
-            if now - instant > timedelta(minutes=5):
-                raise ScopeRefused("scheduled_window_missed")
+            instant = due_schedule_minute(
+                schedule.cron_expression, schedule.next_run_at, now
+            )
+            if instant is None:
+                return None
             key = occurrence_key(db, schedule, instant)
         custody = create_occurrence(factory, key)
         with factory() as db:

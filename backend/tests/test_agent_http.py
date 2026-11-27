@@ -100,12 +100,16 @@ def test_cancellation_does_not_leave_a_transport_on_the_closed_loop(agent_server
     assert asyncio.run(transport.get(url)).text == "ok"
 
 
-def test_both_global_executors_use_loop_neutral_transport():
+def test_restore_uses_only_loop_neutral_enrolled_transport(monkeypatch):
     from core.backup_executor import backup_executor
-    from core.restore_executor import restore_executor
+    from core.file_agent_http import FileAgentHTTP
+    from core.restore_executor import RestoreExecutor
 
     assert isinstance(backup_executor.http_client, AgentHTTP)
-    assert isinstance(restore_executor.http_client, AgentHTTP)
+    monkeypatch.setenv("ORCHESTRATOR_CLIENT_CERT", "/private/client.crt")
+    monkeypatch.setenv("ORCHESTRATOR_CLIENT_KEY", "/private/client.key")
+    monkeypatch.setenv("AGENT_CA_CERT", "/private/ca.crt")
+    assert isinstance(RestoreExecutor().http_client, FileAgentHTTP)
 
 
 @pytest.mark.parametrize("executor_name", ["backup", "restore"])
@@ -151,18 +155,29 @@ def test_executors_verify_site_server_ca_separately_from_client_ca(
     executor = factory()
     transport = executor.http_client
     assert executor.agent_tls_enabled
-    assert transport._configuration["verify"] == server_ca
     try:
-        assert asyncio.run(transport.get(url)).text == "ok"
-        # Reproduces the manual lab override: enrolled client CA cannot verify
-        # the independently site-issued agent serving certificate.
-        wrong_trust = AgentHTTP(verify=client_ca, cert=client_pair[:2], timeout=2)
-        with pytest.raises(httpx.ConnectError, match="CERTIFICATE_VERIFY_FAILED"):
-            asyncio.run(wrong_trust.get(url))
-        # A trusted issuer alone must not bypass the advertised-name check.
-        with pytest.raises(httpx.ConnectError, match="CERTIFICATE_VERIFY_FAILED"):
-            asyncio.run(transport.get(url.replace("127.0.0.1", "localhost")))
-        assert asyncio.run(transport.get(url)).text == "ok"
+        if executor_name == "restore":
+            from core.file_agent_http import AgentPeer, FileAgentHTTP
+
+            peer = AgentPeer(
+                "127.0.0.1", server.server_port, "127.0.0.1", server_pair[2]
+            )
+            assert (
+                transport.ca == server_ca and transport.certificate == client_pair[:2]
+            )
+            assert asyncio.run(transport.get(peer, "/health", headers={})).text == "ok"
+            wrong = FileAgentHTTP(ca=client_ca, certificate=client_pair[:2])
+            with pytest.raises(httpx.TransportError):
+                asyncio.run(wrong.get(peer, "/health", headers={}))
+        else:
+            assert transport._configuration["verify"] == server_ca
+            assert asyncio.run(transport.get(url)).text == "ok"
+            wrong_trust = AgentHTTP(verify=client_ca, cert=client_pair[:2], timeout=2)
+            with pytest.raises(httpx.ConnectError, match="CERTIFICATE_VERIFY_FAILED"):
+                asyncio.run(wrong_trust.get(url))
+            with pytest.raises(httpx.ConnectError, match="CERTIFICATE_VERIFY_FAILED"):
+                asyncio.run(transport.get(url.replace("127.0.0.1", "localhost")))
+            assert asyncio.run(transport.get(url)).text == "ok"
     finally:
         server.shutdown()
         server.server_close()

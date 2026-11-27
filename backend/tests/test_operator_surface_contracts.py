@@ -932,6 +932,9 @@ def test_dashboard_summary_null_rate_and_detached_job(doc):
         Backup=backup_model,
         Agent=Row,
         BackupQueue=Row,
+        FileSchedule=Row,
+        Organization=Row,
+        timezone=timezone,
         func=Row(count=lambda *a: None, sum=lambda *a: None),
         or_=lambda *a: None,
     )

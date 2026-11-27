@@ -119,6 +119,11 @@ def trigger_functions():
         "vnbui_scheduler_authority",
         "vnbui_guard_restore_cleanup_review",
         "vnbui_verification_guard",
+        "vnbui_file_custody",
+        "vnbui_unverified_legacy_s3",
+        "vnbui_recovery_publication_custody",
+        "vnbui_recovery_signer_marker",
+        "vnbui_guard_s3_recovery_restore",
     } | {"vnbui_scope_" + table for table in references}
 
 

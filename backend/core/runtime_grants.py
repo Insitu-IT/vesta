@@ -35,6 +35,9 @@ def table_privileges(table):
     }:
         return {"SELECT"}
     if table in {
+        "file_schedules",
+        "file_backups",
+        "recovery_publications",
         "operator_requests",
         "operator_dispatches",
         "agent_key_rotations",
@@ -83,6 +86,9 @@ def apply_current_runtime_grants(connection, role):
         qualified = "public." + quote(table)
         connection.execute(text(f"REVOKE ALL ON TABLE {qualified} FROM {target}"))
         if table in {
+            "file_schedules",
+            "file_backups",
+            "recovery_publications",
             "operator_requests",
             "operator_dispatches",
             "agent_key_rotations",

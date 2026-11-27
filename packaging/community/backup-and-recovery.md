@@ -2,7 +2,7 @@
 
 Vesta runs beside your virtualization platform. The console or CLI asks the API for a backup. The agent reads the VM disks and sends the selected data to your S3-compatible bucket. The disk data travels directly from the agent to storage. The API records which objects, disk identities, keys and parent backup belong together in PostgreSQL.
 
-[![Backup data flows from VM disks through an agent to S3. A recovery workstation can read S3 using a saved chain catalog and keys even when the control plane is down.](media/backup-path.png)](media/backup-path.png)
+[![Backup data flows from VM disks through an agent to S3. A recovery workstation can read S3 using its recovery trust and separately held keys even when the control plane is down.](media/backup-path.png)](media/backup-path.png)
 
 ## What gets copied
 
@@ -25,7 +25,13 @@ For a database with its own backup protocol, take its supported backup or coordi
 
 With client-side encryption enabled, each backup attempt gets a cryptographically random 256-bit data encryption key. The agent encrypts payload chunks with AES-256-GCM before upload. The site wraps the data key with a local key-encryption key and keeps the wrapped material in the catalog. The installation secret protects the local key material stored in PostgreSQL. The password on a recovery export protects that export with a salted PBKDF2-HMAC-SHA-256 derived key. Rotating keys means keeping earlier keys for retained chains.
 
-Keep the database, installation secret, recovery export and its password under separate recovery custody. For independent disk recovery also save a trusted chain bundle and the per-backup data keys it needs, with restricted access. A bucket containing encrypted VM objects alone is insufficient. [Set up S3 and keys](../okd/runbooks/first-configuration.md) · [Security and reporting](../../SECURITY.md)
+To recover after losing the console and its database, point a fresh installation or `vesta-restore` at S3 and choose a signed recovery point. For encrypted VMs, save the recovery-key export outside the bucket and keep its passphrase separately. The export includes the installation’s public recovery trust. Refresh the export when you add or rotate keys. For unencrypted VM backups, save the public trust file on its own. [Recover directly from S3](../okd/runbooks/bucket-recovery.md)
+
+Keep a database backup and its corresponding installation key to recover the original control plane. The bucket contains readable details such as VM names, disk sizes and recovery times. [What an S3 reader can see](../okd/runbooks/encryption-custody.md) · [Set up S3 and keys](../okd/runbooks/first-configuration.md)
+
+## Linux file backups
+
+An enrolled host can protect named directories alongside VM jobs. Each successful run creates an independent encrypted archive in S3. Files use a public recovery recipient selected on the host. The private identity can stay offline. [Protect and recover files](../okd/runbooks/file-backups.md)
 
 ## Choose the recovery you need
 
@@ -33,8 +39,8 @@ Keep the database, installation secret, recovery export and its password under s
 | --- | --- |
 | Bring a KubeVirt VM back | Restore into new PVCs and a fresh VM in an allowed namespace. Review the disks and NICs before booting the halted VM. A disk omitted from the backup stays omitted from the restored definition. |
 | Bring a native VM back | Use the compatible native host recovery workflow with fresh disk paths and a new domain identity. Review networking before the first boot. |
-| Get raw disks while the Vesta API or hypervisor is unavailable | Use the standalone release binary `vesta-restore` on a trusted workstation with your saved chain bundle, S3 read access and the required keys. Native chains also use the native image tools listed in the restore manual. |
+| Get raw disks while the Vesta API or hypervisor is unavailable | Use the standalone release binary `vesta-restore` on a trusted workstation with S3 read access and your recovery trust and keys. [Choose a point directly from S3](../okd/runbooks/bucket-recovery.md). Native chains also use the native image tools listed in the restore manual. |
 | Retrieve one file | Recover the disk or boot a fresh VM in isolation, then copy the file from the restored filesystem. The current product has no indexed file browser or backup-time guest file catalog. |
 | Move between clusters or hypervisor families | Treat a different cluster as a separate target that needs capacity, compatible volumes, credentials and network mapping. Raw-disk recovery provides an input for manual migration. Automated libvirt-to-OpenShift conversion and generic cross-cluster failover are outside the qualified restore paths. |
 
-When the control plane is down, scheduling, new backup coordination and catalog export need it back. A workstation with the saved recovery material can still reconstruct disks directly from S3. A license renewal is never a prerequisite for reading a recovery point. [Fresh VM and offline disk restore](../okd/runbooks/restore.md) · [Recover during an incident](recovery-incidents.md)
+When the control plane is down, scheduling, new backup coordination and catalog export need it back. A workstation with the recovery trust and keys can find a point directly in S3 and reconstruct its disks. A license renewal is never a prerequisite for reading a recovery point. [Fresh VM and offline disk restore](../okd/runbooks/restore.md) · [Recover during an incident](recovery-incidents.md)

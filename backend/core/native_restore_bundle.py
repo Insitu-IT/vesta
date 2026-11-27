@@ -3,6 +3,7 @@
 from copy import deepcopy
 from types import SimpleNamespace
 
+from core.legacy_recovery import legacy_s3_unverified
 from core.native_manifest import validate_receipt_binding
 from core.s3_ownership import StorageOwnershipError
 from core.storage_receipt_v2 import validate
@@ -65,6 +66,7 @@ def build_native_bundle(db, backup_id, org_id):
         )
         if (
             backup is None
+            or legacy_s3_unverified(backup)
             or claim is None
             or publication is None
             or not backup.native_inventory

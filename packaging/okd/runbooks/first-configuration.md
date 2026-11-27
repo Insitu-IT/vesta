@@ -43,3 +43,5 @@ Run `./vesta status` and open **Agents**. Check the expected host and its most r
 ## 7 Enable schedules and retention
 
 Once you have verified a recovery, create a schedule for the workloads you intend to protect. Select retention for the recovery points you need. Review the first scheduled backup and its eligibility for verification. [Daily operations](operations.md)
+
+For a recovery copy of VM keys, save the export and its passphrase in separate places. [What the bucket contains and which keys to keep](encryption-custody.md)

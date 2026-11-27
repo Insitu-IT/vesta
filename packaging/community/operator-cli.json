@@ -1,0 +1,7 @@
+{
+  "schema": "vesta-community-operator-cli/1",
+  "product_version": "6.2.0",
+  "cli_version": "v0.3.0",
+  "cli_commit": "81af6c2411b3a0bd4d55d94129fabc1059727e63",
+  "api_version": "6.2.0"
+}

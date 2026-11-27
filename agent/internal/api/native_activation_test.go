@@ -39,14 +39,15 @@ func TestNativeIntentRequiresAuthenticatedHTTPSAndExactACK(t *testing.T) {
 	body, _ := json.Marshal(envelope)
 	for _, mode := range []string{"accepted", "http", "no-key", "auth-disabled", "tampered"} {
 		t.Run(mode, func(t *testing.T) {
-			cfg := &config.Config{EnableAPIKeyValidation: mode != "auth-disabled", OrchestratorAPIKey: "expected"}
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: mode != "auth-disabled", OrchestratorAPIKey: "expected"})
 			executor := &nativeAPIExecutor{}
-			server := NewServer(cfg, "test", WithBackupExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+			server := NewServer(cfg, "test", WithBackupExecutor(executor), WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			input := body
 			if mode == "tampered" {
 				input = bytes.Replace(body, []byte("/vm/disk"), []byte("/vm/other"), 1)
 			}
 			request := httptest.NewRequest(http.MethodPost, "https://agent/api/backups", bytes.NewReader(input))
+			certifyTestController(request)
 			request.Header.Set("X-Orchestrator-Key", "expected")
 			if mode == "http" {
 				request.TLS = nil

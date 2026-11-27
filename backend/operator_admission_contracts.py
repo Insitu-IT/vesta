@@ -16,11 +16,15 @@ from operator_contracts import (
     STRINGS,
 )
 
+S3_RESTORE_PATH = "/api/v1/recovery/s3/points/{backup_id}/restore"
+S3_RESTORE_RECEIPT = {"$ref": "#/components/schemas/QueuedRecoveryResponse"}
+
 ACTIONS = {
     ("/api/v1/backups/{backup_id}/close-unreserved", "post"): "backup.close_unreserved",
     ("/api/v1/backups", "post"): "backup.create",
     ("/api/v1/backups/queue", "post"): "queue.create",
     ("/api/v1/restores", "post"): "restore.create",
+    (S3_RESTORE_PATH, "post"): "restore.create",
     ("/api/v1/backups/bulk-create", "post"): "backup.bulk_create",
     ("/api/v1/orchestrator-keys", "post"): "credential.orchestrator.create",
     ("/api/v1/registration-keys", "post"): "credential.registration.create",
@@ -64,7 +68,7 @@ def credential_variants(metadata, secrets):
     }, replay
 
 
-def catalog():
+def catalog(*, includes_s3_recovery=False):
     """Closed receipt fields with explicitly extensible provider metadata."""
     from operator_restore_contracts import restore_shapes
 
@@ -243,6 +247,8 @@ def catalog():
         rotation_receipt,
         key,
     ]
+    if includes_s3_recovery:
+        receipts.append(S3_RESTORE_RECEIPT)
     queue_state = obj(
         {
             "id": STRING,
@@ -361,7 +367,9 @@ def error_schema():
 
 def apply_admission_contracts(document):
     paths = document.get("paths", {})
-    responses, queue_state, lookup, capabilities = catalog()
+    responses, queue_state, lookup, capabilities = catalog(
+        includes_s3_recovery=S3_RESTORE_PATH in paths
+    )
     components = document.setdefault("components", {}).setdefault("schemas", {})
     components["OperatorAdmissionError"] = error_schema()
     for (path, method), action in ACTIONS.items():
@@ -369,6 +377,11 @@ def apply_admission_contracts(document):
         if operation is None:
             continue
         operation["x-operator-action"] = action
+        if path == S3_RESTORE_PATH:
+            operation["x-required-roles"] = ["admin"]
+            operation["x-additional-authorization"] = (
+                "Installation administration and an independently trusted source are required."
+            )
         operation["x-admission-contract"] = {
             "version": 1,
             "identity_header": "Idempotency-Key",
@@ -418,7 +431,15 @@ def apply_admission_contracts(document):
                 "Durable admission receipt; pending/queued is not proof of external "
                 "execution or success. A replay returns the original nonsecret receipt."
             ),
-            "content": {"application/json": {"schema": deepcopy(responses[action])}},
+            "content": {
+                "application/json": {
+                    "schema": deepcopy(
+                        S3_RESTORE_RECEIPT
+                        if path == S3_RESTORE_PATH
+                        else responses[action]
+                    )
+                }
+            },
             "headers": {
                 "Idempotency-Key": {"schema": UUID},
                 "Idempotency-Replayed": {

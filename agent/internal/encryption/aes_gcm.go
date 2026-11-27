@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -26,7 +27,7 @@ const (
 // EncryptFile encrypts a file using AES-256-GCM in the VNBU format.
 // Format: VNBU (4b) + version (1b) + chunks
 // Each chunk: uint32 big-endian length + 12b nonce + ciphertext + 16b GCM tag
-func EncryptFile(inputPath, outputPath string, key []byte) error {
+func EncryptFile(inputPath, outputPath string, key []byte) (result error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return fmt.Errorf("create cipher: %w", err)
@@ -43,11 +44,16 @@ func EncryptFile(inputPath, outputPath string, key []byte) error {
 	}
 	defer in.Close()
 
-	out, err := os.Create(outputPath)
+	out, err := os.OpenFile(outputPath, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
 		return fmt.Errorf("create output: %w", err)
 	}
-	defer out.Close()
+	defer func() {
+		result = errors.Join(result, out.Close())
+		if result != nil {
+			result = errors.Join(result, os.Remove(outputPath))
+		}
+	}()
 
 	// Write header
 	header := []byte(Magic)
@@ -59,11 +65,11 @@ func EncryptFile(inputPath, outputPath string, key []byte) error {
 	buf := make([]byte, ChunkSize)
 	for {
 		n, err := io.ReadFull(in, buf)
-		if n == 0 {
-			if err == io.EOF {
-				break
-			}
+		if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
 			return fmt.Errorf("read: %w", err)
+		}
+		if n == 0 {
+			break
 		}
 
 		plaintext := buf[:n]
@@ -97,10 +103,12 @@ func EncryptFile(inputPath, outputPath string, key []byte) error {
 		}
 	}
 
-	return nil
+	return out.Sync()
 }
 
-// DecryptFile decrypts a VNBU-format encrypted file.
+// DecryptFile decrypts legacy VNBU frames. Frame authentication does not verify
+// whole-file length or ordering. Receipt-bearing restore consumers must use
+// storagerestore's complete object verification before publishing output.
 func DecryptFile(inputPath, outputPath string, key []byte) error {
 	block, err := aes.NewCipher(key)
 	if err != nil {

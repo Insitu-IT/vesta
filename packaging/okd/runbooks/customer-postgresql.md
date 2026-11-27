@@ -87,7 +87,7 @@ wipe or recreate a populated database to satisfy fresh-install checks.
 
 For a separate read-only check, render the intended schema Job to a private JSON
 file and replace its operation argument (`--fresh`, `--restored`,
-`--upgrade-operation-safety` or `--rollback-operation-safety`) with
+`--upgrade-managed-files` or `--rollback-managed-files`) with
 `--check-prerequisites`; give the copied Job a distinct name. Keep its original
 image, owner Secret, database/runtime-role arguments and trust mount, inspect and
 server-dry-run it, then run it before the intended schema Job. This mode explicitly sets the transaction READ ONLY before its SELECT checks,

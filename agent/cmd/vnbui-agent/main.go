@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"flag"
 	"fmt"
@@ -23,6 +25,7 @@ import (
 	"vnbui/agent/internal/api"
 	"vnbui/agent/internal/backup"
 	"vnbui/agent/internal/config"
+	"vnbui/agent/internal/filebackup"
 	"vnbui/agent/internal/heartbeat"
 	"vnbui/agent/internal/keystore"
 	"vnbui/agent/internal/metrics"
@@ -81,7 +84,7 @@ func selectExecutors(cfg *config.Config, resMgr *resources.Manager, vmProvider p
 		if newKubevirtRestoreExecutor != nil {
 			restoreExec = newKubevirtRestoreExecutor(cfg, resMgr, dynClient, cfg.KubeNamespace)
 		} else {
-			restoreExec = restore.NewExecutor(cfg, resMgr)
+			return nil, nil, nil, fmt.Errorf("kubevirt restore executor not available")
 		}
 		if newKubevirtReconciler != nil {
 			reconcileFunc = newKubevirtReconciler(dynClient, cfg.KubeNamespace)
@@ -93,9 +96,7 @@ func selectExecutors(cfg *config.Config, resMgr *resources.Manager, vmProvider p
 		restoreExec = restore.NewExecutor(cfg, resMgr)
 		reconcileFunc = reconcile.NewLibvirtReconciler(vmProvider)
 	default:
-		backupExec = backup.NewExecutor(cfg, resMgr)
-		restoreExec = restore.NewExecutor(cfg, resMgr)
-		reconcileFunc = reconcile.NewLibvirtReconciler(vmProvider)
+		return nil, nil, nil, fmt.Errorf("unsupported VM backup capability %q", vmProvider.Capabilities().BackupMethod)
 	}
 	return backupExec, restoreExec, reconcileFunc, nil
 }
@@ -135,6 +136,9 @@ func orchestratorHTTPClient(callbackTLS *tls.Config) *http.Client {
 	// The instrumentation is pass-through when tracing is disabled.
 	return &http.Client{
 		Timeout: 30 * time.Second,
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 		Transport: otelhttp.NewTransport(&http.Transport{
 			TLSClientConfig: callbackTLS,
 		}),
@@ -185,6 +189,12 @@ func main() {
 		cfg.Provider = *providerFlag
 	}
 
+	filesEnabled, err := configureWorkloads(cfg)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	// Setup structured logging
 	level := slog.LevelInfo
 	switch strings.ToUpper(cfg.LogLevel) {
@@ -228,6 +238,8 @@ func main() {
 	// Initialize VM provider
 	var vmProvider provider.VMProvider
 	switch cfg.Provider {
+	case "none":
+		slog.Info("running Linux file backups without a VM provider")
 	case "libvirt":
 		if newLibvirtProvider != nil {
 			slog.Info("using libvirt VM provider", "uri", cfg.LibvirtURI)
@@ -256,17 +268,20 @@ func main() {
 		slog.Info("using mock VM provider")
 		vmProvider = mock.New()
 	default:
-		slog.Info("using mock VM provider (default)")
-		vmProvider = mock.New()
+		slog.Error("unsupported VM provider", "provider", cfg.Provider)
+		os.Exit(1)
 	}
 
-	if err := vmProvider.Connect(); err != nil {
+	vmProvider, err = connectVMProvider(vmProvider, filesEnabled)
+	if err != nil {
 		slog.Error("failed to connect to VM provider", "error", err)
 		os.Exit(1)
 	}
-	defer vmProvider.Disconnect()
+	if vmProvider != nil {
+		defer vmProvider.Disconnect()
+	}
 
-	tlsMgr := tlspkg.New("")
+	tlsMgr := tlspkg.New(cfg.TLSJournalDir)
 
 	// --- Credential loading ---
 	// Priority: env vars > keystore > fresh registration
@@ -294,7 +309,6 @@ func main() {
 	// requests must use the certificate returned by that registration. Existing
 	// agents never take this branch, even if a registration key remains set.
 	var callbackTLS *tls.Config
-	var err error
 	if registered {
 		callbackTLS, err = cfg.OutboundTLSConfig()
 	} else {
@@ -353,8 +367,10 @@ func main() {
 	}
 
 	// --- VM sync (non-fatal) ---
-	if err := heartbeat.SyncVMs(cfg, vmProvider, httpClient); err != nil {
-		slog.Warn("initial VM sync failed", "error", err)
+	if vmProvider != nil {
+		if err := heartbeat.SyncVMs(cfg, vmProvider, httpClient); err != nil {
+			slog.Warn("initial VM sync failed", "error", err)
+		}
 	}
 
 	// Resource manager for concurrency control
@@ -363,10 +379,15 @@ func main() {
 	defer stop()
 
 	// Select the provider executors before reporting their activation.
-	backupExec, restoreExec, reconcileFunc, err := selectExecutors(cfg, resMgr, vmProvider)
-	if err != nil {
-		slog.Error("provider executor selection failed", "error", err)
-		os.Exit(1)
+	var backupExec backup.ExecutorIface
+	var restoreExec restore.ExecutorIface
+	var reconcileFunc reconcile.ReconcileFunc
+	if vmProvider != nil {
+		backupExec, restoreExec, reconcileFunc, err = selectExecutors(cfg, resMgr, vmProvider)
+		if err != nil {
+			slog.Error("provider executor selection failed", "error", err)
+			os.Exit(1)
+		}
 	}
 	transactions, transactional := backupExec.(interface {
 		StartStorageTransactions(context.Context) error
@@ -399,35 +420,49 @@ func main() {
 	// Matches Python: reconcile_backup_jobs() called before heartbeat.start()
 	hbService := heartbeat.New(cfg, httpClient, version)
 	hbService.SetDiskAdmissionThreshold(resMgr.DiskAdmissionThreshold)
-	hbService.SetCallbacks(
-		backupExec.ActiveCount,
-		restoreExec.ActiveCount,
-		vmProvider.IsConnected,
-	)
-	if !transactional {
-		hbService.SetS3ConfigCallback(backupExec.SetS3Config)
-	}
+	var files *filebackup.Runner
+	vmAvailable := func() bool { return vmProvider != nil && vmProvider.IsConnected() }
+	hbService.SetCallbacks(func() int {
+		active := 0
+		if backupExec != nil {
+			active = backupExec.ActiveCount()
+		}
+		if files != nil {
+			active += files.ActiveCount()
+		}
+		return active
+	}, func() int {
+		if restoreExec != nil {
+			return restoreExec.ActiveCount()
+		}
+		return 0
+	}, vmAvailable)
 
-	// Wire backup/restore completion events → heartbeat (triggers immediate delivery)
-	eventCb := func(event map[string]interface{}) {
-		hbService.QueueEvent(event)
-		hbService.SendImmediate()
+	// Wire VM completion events to heartbeat.
+	if backupExec != nil {
+		if !transactional {
+			hbService.SetS3ConfigCallback(backupExec.SetS3Config)
+		}
+		eventCb := func(event map[string]interface{}) {
+			hbService.QueueEvent(event)
+			hbService.SendImmediate()
+		}
+		backupExec.SetEventCallback(eventCb)
+		if observations, ok := backupExec.(interface {
+			NativeHoldEvents() []map[string]interface{}
+		}); ok {
+			hbService.SetBackupObservations(observations.NativeHoldEvents)
+		}
+		if observations, ok := backupExec.(interface {
+			StorageObservationEvents() []map[string]interface{}
+		}); ok {
+			hbService.SetBackupObservations(observations.StorageObservationEvents)
+		}
+		restoreExec.SetEventCallback(eventCb)
 	}
-	backupExec.SetEventCallback(eventCb)
-	if observations, ok := backupExec.(interface {
-		NativeHoldEvents() []map[string]interface{}
-	}); ok {
-		hbService.SetBackupObservations(observations.NativeHoldEvents)
-	}
-	if observations, ok := backupExec.(interface {
-		StorageObservationEvents() []map[string]interface{}
-	}); ok {
-		hbService.SetBackupObservations(observations.StorageObservationEvents)
-	}
-	restoreExec.SetEventCallback(eventCb)
 
 	resMgr.SetStoragePath(cfg.StorageMeasurementPath())
-	if !transactional {
+	if reconcileFunc != nil && !transactional {
 		reconcileResult, err := reconcileFunc(cfg, httpClient, resMgr)
 		if err != nil {
 			slog.Warn("reconciliation failed", "error", err)
@@ -456,8 +491,32 @@ func main() {
 		serverOpts = append(serverOpts, api.WithTLSConfig(serverTLS))
 		slog.Info("HTTPS server mode enabled", "verify_client", cfg.TLSVerifyClient)
 	}
+	if filesEnabled {
+		if serverTLS == nil || serverTLS.ClientAuth != tls.RequireAndVerifyClientCert || cfg.OrchestratorAPIKey == "" ||
+			callbackTLS.GetClientCertificate == nil && len(callbackTLS.Certificates) == 0 {
+			slog.Error("managed file backups require incoming and outgoing mTLS and the orchestrator API key")
+			os.Exit(1)
+		}
+		files, err = filebackup.Open(ctx, cfg.FileBackupConfig, cfg.FileBackupState, cfg.AgentID)
+		if err != nil {
+			slog.Error("managed file backup activation failed", "error", err)
+			os.Exit(1)
+		}
+		defer files.Close()
+		cfg.ManagedFileSets = files.Names()
+		endpoint, region, bucket, prefix, recipients := files.StorageScope()
+		cfg.ManagedFileStorage = map[string]interface{}{
+			"endpoint": endpoint, "region": region,
+			"bucket": bucket, "prefix": prefix, "recipient_sha256": recipients,
+		}
+		activation["managed_file_backups"] = "available"
+		serverOpts = append(serverOpts, api.WithFileBackupExecutor(files))
+		if cfg.Provider == "libvirt" {
+			serverOpts = append(serverOpts, api.WithVMAvailability(vmAvailable))
+		}
+	}
 	activation["verification"] = "unavailable"
-	if serverTLS != nil && cfg.EnableAPIKeyValidation && cfg.OrchestratorAPIKey != "" && cfg.VerificationTimeoutSeconds > 0 && cfg.VerificationTimeoutSeconds <= 604800 {
+	if vmProvider != nil && serverTLS != nil && cfg.EnableAPIKeyValidation && cfg.OrchestratorAPIKey != "" && cfg.VerificationTimeoutSeconds > 0 && cfg.VerificationTimeoutSeconds <= 604800 {
 		caFile := cfg.NativeRestoreCAFile
 		if cfg.Provider == "kubevirt" {
 			caFile = cfg.KubevirtRestoreCAFile
@@ -484,24 +543,26 @@ func main() {
 	srv := api.NewServer(cfg, version, serverOpts...)
 
 	// Wire VM lifecycle events → heartbeat
-	vmSyncRequests := make(chan struct{}, 1)
-	hbService.SetScopeAppliedCallback(func() { heartbeat.RequestVMSync(vmSyncRequests) })
-	go heartbeat.RunVMSyncLoop(ctx, vmSyncRequests, cfg, vmProvider, httpClient)
-	if err := vmProvider.SubscribeEvents(func(evt provider.VMEvent) {
+	if vmProvider != nil {
+		vmSyncRequests := make(chan struct{}, 1)
+		hbService.SetScopeAppliedCallback(func() { heartbeat.RequestVMSync(vmSyncRequests) })
+		go heartbeat.RunVMSyncLoop(ctx, vmSyncRequests, cfg, vmProvider, httpClient)
+		if err := vmProvider.SubscribeEvents(func(evt provider.VMEvent) {
+			heartbeat.RequestVMSync(vmSyncRequests)
+			hbService.QueueEvent(map[string]interface{}{
+				"type":      string(evt.Type),
+				"vm_name":   evt.VMName,
+				"detail":    evt.Detail,
+				"timestamp": time.Now().UTC().Format(time.RFC3339),
+			})
+			hbService.SendImmediate()
+		}); err != nil {
+			slog.Warn("failed to subscribe to VM events", "error", err)
+		}
+		// Cover changes between the startup snapshot and lifecycle subscription.
+		// Periodic reconciliation also repairs a failed delivery without a new event.
 		heartbeat.RequestVMSync(vmSyncRequests)
-		hbService.QueueEvent(map[string]interface{}{
-			"type":      string(evt.Type),
-			"vm_name":   evt.VMName,
-			"detail":    evt.Detail,
-			"timestamp": time.Now().UTC().Format(time.RFC3339),
-		})
-		hbService.SendImmediate()
-	}); err != nil {
-		slog.Warn("failed to subscribe to VM events", "error", err)
 	}
-	// Cover changes between the startup snapshot and lifecycle subscription.
-	// Periodic reconciliation also repairs a failed delivery without a new event.
-	heartbeat.RequestVMSync(vmSyncRequests)
 
 	// --- Start heartbeat loop (after reconciliation) ---
 	if cfg.HeartbeatEnabled {
@@ -532,6 +593,47 @@ func main() {
 	}
 
 	slog.Info("agent stopped")
+}
+
+func connectVMProvider(p provider.VMProvider, filesEnabled bool) (provider.VMProvider, error) {
+	if p == nil {
+		return nil, nil
+	}
+	if err := p.Connect(); err != nil {
+		if !filesEnabled {
+			return nil, err
+		}
+		p.Disconnect()
+		slog.Warn("VM workload unavailable. Restart vesta-agent after libvirt recovers", "error", err)
+		return nil, nil
+	}
+	return p, nil
+}
+
+func configureWorkloads(cfg *config.Config) (bool, error) {
+	switch cfg.Workloads {
+	case "vm":
+		if cfg.Provider == "none" {
+			return false, errors.New("the VM workload requires a VM provider")
+		}
+		return false, nil
+	case "files":
+		cfg.Provider = "none"
+	case "vm,files", "files,vm":
+		if cfg.Provider != "libvirt" {
+			return false, errors.New("mixed workloads require the local libvirt provider")
+		}
+	default:
+		return false, errors.New("VESTA_WORKLOADS must be vm, files, or vm,files")
+	}
+	if !cfg.TLSEnabled || !cfg.TLSVerifyClient || !cfg.EnableAPIKeyValidation ||
+		!cfg.HeartbeatEnabled || !strings.HasPrefix(cfg.OrchestratorURL, "https://") {
+		return false, errors.New("managed file backups require verified HTTPS, inbound mTLS, API-key validation and heartbeat")
+	}
+	if cfg.FileBackupState == "" {
+		cfg.FileBackupState = filepath.Join(filepath.Dir(cfg.KeyFilePath), "file-backups")
+	}
+	return true, nil
 }
 
 func probeReady(cfg *config.Config) error {
@@ -599,7 +701,7 @@ func enrollClientCert(cfg *config.Config) error {
 		Timeout:   30 * time.Second,
 		Transport: &http.Transport{TLSClientConfig: callbackTLS},
 	}
-	return heartbeat.EnrollClientCertificate(cfg, client, tlspkg.New(""))
+	return heartbeat.EnrollClientCertificate(cfg, client, tlspkg.New(cfg.TLSJournalDir))
 }
 
 // agentServerTLSConfig accepts either site-mounted certificates or the
@@ -609,13 +711,62 @@ func agentServerTLSConfig(cfg *config.Config, manager *tlspkg.Manager) (*tls.Con
 	if !cfg.TLSEnabled {
 		return nil, nil
 	}
-	if cfg.TLSCertFile != "" || cfg.TLSKeyFile != "" {
-		return tlspkg.ServerTLSConfigFromFiles(
-			cfg.TLSCertFile, cfg.TLSKeyFile, cfg.TLSClientCAFile, cfg.TLSVerifyClient,
-		)
+	if strings.Contains(cfg.Workloads, "files") {
+		// The controller authenticates the serving leaf against the enrollment
+		// used for this host's callbacks. Renewal must move both together.
+		certPath, keyPath := cfg.CallbackClientCertFile, cfg.CallbackClientKeyFile
+		if certPath == "" && keyPath == "" {
+			certPath, keyPath = manager.CertPath(), manager.KeyPath()
+		}
+		if cfg.TLSCertFile != "" || cfg.TLSKeyFile != "" {
+			enrolled, err := tls.LoadX509KeyPair(certPath, keyPath)
+			if err != nil {
+				return nil, fmt.Errorf("load enrolled file-agent serving identity: %w", err)
+			}
+			selected, err := tls.LoadX509KeyPair(cfg.TLSCertFile, cfg.TLSKeyFile)
+			if err != nil || !bytes.Equal(selected.Certificate[0], enrolled.Certificate[0]) {
+				return nil, errors.New("managed files require the enrolled client certificate as the HTTPS serving identity")
+			}
+		}
+		caPath := cfg.TLSClientCAFile
+		if caPath == "" {
+			caPath = manager.CAPath()
+		}
+		return tlspkg.ReloadingServerTLSConfigFromFiles(certPath, keyPath, caPath, true)
 	}
-	if !manager.HasCerts() {
-		return nil, fmt.Errorf("HTTPS enabled but no agent certificate/key pair is available")
+	certPath, keyPath := cfg.TLSCertFile, cfg.TLSKeyFile
+	if certPath == "" && keyPath == "" {
+		if !manager.HasCerts() {
+			return nil, fmt.Errorf("HTTPS enabled but no agent certificate/key pair is available")
+		}
+		certPath, keyPath = manager.CertPath(), manager.KeyPath()
 	}
-	return manager.ServerTLSConfig(cfg.TLSVerifyClient)
+	caPath := cfg.TLSClientCAFile
+	if caPath == "" && manager.HasCA() {
+		caPath = manager.CAPath()
+	}
+	server, err := tlspkg.ReloadingServerTLSConfigFromFiles(certPath, keyPath, caPath, cfg.TLSVerifyClient || caPath != "")
+	if err != nil {
+		return nil, err
+	}
+	if !cfg.TLSVerifyClient {
+		// Health probes need no client certificate. Controller routes still
+		// require one verified against the enrolled CA and the heartbeat pin.
+		server.ClientAuth = tls.VerifyClientCertIfGiven
+		if caPath == "" {
+			server.ClientCAs = x509.NewCertPool()
+			server.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
+				if !manager.HasCA() {
+					return nil, nil
+				}
+				enrolled, err := tlspkg.ReloadingServerTLSConfigFromFiles(certPath, keyPath, manager.CAPath(), true)
+				if err != nil {
+					return nil, err
+				}
+				enrolled.ClientAuth = tls.VerifyClientCertIfGiven
+				return enrolled, nil
+			}
+		}
+	}
+	return server, nil
 }

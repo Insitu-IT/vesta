@@ -299,6 +299,7 @@ def validate(c):
             "source_namespaces",
             "selected_namespaces",
             "agent_id",
+            "agent_serving_trust_config_map",
             "agent_display_name",
             "appearance",
             "max_concurrent_backups",
@@ -316,11 +317,22 @@ def validate(c):
             "operation_budget",
             "source_health_probes",
             "rollback_schema_revision",
+            "upgrade_installation_id",
             "agent_key_rotation_ttl_hours",
             "delivery_profile",
         }
     ):
         raise ValueError("Use exactly the fields in config.example.json")
+    serving_trust = c.get("agent_serving_trust_config_map")
+    if serving_trust is not None and (
+        not isinstance(serving_trust, str)
+        or len(serving_trust) > 253
+        or any(
+            not re.fullmatch(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", label)
+            for label in serving_trust.split(".")
+        )
+    ):
+        raise ValueError("agent_serving_trust_config_map requires an existing ConfigMap name")
     profile = selected_delivery_profile(c)
     if bundled_delivery_profile() is not None:
         c["delivery_profile"] = profile
@@ -331,12 +343,22 @@ def validate(c):
         )
     operation_budget(c)
     source_health_probes(c)
-    rollback_revision = c.get("rollback_schema_revision", "verification_budget")
+    upgrade_installation_id = c.get("upgrade_installation_id")
+    if upgrade_installation_id is not None and (
+        not isinstance(upgrade_installation_id, str)
+        or upgrade_installation_id == "00000000-0000-0000-0000-000000000000"
+        or not re.fullmatch(
+            r"[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}", upgrade_installation_id
+        )
+    ):
+        raise ValueError("upgrade_installation_id must match the observed installation UUID")
+    rollback_revision = c.get("rollback_schema_revision", "backup_admission_pause")
     if type(rollback_revision) is not str or rollback_revision not in {
         "backup_verification",
         "storage_upload_progress",
         "verification_budget",
         "operator_requests",
+        "backup_admission_pause",
     }:
         raise ValueError(
             "rollback_schema_revision must match a reviewed predecessor schema"
@@ -791,7 +813,7 @@ http {
     )
 
 
-def render(c, stage):
+def render(c, stage, *, structural=False):
     validate(c)
     ns, items = c["namespace"], []
     make = partial(obj, part_of=resource_prefix(c))
@@ -800,11 +822,8 @@ def render(c, stage):
         operation, job_name = {
             "migrate": ("--fresh", "fresh-schema"),
             "restore-grants": ("--restored", "restore-grants"),
-            "upgrade": ("--upgrade-operation-safety", "upgrade-operation-safety"),
-            "rollback-schema": (
-                "--rollback-operation-safety",
-                "rollback-operation-safety",
-            ),
+            "upgrade": ("--upgrade-managed-files", "upgrade-managed-files"),
+            "rollback-schema": ("--rollback-managed-files", "rollback-managed-files"),
         }[stage]
         item = container(c, "migration")
         item["command"] = [
@@ -817,11 +836,13 @@ def render(c, stage):
             "--runtime-role",
             c["runtime_role"],
         ]
-        if stage == "rollback-schema":
-            item["command"] += [
-                "--rollback-revision",
-                c.get("rollback_schema_revision", "verification_budget"),
-            ]
+        if stage == "rollback-schema" and c.get("rollback_schema_revision", "backup_admission_pause") != "backup_admission_pause":
+            raise ValueError("Managed file rollback supports backup_admission_pause only")
+        if stage in {"upgrade", "rollback-schema"}:
+            installation = c.get("upgrade_installation_id")
+            if installation is None and not structural:
+                raise ValueError("An observed upgrade_installation_id is required")
+            item["command"] += ["--installation-id", installation or "observed-uuid-required"]
         item["env"] = [
             secret_env(c, "DATABASE_URL", "database_owner"),
             env("PYTHONDONTWRITEBYTECODE", "1"),
@@ -897,6 +918,12 @@ def render(c, stage):
                 mount("client-ca", "/client-ca"),
                 mount("client-tls", "/client-tls"),
             ]
+        serving_trust = c.get("agent_serving_trust_config_map")
+        if serving_trust:
+            item["env"].append(env(
+                "VESTA_AGENT_SERVING_TRUST_FILE", "/agent-serving-trust/agent-serving-trust.json"
+            ))
+            item["volumeMounts"].append(mount("agent-serving-trust", "/agent-serving-trust"))
         item["env"] += [
             env("OPERATION_" + key.upper(), str(value))
             for key, value in operation_budget(c).items()
@@ -929,6 +956,16 @@ def render(c, stage):
                 secret_volume(c, "tls", "backend_tls"),
                 secret_volume(c, "trust", "trust"),
                 secret_volume(c, "admin", "admin"),
+                *(
+                    [{
+                        "name": "agent-serving-trust",
+                        "configMap": {
+                            "name": serving_trust,
+                            "defaultMode": 0o444,
+                            "items": [{"key": "agent-serving-trust.json", "path": "agent-serving-trust.json"}],
+                        },
+                    }] if serving_trust else []
+                ),
                 *(
                     [
                         mtls_volume(c, "client-ca", "backend_client_ca"),
@@ -1359,7 +1396,7 @@ def resource_name(index, item):
 
 def write_base_stage(stage, destination):
     """Regenerate one checked-in base stage from the canonical renderer."""
-    items = render(base_config(), stage)["items"]
+    items = render(base_config(), stage, structural=True)["items"]
     if destination.exists():
         raise ValueError(f"Destination already exists: {destination}")
     destination.mkdir(parents=True)
@@ -1400,7 +1437,7 @@ def write_kustomize(c, stage, destination):
     """Write a self-contained site overlay over the checked-in product base."""
     site_items = render(c, stage)["items"]
     base = base_config()
-    base_items = render(base, stage)["items"]
+    base_items = render(base, stage, structural=True)["items"]
     if destination.exists():
         raise ValueError(f"Destination already exists: {destination}")
     if len(site_items) < len(base_items):

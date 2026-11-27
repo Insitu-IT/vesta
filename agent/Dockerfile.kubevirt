@@ -9,7 +9,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -tags kubevirt \
     -ldflags="-s -w -X main.version=$(cat VERSION)" \
     -o /runtime/vesta-agent ./cmd/vnbui-agent
-RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w" \
+RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w -X main.version=$(cat VERSION)" \
     -o /runtime/vesta-restore ./cmd/vnbui-restore
 RUN ln -s /vesta-agent /runtime/vnbui-agent && \
     ln -s /vesta-restore /runtime/vnbui-restore

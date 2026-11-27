@@ -12,14 +12,15 @@ const KubeVirtSelectedDiskRestore = "kubevirt-selected-disks/1"
 // destination. Credentials travel only over authenticated TLS and private
 // journal/Secret custody, never in API progress or the public restore bundle.
 type KubeVirtRestoreRequest struct {
-	Schema    string                `json:"schema"`
-	OrgID     string                `json:"org_id"`
-	AgentID   string                `json:"agent_id"`
-	RestoreID string                `json:"restore_id"`
-	Target    KubeVirtRestoreTarget `json:"target"`
-	Bundle    json.RawMessage       `json:"bundle"`
-	S3        KubeVirtRestoreS3     `json:"s3"`
-	Keys      map[string]string     `json:"keys"`
+	Schema         string                `json:"schema"`
+	OrgID          string                `json:"org_id"`
+	AgentID        string                `json:"agent_id"`
+	RecoveryOrigin *RestoreOrigin        `json:"recovery_origin,omitempty"`
+	RestoreID      string                `json:"restore_id"`
+	Target         KubeVirtRestoreTarget `json:"target"`
+	Bundle         json.RawMessage       `json:"bundle"`
+	S3             KubeVirtRestoreS3     `json:"s3"`
+	Keys           map[string]string     `json:"keys"`
 }
 
 type KubeVirtRestoreS3 struct {

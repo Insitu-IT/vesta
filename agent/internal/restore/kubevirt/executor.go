@@ -430,7 +430,7 @@ func (e *Executor) capturedVM(ctx context.Context, state *restoreState) error {
 		return errHeld
 	}
 	cfg := state.Request.S3
-	open, close, err := restoreinput.S3SourceConfig(restoreinput.S3Configuration{Endpoint: cfg.Endpoint, Bucket: cfg.Bucket, Region: cfg.Region, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey, SessionToken: cfg.SessionToken, CAPEM: state.CAPEM})
+	open, close, err := restoreinput.S3RestoreSourceConfig(restoreinput.S3Configuration{Endpoint: cfg.Endpoint, Bucket: cfg.Bucket, Region: cfg.Region, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey, SessionToken: cfg.SessionToken, CAPEM: state.CAPEM}, state.Request.RecoveryOrigin)
 	if err != nil {
 		return errHeld
 	}

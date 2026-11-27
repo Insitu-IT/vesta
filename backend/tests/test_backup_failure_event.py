@@ -241,17 +241,81 @@ async def test_send_backup_command_surfaces_agent_http_error(monkeypatch):
     import httpx
     from core.backup_executor import backup_executor
 
-    req = httpx.Request("POST", "http://agent.example.test:8090/api/backups")
+    req = httpx.Request("POST", "https://agent.example.test:8090/api/backups")
     resp = httpx.Response(403, text="Invalid orchestrator key", request=req)
 
     async def fake_post(*args, **kwargs):
         return resp
 
     monkeypatch.setattr(backup_executor.http_client, "post", fake_post)
+    monkeypatch.setattr(backup_executor, "agent_tls_enabled", True)
+    monkeypatch.setattr(backup_executor, "agent_verify_ssl", True)
 
     result, detail = await backup_executor._send_backup_command(
-        "http://agent.example.test:8090", {"backup_id": "probe"}
+        "https://agent.example.test:8090", {"backup_id": "probe"}
     )
     assert result is None
     assert "403" in detail
     assert "Invalid orchestrator key" in detail
+
+
+@pytest.mark.asyncio
+async def test_unsupported_vm_provider_cannot_dispatch_legacy_secret(monkeypatch):
+    from core import backup_executor as module
+
+    backup = SimpleNamespace(
+        vm_id="fixture-vm", authority_kind="human", status="pending"
+    )
+    vm = SimpleNamespace(provider="unsupported", inventory_present=True)
+
+    class Session:
+        def query(self, model):
+            assert model in {module.Backup, module.VM}
+            self.record = backup if model is module.Backup else vm
+            return self
+
+        def filter(self, _condition):
+            return self
+
+        def first(self):
+            return self.record
+
+        def close(self):
+            pass
+
+    async def refuse_any_send(*_args, **_kwargs):
+        pytest.fail("unsupported provider sent a backup request")
+
+    monkeypatch.setenv("ENABLE_ENCRYPTION", "true")
+    monkeypatch.setenv("ENCRYPTION_KEY", "synthetic-ordinary-data")
+    monkeypatch.setattr(module, "SessionLocal", Session)
+    monkeypatch.setattr(module.backup_executor.http_client, "post", refuse_any_send)
+
+    result = await module.backup_executor._execute_backup_scoped("fixture")
+    assert result == {"status": "held", "reason": "unsupported_backup_provider"}
+    assert backup.status == "pending"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "url,verify",
+    [
+        ("http://agent.example.test:8090", True),
+        ("https://agent.example.test:8090", False),
+    ],
+)
+async def test_low_level_backup_send_holds_keys_without_verified_https(
+    monkeypatch, url, verify
+):
+    from core.backup_executor import backup_executor
+
+    async def refuse_any_send(*_args, **_kwargs):
+        pytest.fail("unverified transport received a backup request")
+
+    monkeypatch.setattr(backup_executor.http_client, "post", refuse_any_send)
+    monkeypatch.setattr(backup_executor, "agent_tls_enabled", True)
+    monkeypatch.setattr(backup_executor, "agent_verify_ssl", verify)
+    result, detail = await backup_executor._send_backup_command(
+        url, {"backup_id": "fixture", "encryption_key": "synthetic-ordinary-data"}
+    )
+    assert result is None and "Verified agent HTTPS" in detail

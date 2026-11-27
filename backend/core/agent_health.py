@@ -56,7 +56,7 @@ def assess_agent_health(
         )
         reasons.append(HEALTH_REASON_LOAD_HIGH)
 
-    if not heartbeat_data.get(
+    if heartbeat_data.get("provider") != "none" and not heartbeat_data.get(
         "provider_accessible", heartbeat_data.get("libvirt_accessible", True)
     ):
         issues.append(

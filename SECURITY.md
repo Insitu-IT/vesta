@@ -18,3 +18,7 @@ Open [Vesta’s Security tab on GitHub](https://github.com/Insitu-IT/vesta/secur
 If the button is unavailable, select **Private follow-up** in [GitHub Issues](https://github.com/Insitu-IT/vesta/issues/new/choose) and ask a maintainer to arrange a confidential channel. Give only your GitHub handle and the request for private contact. Wait for that channel before sharing affected systems, technical details or attachments.
 
 In the private report, include the Vesta version, the affected component or provider, the behavior you observed, and its impact. Use synthetic data in examples and remove credentials, keys, VM contents and identifying information from logs. Maintainers will follow up privately and coordinate disclosure with you.
+
+## Backup encryption and recovery material
+
+The [encryption guide](packaging/okd/runbooks/encryption-custody.md) describes the data visible in S3, the keys held outside the bucket, and how to protect active restore journals.

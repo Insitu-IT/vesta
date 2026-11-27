@@ -1721,21 +1721,9 @@ SOURCE_ERRORS = {
                     "required": ["detail"],
                     "type": "object",
                 },
-                "sources": [
-                    "backend/routers/s3_import.py:286 -> backend/deps.py:check_role"
-                ],
+                "sources": ["backend/deps.py:get_admin_user"],
                 "status": "403",
-            },
-            {
-                "schema": {
-                    "additionalProperties": False,
-                    "properties": {"detail": {"type": "string"}},
-                    "required": ["detail"],
-                    "type": "object",
-                },
-                "sources": ["backend/routers/s3_import.py:81"],
-                "status": "404",
-            },
+            }
         ],
         "handler": "discover_chains",
         "source": "backend/routers/s3_import.py",
@@ -5144,47 +5132,9 @@ SOURCE_ERRORS = {
                     "required": ["detail"],
                     "type": "object",
                 },
-                "sources": [
-                    "backend/routers/s3_import.py:309 -> backend/deps.py:check_role"
-                ],
+                "sources": ["backend/deps.py:get_admin_user"],
                 "status": "403",
-            },
-            {
-                "schema": {
-                    "additionalProperties": False,
-                    "properties": {"detail": {"type": "string"}},
-                    "required": ["detail"],
-                    "type": "object",
-                },
-                "sources": [
-                    "backend/routers/s3_import.py:81",
-                    "backend/routers/s3_import.py:334",
-                ],
-                "status": "404",
-            },
-            {
-                "schema": {
-                    "additionalProperties": False,
-                    "properties": {"detail": {"type": "string"}},
-                    "required": ["detail"],
-                    "type": "object",
-                },
-                "sources": [
-                    "backend/routers/s3_import.py:394",
-                    "backend/routers/s3_import.py:405",
-                ],
-                "status": "409",
-            },
-            {
-                "schema": {
-                    "additionalProperties": False,
-                    "properties": {"detail": {"type": "string"}},
-                    "required": ["detail"],
-                    "type": "object",
-                },
-                "sources": ["backend/routers/s3_import.py:359"],
-                "status": "400",
-            },
+            }
         ],
         "handler": "import_chain",
         "source": "backend/routers/s3_import.py",

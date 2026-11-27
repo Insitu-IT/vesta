@@ -103,12 +103,12 @@ def _admit(db, backup_id, agent_id, binding):
     return admitted, request
 
 
-def _kek(db, claim, request, *, retained=False):
+def _kek(db, claim, request, *, retained=False, recovery_org_id=None):
     encryption = request["plan"]["encryption"]
     _, key_id, fingerprint = encryption["key_ref"].split(":")
     key = (
         db.query(EncryptionKey)
-        .filter_by(id=key_id, org_id=claim.org_id)
+        .filter_by(id=key_id, org_id=recovery_org_id or claim.org_id)
         .populate_existing()
         .with_for_update()
         .one_or_none()
@@ -130,7 +130,7 @@ def _kek(db, claim, request, *, retained=False):
     return raw
 
 
-def unwrap_retained_attempt_key(db, claim, request):
+def unwrap_retained_attempt_key(db, claim, request, *, recovery_org_id=None):
     """Unwrap only exact retained accepted custody after caller restore admission.
 
     This helper confers no restore authorization. The caller must first lock and
@@ -164,7 +164,7 @@ def unwrap_retained_attempt_key(db, claim, request):
         if saved != expected or not isinstance(ciphertext, str):
             raise ValueError()
         raw = aes_key_unwrap(
-            _kek(db, claim, request, retained=True),
+            _kek(db, claim, request, retained=True, recovery_org_id=recovery_org_id),
             base64.b64decode(ciphertext, validate=True),
         )
         if len(raw) != 32:

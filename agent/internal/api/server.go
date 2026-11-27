@@ -46,6 +46,7 @@ func NewServer(cfg *config.Config, version string, opts ...ServerOption) *Server
 		health.SetResources(o.resourceMgr)
 	}
 	health.SetActivation(o.activation)
+	health.vmAvailable = o.vmAvailable
 	r.Get("/health", health.Health)
 	r.Get("/health/ready", health.Ready)
 
@@ -62,17 +63,32 @@ func NewServer(cfg *config.Config, version string, opts ...ServerOption) *Server
 			r.Use(OrchestratorKeyAuth(cfg.OrchestratorAPIKey))
 		}
 
-		// Health (authenticated)
+		vm := r.With(controllerAuth(cfg, o.tlsConfig, config.VMController))
+		files := r.With(controllerAuth(cfg, o.tlsConfig, config.FileController))
+		common := r.With(controllerAuth(cfg, o.tlsConfig, config.EitherController))
+
 		r.Get("/health/detailed", health.Detailed)
 		r.Get("/health/capacity", health.Capacity)
-		r.Get("/version", health.Version)
+		common.Get("/version", health.Version)
+
+		if o.vmAvailable != nil && o.vmProvider == nil {
+			// A mixed installation still owns its VM operations while libvirt is down.
+			// An unavailable response lets callers keep their accepted work for recovery.
+			unavailable := func(w http.ResponseWriter, _ *http.Request) {
+				writeJSON(w, http.StatusServiceUnavailable, map[string]string{"detail": "VM workload unavailable. Restart the agent after libvirt recovers."})
+			}
+			for _, prefix := range []string{"/vms", "/backups", "/restores", "/verifications"} {
+				r.HandleFunc(prefix, unavailable)
+				r.HandleFunc(prefix+"/*", unavailable)
+			}
+		}
 
 		// VM endpoints
 		if o.vmProvider != nil {
 			vmh := NewVMHandler(o.vmProvider)
-			r.Get("/vms", vmh.ListVMs)
-			r.Get("/vms/discover", vmh.DiscoverVMs)
-			r.Get("/vms/{name}", vmh.GetVM)
+			r.Get("/vms", requireVMAvailability(o.vmAvailable, vmh.ListVMs))
+			r.Get("/vms/discover", requireVMAvailability(o.vmAvailable, vmh.DiscoverVMs))
+			r.Get("/vms/{name}", requireVMAvailability(o.vmAvailable, vmh.GetVM))
 		}
 
 		// Backup endpoints
@@ -82,11 +98,11 @@ func NewServer(cfg *config.Config, version string, opts ...ServerOption) *Server
 			// their existing settings. Transaction activation never inherits its
 			// empty-key or HTTP fallback.
 			bh.storageTransactionsSecure = cfg.EnableAPIKeyValidation && cfg.OrchestratorAPIKey != "" && o.tlsConfig != nil
-			r.Post("/backups", bh.StartBackup)
-			r.Post("/backups/{id}/retire", bh.RetireStorageTransaction)
+			vm.Post("/backups", requireVMAvailability(o.vmAvailable, bh.StartBackup))
+			vm.Post("/backups/{id}/retire", bh.RetireStorageTransaction)
 			r.Get("/backups/{id}", bh.GetBackup)
 			r.Delete("/backups/{id}", bh.CancelBackup)
-			r.Post("/backups/{id}/upload", bh.StartUpload)
+			vm.Post("/backups/{id}/upload", bh.StartUpload)
 			r.Get("/backups/{id}/stream", bh.StreamProgress)
 		}
 
@@ -94,16 +110,21 @@ func NewServer(cfg *config.Config, version string, opts ...ServerOption) *Server
 		if o.restoreExecutor != nil {
 			rh := NewRestoreHandler(o.restoreExecutor)
 			rh.freshSecure = cfg.EnableAPIKeyValidation && cfg.OrchestratorAPIKey != "" && o.tlsConfig != nil
-			r.Post("/restores", rh.StartRestore)
-			r.Get("/restores/{id}", rh.GetRestore)
+			vm.Post("/restores", requireVMAvailability(o.vmAvailable, rh.StartRestore))
+			vm.Get("/restores/{id}", rh.GetRestore)
 			r.Get("/restores/{id}/stream", rh.StreamProgress)
+		}
+		if o.fileBackupExecutor != nil {
+			h := fileBackupHandler{executor: o.fileBackupExecutor}
+			files.Post("/file-backups", h.submit)
+			files.Get("/file-backups/{id}", h.get)
 		}
 		if o.verificationExecutor != nil {
 			h := &VerificationHandler{executor: o.verificationExecutor, secure: cfg.EnableAPIKeyValidation && cfg.OrchestratorAPIKey != "" && o.tlsConfig != nil, agentID: cfg.AgentID, provider: cfg.Provider}
-			r.Get("/verifications/capability", h.Capability)
-			r.Post("/verifications", h.Submit)
-			r.Get("/verifications/{id}", h.Get)
-			r.Post("/verifications/{id}/cancel", h.Cancel)
+			vm.Get("/verifications/capability", h.Capability)
+			vm.Post("/verifications", h.Submit)
+			vm.Get("/verifications/{id}", h.Get)
+			vm.Post("/verifications/{id}/cancel", h.Cancel)
 		}
 	})
 
@@ -134,8 +155,10 @@ type ServerOption func(*serverOptions)
 
 type serverOptions struct {
 	vmProvider           provider.VMProvider
+	vmAvailable          func() bool
 	backupExecutor       backup.ExecutorIface
 	restoreExecutor      restore.ExecutorIface
+	fileBackupExecutor   fileBackupExecutor
 	verificationExecutor VerificationExecutor
 	resourceMgr          *resources.Manager
 	tlsConfig            *tls.Config
@@ -146,6 +169,26 @@ type serverOptions struct {
 func WithVMProvider(p provider.VMProvider) ServerOption {
 	return func(o *serverOptions) {
 		o.vmProvider = p
+	}
+}
+
+// WithVMAvailability gates new VM operations and reports readiness on mixed hosts.
+func WithVMAvailability(available func() bool) ServerOption {
+	return func(o *serverOptions) { o.vmAvailable = available }
+}
+
+func requireVMAvailability(available func() bool, next http.HandlerFunc) http.HandlerFunc {
+	if available == nil {
+		return next
+	}
+	return func(w http.ResponseWriter, r *http.Request) {
+		if !available() {
+			writeJSON(w, http.StatusServiceUnavailable, map[string]string{
+				"detail": "VM workload unavailable. Restart vesta-agent after libvirt recovers.",
+			})
+			return
+		}
+		next(w, r)
 	}
 }
 
@@ -161,6 +204,10 @@ func WithRestoreExecutor(e restore.ExecutorIface) ServerOption {
 	return func(o *serverOptions) {
 		o.restoreExecutor = e
 	}
+}
+
+func WithFileBackupExecutor(e fileBackupExecutor) ServerOption {
+	return func(o *serverOptions) { o.fileBackupExecutor = e }
 }
 
 func WithVerificationExecutor(e VerificationExecutor) ServerOption {

@@ -21,11 +21,12 @@ type ResourceInfo interface {
 
 // HealthHandler handles health-related endpoints.
 type HealthHandler struct {
-	cfg        *config.Config
-	version    string
-	startTime  time.Time
-	resources  ResourceInfo
-	activation map[string]string
+	cfg         *config.Config
+	version     string
+	startTime   time.Time
+	resources   ResourceInfo
+	activation  map[string]string
+	vmAvailable func() bool
 }
 
 // NewHealthHandler creates a new HealthHandler.
@@ -95,6 +96,18 @@ func (h *HealthHandler) Detailed(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
+	if h.vmAvailable != nil {
+		workload := "unavailable"
+		if h.vmAvailable() {
+			workload = "available"
+		}
+		activation := make(map[string]string, len(h.activation)+1)
+		for key, value := range h.activation {
+			activation[key] = value
+		}
+		activation["vm_workload"] = workload
+		result["activation"] = activation
+	}
 	writeJSON(w, http.StatusOK, result)
 }
 

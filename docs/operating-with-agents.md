@@ -10,6 +10,8 @@ Start with the site, the work you want done, and a credential scoped to that wor
 | Inspect VMs, backups, queues and operator requests | `vesta-cli` | Your site's HTTPS API and an operator identity |
 | Reconstruct raw disks when the server is unavailable | `vesta-restore` | Saved backup-chain metadata, backup objects and any required recovery keys |
 
+For a named Linux file set, discover the set and its advertised destination before requesting a backup. Follow the receipt to the completed recovery point. Keep the private recovery identity on the authorized recovery workstation. [File backup and recovery](../packaging/okd/runbooks/file-backups.md)
+
 Keep tokens, kubeconfigs and recovery keys in the site's credential store. Give the runner the relevant file paths. Keep credentials and disk contents out of prompts, transcripts and issue reports. [Install the CLI and connect it to a site](vesta-cli.md)
 
 ## Inspect an existing site
@@ -46,3 +48,5 @@ A new UUID can submit a second operation. For an existing request, pass the save
 Report the site, request or backup ID, observed status and any remaining uncertainty. Use a bounded `backups wait` when requested. A completed backup and a verified restore are different observations. [Restore and check a fresh VM](first-recovery.md)
 
 If the task calls for changing Vesta's source or documentation, follow the [contributor reading guide](../AGENTS.md).
+
+For a bucket recovery, use `bucket-recovery discover` and `preview` with the source installation’s saved public trust. Report the selected point, destination and required disk or network mappings before starting a restore. Preserve the original request ID across retries. [CLI recovery commands](vesta-cli.md#find-a-vm-recovery-point-in-s3)

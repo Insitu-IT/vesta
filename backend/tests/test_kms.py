@@ -14,7 +14,9 @@ Tests every flow without needing a real backup agent:
 import base64
 import hashlib
 import io
+import json
 import os
+import unicodedata
 import uuid
 from types import SimpleNamespace
 
@@ -22,19 +24,29 @@ import pytest
 from fastapi import HTTPException, UploadFile
 from sqlalchemy.orm import sessionmaker
 
+NEW_EXPORT_PASSPHRASE = "r5Mq12Jd8B-XwTn6cYaP2_zL97vF"
+
 # Fixtures (db_engine, session_factory, db_session, patch_session_local,
 # set_encryption_env, _clean_db) provided by conftest.py
 
 
 @pytest.fixture
-def kms_provider(patch_session_local):
+def kms_provider(patch_session_local, db_session, monkeypatch):
     """Create a LocalKMSProvider using the test DB."""
     from core.kms.registry import reset_provider
 
     reset_provider()
     from core.kms.local import LocalKMSProvider
 
-    return LocalKMSProvider()
+    from models import StorageConfigurationClock
+
+    provider = LocalKMSProvider()
+    monkeypatch.setattr("core.settings_service._fernet", provider._fernet)
+    db_session.add(
+        StorageConfigurationClock(slot=1, installation_id=str(uuid.uuid4()), revision=1)
+    )
+    db_session.commit()
+    return provider
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -258,8 +270,21 @@ class TestExportImport:
         _wrapped = await kms_provider.wrap_dek(dek, key.id)  # noqa: F841
 
         # Export
-        export_data = await kms_provider.export_keys([key.id], "testpass123")
+        export_data = await kms_provider.export_keys([key.id], NEW_EXPORT_PASSPHRASE)
         assert len(export_data) > 16  # salt + encrypted payload
+
+        from cryptography.fernet import Fernet
+        from core.kms.local import _derive_export_key
+
+        archive = json.loads(
+            Fernet(_derive_export_key(NEW_EXPORT_PASSPHRASE, export_data[:16])).decrypt(
+                export_data[16:]
+            )
+        )
+        trust = archive["recovery_trust"]
+        assert trust["schema"] == "vesta-recovery-trust/1"
+        assert len(trust["public_key"]) == 43
+        assert len(trust["key_id"]) == 64
 
         # Generating bytes cannot prove that the caller saved them.
         key_refreshed = await kms_provider.get_key(key.id)
@@ -267,7 +292,7 @@ class TestExportImport:
         assert key_refreshed.backed_up_locations == []
 
         confirmed = await kms_provider.confirm_export_custody(
-            export_data, "testpass123", "offline-test-vault"
+            export_data, NEW_EXPORT_PASSPHRASE, "offline-test-vault"
         )
         assert confirmed == [key.id]
         key_refreshed = await kms_provider.get_key(key.id)
@@ -278,14 +303,14 @@ class TestExportImport:
 
         # Repeating the same confirmation must not append a second receipt.
         assert await kms_provider.confirm_export_custody(
-            export_data, "testpass123", "offline-test-vault"
+            export_data, NEW_EXPORT_PASSPHRASE, "offline-test-vault"
         ) == [key.id]
         assert len((await kms_provider.get_key(key.id)).backed_up_locations) == 1
 
     @pytest.mark.asyncio
     async def test_export_custody_rejects_wrong_file_or_password(self, kms_provider):
         first = await kms_provider.create_key("first")
-        exported = await kms_provider.export_keys([first.id], "testpass123")
+        exported = await kms_provider.export_keys([first.id], NEW_EXPORT_PASSPHRASE)
         # Mutate authenticated bytes, not a base64 character that might already
         # be "x" or change only unused padding bits.
         corrupted_token = bytearray(base64.urlsafe_b64decode(exported[16:]))
@@ -294,8 +319,8 @@ class TestExportImport:
         assert corrupted != exported
         for data, password, location in (
             (exported, "wrong-pass-123", "offline-test-vault"),
-            (corrupted, "testpass123", "offline-test-vault"),
-            (exported, "testpass123", "  "),
+            (corrupted, NEW_EXPORT_PASSPHRASE, "offline-test-vault"),
+            (exported, NEW_EXPORT_PASSPHRASE, "  "),
         ):
             with pytest.raises(ValueError):
                 await kms_provider.confirm_export_custody(data, password, location)
@@ -304,7 +329,7 @@ class TestExportImport:
     @pytest.mark.asyncio
     async def test_export_custody_rejects_changed_key_identity(self, kms_provider):
         first = await kms_provider.create_key("first")
-        exported = await kms_provider.export_keys([first.id], "testpass123")
+        exported = await kms_provider.export_keys([first.id], NEW_EXPORT_PASSPHRASE)
         from models import EncryptionKey
 
         db = kms_provider._session()
@@ -316,7 +341,7 @@ class TestExportImport:
             db.close()
         with pytest.raises(ValueError, match="does not match"):
             await kms_provider.confirm_export_custody(
-                exported, "testpass123", "offline-test-vault"
+                exported, NEW_EXPORT_PASSPHRASE, "offline-test-vault"
             )
         assert (await kms_provider.get_key(first.id)).backed_up is False
 
@@ -327,7 +352,7 @@ class TestExportImport:
         from routers import encryption
 
         key = await kms_provider.create_key("route-key")
-        data = await kms_provider.export_keys([key.id], "testpass123")
+        data = await kms_provider.export_keys([key.id], NEW_EXPORT_PASSPHRASE)
         events = []
         monkeypatch.setattr(encryption, "get_kms_provider", lambda: kms_provider)
         monkeypatch.setattr(
@@ -339,7 +364,7 @@ class TestExportImport:
         with pytest.raises(HTTPException) as denied:
             await encryption.confirm_export_custody(
                 file=UploadFile(file=io.BytesIO(data), filename="keys.bin"),
-                password="testpass123",
+                password=NEW_EXPORT_PASSPHRASE,
                 location="external-vault",
                 current_user=reader,
                 db=None,
@@ -360,7 +385,7 @@ class TestExportImport:
 
         result = await encryption.confirm_export_custody(
             file=UploadFile(file=io.BytesIO(data), filename="keys.bin"),
-            password="testpass123",
+            password=NEW_EXPORT_PASSPHRASE,
             location="external-vault",
             current_user=admin,
             db=None,
@@ -381,7 +406,7 @@ class TestExportImport:
         wrapped = await kms_provider.wrap_dek(dek, key.id)
 
         # Export
-        password = "strong-password-123"
+        password = NEW_EXPORT_PASSPHRASE
         export_data = await kms_provider.export_keys([key.id], password)
 
         # "Nuke" — delete the key from DB
@@ -407,9 +432,62 @@ class TestExportImport:
         assert unwrapped == dek
 
     @pytest.mark.asyncio
+    async def test_legacy_eight_character_export_can_be_confirmed_and_imported(
+        self, kms_provider
+    ):
+        from cryptography.fernet import Fernet
+        from models import EncryptionKey
+
+        key = await kms_provider.create_key("legacy")
+        with kms_provider._session() as db:
+            row = db.get(EncryptionKey, key.id)
+            raw = kms_provider._decrypt_material(row.encrypted_material)
+        passphrase = "legacy80"
+        salt = bytes(range(16))
+        kdf_key = hashlib.pbkdf2_hmac("sha256", passphrase.encode(), salt, 600_000)
+        payload = {
+            "version": 1,
+            "format": "vnbui-key-export",
+            "keys": [
+                {
+                    "id": key.id,
+                    "name": key.name,
+                    "algorithm": key.algorithm,
+                    "key_material": base64.b64encode(raw).decode(),
+                    "key_hash": key.key_hash,
+                }
+            ],
+        }
+        archived = salt + Fernet(base64.urlsafe_b64encode(kdf_key)).encrypt(
+            json.dumps(payload).encode()
+        )
+
+        assert await kms_provider.confirm_export_custody(
+            archived, passphrase, "offline-vault"
+        ) == [key.id]
+        with kms_provider._session() as db:
+            db.delete(db.get(EncryptionKey, key.id))
+            db.commit()
+        assert await kms_provider.import_keys(archived, passphrase) == [key.id]
+
+    @pytest.mark.asyncio
+    async def test_new_export_uses_original_unicode_passphrase_bytes(
+        self, kms_provider
+    ):
+        key = await kms_provider.create_key("unicode-export")
+        passphrase = "  ﬃﬄ①②③㍿ⅫⅦΑΒΓΔ中文  "
+        normalized = unicodedata.normalize("NFKC", passphrase)
+        assert normalized != passphrase
+
+        archive = await kms_provider.export_keys([key.id], passphrase)
+        with pytest.raises(ValueError, match="Invalid password"):
+            await kms_provider.import_keys(archive, normalized)
+        assert await kms_provider.import_keys(archive, passphrase) == [key.id]
+
+    @pytest.mark.asyncio
     async def test_export_wrong_password_fails_import(self, kms_provider):
         key = await kms_provider.create_key("password-test")
-        export_data = await kms_provider.export_keys([key.id], "correct-password")
+        export_data = await kms_provider.export_keys([key.id], NEW_EXPORT_PASSPHRASE)
 
         with pytest.raises(ValueError, match="Invalid password"):
             await kms_provider.import_keys(export_data, "wrong-password")
@@ -417,16 +495,18 @@ class TestExportImport:
     @pytest.mark.asyncio
     async def test_export_short_password_fails(self, kms_provider):
         key = await kms_provider.create_key("short-pw")
-        with pytest.raises(ValueError, match="at least 8"):
+        with pytest.raises(ValueError, match="at least 20"):
             await kms_provider.export_keys([key.id], "short")
 
     @pytest.mark.asyncio
     async def test_import_skips_duplicates(self, kms_provider):
         key = await kms_provider.create_key("dup-test")
-        export_data = await kms_provider.export_keys([key.id], "testpass123")
+        export_data = await kms_provider.export_keys([key.id], NEW_EXPORT_PASSPHRASE)
 
         # Import again — should skip (key still exists)
-        imported_ids = await kms_provider.import_keys(export_data, "testpass123")
+        imported_ids = await kms_provider.import_keys(
+            export_data, NEW_EXPORT_PASSPHRASE
+        )
         assert len(imported_ids) == 1
 
         # Should still be only 1 key with this hash
@@ -437,12 +517,12 @@ class TestExportImport:
     @pytest.mark.asyncio
     async def test_import_corrupt_data(self, kms_provider):
         with pytest.raises(ValueError):
-            await kms_provider.import_keys(b"corrupt data here", "testpass123")
+            await kms_provider.import_keys(b"corrupt data here", NEW_EXPORT_PASSPHRASE)
 
     @pytest.mark.asyncio
     async def test_export_no_keys_fails(self, kms_provider):
         with pytest.raises(ValueError, match="No keys found"):
-            await kms_provider.export_keys(["nonexistent-id"], "testpass123")
+            await kms_provider.export_keys(["nonexistent-id"], NEW_EXPORT_PASSPHRASE)
 
     @pytest.mark.asyncio
     async def test_supports_export(self, kms_provider):
@@ -455,7 +535,6 @@ class TestExportImport:
 
 
 class TestBackupCountAndMarkup:
-
     @pytest.mark.asyncio
     async def test_backup_count_zero(self, kms_provider):
         key = await kms_provider.create_key("count-test")
@@ -518,7 +597,6 @@ class TestBackupCountAndMarkup:
 
 
 class TestRegistry:
-
     def test_get_kms_provider_returns_local(self, patch_session_local):
         from core.kms.registry import get_kms_provider, reset_provider
         from core.kms.local import LocalKMSProvider
@@ -551,7 +629,6 @@ class TestRegistry:
 
 
 class TestModels:
-
     def test_encryption_key_model(self, db_session):
         from models import EncryptionKey
 
@@ -878,7 +955,7 @@ class TestFullCycle:
 
         # Step 6: Export both keys
         export_data = await kms_provider.export_keys(
-            [key1.id, key2.id], "export-pass-123"
+            [key1.id, key2.id], NEW_EXPORT_PASSPHRASE
         )
 
         # Step 7: Verify backup counts
@@ -886,7 +963,7 @@ class TestFullCycle:
         assert await kms_provider.get_backup_count(key2.id) == 1
 
         # Step 8: Import on same provider (dedup)
-        imported = await kms_provider.import_keys(export_data, "export-pass-123")
+        imported = await kms_provider.import_keys(export_data, NEW_EXPORT_PASSPHRASE)
         assert len(imported) == 2  # Both returned (existing = deduplicated)
 
         # Step 9: Both backups still restorable

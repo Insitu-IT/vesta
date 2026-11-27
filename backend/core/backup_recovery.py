@@ -181,24 +181,11 @@ async def _resume_backup_attempt_worker(
 
 async def _deliver_original(db, executor, backup, cancellation):
     """Re-admit and deliver only the frozen request under its original locks."""
-    from models import Agent
-
     agent_id, request, expected = _readmit(db, backup)
-    headers = executor._get_agent_headers()
-    if not executor.agent_tls_enabled or not executor.agent_verify_ssl or not headers:
-        raise RecoveryHeld("verified_authenticated_agent_transport_required")
-    agent = db.query(Agent).filter_by(id=agent_id, org_id=backup.org_id).one_or_none()
-    if agent is None or agent.status != "online":
-        raise RecoveryHeld("original_agent_unavailable")
-    url = executor._get_agent_url(agent)
-    if not url.startswith("https://"):
-        raise RecoveryHeld("verified_authenticated_agent_transport_required")
-    if cancellation.is_set():
-        raise RecoveryHeld("dispatch_continuation_cancelled")
-    # Ordered original authority/capacity locks remain held only through the
-    # bounded admission POST. Agent journal proof decides whether work resumes.
-    response = await executor.http_client.post(
-        f"{url}/api/backups", json=request, headers=headers
+    # Original authority/capacity locks remain held through bounded exact-peer
+    # admission. The transport rechecks the current leaf before publishing.
+    response = await executor._post_certified_vm_backup(
+        db, agent_id, backup.org_id, request, cancellation=cancellation
     )
     if response.status_code == 423:
         raise RecoveryHeld("agent_attempt_not_resumable_unsealed_or_uncertain")

@@ -9,12 +9,15 @@ import { updateService } from '../services/updates.service.js';
 import { escapeHtml } from '../utils/security.js';
 import { formatRelativeTime, formatDate } from '../utils/format.js';
 import { getStatusColor } from '../utils/status-colors.js';
+import { authService } from '../services/auth.service.js';
+import { BucketRecovery } from './bucket-recovery.js';
 import { assetResolver } from '../assets/resolver.js';
 
 export class RestoresPage {
     constructor() {
         this.restores = [];
         this.loading = false;
+        this.recovery = new BucketRecovery();
     }
 
     async loadData() {
@@ -52,6 +55,12 @@ export class RestoresPage {
                             </h2>
                             <div class="text-secondary mt-1">${t('restores.page_subtitle')}</div>
                         </div>
+                        ${authService.canManageInstallation() ? `
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-bucket-recovery">
+                                    Recover from S3
+                                </button>
+                            </div>` : ''}
                         <div class="col-auto d-none d-md-flex gap-3 align-items-center">
                             <span class="text-secondary">
                                 <span class="badge bg-success me-1">${completed}</span> ${t('common.completed')}
@@ -95,7 +104,13 @@ export class RestoresPage {
                     </div>
                 </div>
             </div>
+            ${authService.canManageInstallation() ? this.recovery.render() : ''}
         `;
+    }
+
+    afterRender() {
+        const modal = document.getElementById('modal-bucket-recovery');
+        if (modal) this.recovery.bind(modal);
     }
 
     renderRestoreRows() {
@@ -105,10 +120,10 @@ export class RestoresPage {
         return this.restores.map(restore => `
             <tr>
                 <td>
-                    <div class="font-weight-medium">${escapeHtml(restore.backup?.vm_name || 'Unknown')}</div>
+                    <div class="font-weight-medium">${escapeHtml(restore.recovery_source?.name || restore.backup?.vm_name || 'Unknown')}</div>
                     <div class="text-secondary small">${escapeHtml(restore.id || '')}</div>
                 </td>
-                <td>${escapeHtml(restore.backup_name || restore.backup_id || 'N/A')}</td>
+                <td>${restore.recovery_source ? '<span class="badge bg-info-lt me-1">Verified S3</span>' : ''}${escapeHtml(restore.recovery_source?.backup_id || restore.backup_name || restore.backup_id || 'N/A')}</td>
                 <td>
                     ${!restore.restore_to_original ? `
                         <span class="badge bg-info-lt">${t('restores.target_clone')}: ${escapeHtml(restore.target_vm_name || 'N/A')}</span>

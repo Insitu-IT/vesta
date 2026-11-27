@@ -8,7 +8,7 @@ RUN GOBIN=/usr/local/bin go install github.com/google/go-licenses/v2@v2.0.1
 COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w -X main.version=$(cat VERSION)" \
     -o /runtime/vesta-agent ./cmd/vnbui-agent
-RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w" \
+RUN CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="-s -w -X main.version=$(cat VERSION)" \
     -o /runtime/vesta-restore ./cmd/vnbui-restore
 RUN mkdir -p /runtime/opt/vnbui-agent && \
     ln -s /vesta-agent /runtime/opt/vnbui-agent/vnbui-agent && \

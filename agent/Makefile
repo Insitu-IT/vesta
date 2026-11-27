@@ -1,10 +1,13 @@
 VERSION := $(shell cat VERSION)
 LDFLAGS := -s -w -X main.version=$(VERSION)
 
-.PHONY: build build-kubevirt gen-contracts test test-kubevirt lint clean
+.PHONY: build build-restore build-kubevirt gen-contracts test test-kubevirt lint clean
 
 build:
 	CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="$(LDFLAGS)" -o bin/vnbui-agent ./cmd/vnbui-agent
+
+build-restore:
+	CGO_ENABLED=0 go build -trimpath -buildvcs=false -ldflags="$(LDFLAGS)" -o bin/vesta-restore ./cmd/vnbui-restore
 
 build-kubevirt:
 	CGO_ENABLED=0 go build -trimpath -buildvcs=false -tags kubevirt -ldflags="$(LDFLAGS)" -o bin/vnbui-agent-kubevirt ./cmd/vnbui-agent

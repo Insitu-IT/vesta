@@ -25,6 +25,7 @@ from schemas.models import BackupCloseUnreservedRequest, BackupCloseUnreservedRe
 
 # Import core services
 from core.backup_service import BackupService
+from core.legacy_recovery import legacy_s3_unverified
 from core.storage_hold_observation import public_safety_diagnostic
 from core.backup_executor import backup_executor
 from core.backup_queue_processor import _add_to_queue_flush
@@ -221,6 +222,8 @@ def get_backup(
     current_user: User = Depends(get_current_user),
 ):
     """Get backup status and details."""
+    from core.recovery_publication import publication_status
+
     backup = db.query(Backup).filter(Backup.id == backup_id).first()
     if not backup:
         raise HTTPException(status_code=404, detail="Backup not found")
@@ -244,10 +247,12 @@ def get_backup(
         "progress": backup.progress,
         "storage_progress": backup.storage_progress,
         "safety_diagnostic": public_safety_diagnostic(backup),
+        "unverified_legacy_s3": legacy_s3_unverified(backup),
         "size_bytes": backup.size_bytes,
         "retention_days": backup.retention_days,
         "backup_type": backup.backup_type or "full",
         "scheduler_decision": queue.backup_decision if queue is not None else None,
+        "recovery_publication": publication_status(db, backup),
         "operator_dispatch": dispatch_metadata(db, "backup", [backup.id]).get(
             backup.id
         ),
@@ -356,6 +361,7 @@ def list_backups(
             "progress": backup.progress,
             "storage_progress": backup.storage_progress,
             "safety_diagnostic": public_safety_diagnostic(backup),
+            "unverified_legacy_s3": legacy_s3_unverified(backup),
             "size_bytes": backup.size_bytes,
             "retention_days": backup.retention_days,
             "backup_type": backup.backup_type or "full",

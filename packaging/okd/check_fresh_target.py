@@ -19,8 +19,10 @@ from render import STAGES, render
 
 def planned_resources(config, postgres_config=None):
     result = {}
+    # This inventory reads resource names only. An empty site has no
+    # installation UUID to bind to an executable upgrade or rollback Job.
     for stage in STAGES:
-        for item in render(config, stage)["items"]:
+        for item in render(config, stage, structural=True)["items"]:
             ns = item["metadata"]["namespace"]
             ref = item["kind"].lower() + "/" + item["metadata"]["name"]
             result.setdefault(ns, set()).add(ref)

@@ -36,6 +36,22 @@ Read-only agent requests can still be used for diagnostics under the applicable 
 3. Rehearse any schema change with an isolated recovery copy. Use the schema-owner login for the designated migration. Run the API with the restricted runtime login.
 4. Verify a reader can open the retained chain formats and interpret held plans and journals. For example, a reader that predates the KubeVirt 32 MiB transfer profile cannot open plans that use it. Changing the active profile affects future plans.
 
+## Upgrade to Vesta Backup 6.2.0
+
+The 6.2.0 offline kit supports upgrades from 6.1.0 and 6.1.1 at schema `backup_admission_pause`. Keep your accepted site manifest and recovery set. With the API running, use the verified target kit to observe the installed release and prepare its reviewed stages.
+
+```sh
+./vesta verify
+./vesta upgrade plan
+./vesta upgrade prepare --output-dir /private/vesta/update
+```
+
+The plan identifies the cluster context, database installation, schema and image digests. The prepared directory holds the ordered schema Job, API target and KubeVirt agent target when applicable. Review them through your deployment or GitOps process and use the [kit’s upgrade runbook](../okd/runbooks/upgrade-recovery.md). The already-current plan has no rollout stages when the managed components match the kit.
+
+Record your original pause and schedule settings. Pause new admission, schedules and automatic cleanup, and let producers settle. Capture a consistent recovery set and rehearse the schema step before stopping API writers. Wait for the schema Job to complete before starting the target API and console. Roll out KubeVirt agents or update native agents after the application is ready. Verify catalog access, keys, heartbeats and a disposable restore before restoring the recorded settings.
+
+Use the kit’s empty-history rollback Job only before managed file history, unverified legacy S3 quarantine or signed recovery publication custody exists. For a site that has used managed file backups, keep its new catalog and archive custody and use the coordinated recovery procedure in the runbook.
+
 ## A same-schema update
 
 Use this path when the target kit lists the installed database schema as compatible. Keep the accepted `vesta.json`, resource names, database, Secrets, volumes, keys and agent identity.

@@ -23,7 +23,7 @@ func ValidatePlan(request *models.NativeRestoreRequest, requireCredentials bool)
 		return bundle, "", ErrBundle
 	}
 	first, last := bundle.Members[0], bundle.Members[len(bundle.Members)-1]
-	if request.OrgID != first.Request.OrgID || request.AgentID != first.Request.AgentID || request.Target.VMUUID == last.PushResult.Manifest.DomainUUID {
+	if !request.RecoveryOrigin.Matches(request.OrgID, request.AgentID, first.Request.OrgID, first.Request.AgentID) || request.Target.VMUUID == last.PushResult.Manifest.DomainUUID {
 		return bundle, "", ErrBundle
 	}
 	disks := []string{}
@@ -43,7 +43,7 @@ func ValidatePlan(request *models.NativeRestoreRequest, requireCredentials bool)
 	if requireCredentials {
 		s3 := request.S3
 		target := first.Request.Plan.Target
-		if s3.Endpoint != target.Endpoint || s3.Bucket != target.Bucket || s3.Region != target.Region || s3.Region == "" || s3.AccessKey == "" || s3.SecretKey == "" {
+		if s3.Endpoint != target.Endpoint || s3.Bucket != target.Bucket || s3.Region != request.RecoveryOrigin.SigningRegion(target.Region) || s3.Region == "" || s3.AccessKey == "" || s3.SecretKey == "" {
 			return bundle, "", ErrBundle
 		}
 		expected := 0

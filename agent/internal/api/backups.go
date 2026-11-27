@@ -137,6 +137,10 @@ func (h *BackupHandler) StartBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.EncryptionKey != nil && *req.EncryptionKey != "" && (!h.storageTransactionsSecure || r.TLS == nil) {
+		writeJSON(w, http.StatusLocked, map[string]string{"detail": "backup credentials require authenticated HTTPS"})
+		return
+	}
 	progress, err := h.executor.StartBackup(&req)
 	if err != nil {
 		status := http.StatusInternalServerError

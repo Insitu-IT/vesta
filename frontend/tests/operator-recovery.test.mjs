@@ -13,7 +13,13 @@ async function harness(storage = new Map()) {
     const calls = [], nodes = new Map(), toasts = [], events = new Map(), intervals = [];
     let token = 'bearer';
     let user = {id: 'alice', org_id: 'organization-one', role: 'admin'};
-    const auth = {getUser: () => user, getToken: () => token, clearToken() {}, requireInstallationAccess: async () => {}};
+    const auth = {
+        getUser: () => user,
+        getToken: () => token,
+        clearToken() {},
+        canManageInstallation: () => user?.can_manage_installation === true,
+        requireInstallationAccess: async () => {},
+    };
     const document = {addEventListener: (name, callback) => events.set(name, callback), getElementById: id => nodes.get(id) || null, querySelector: () => null, querySelectorAll: () => []};
     const context = vm.createContext({console, t: key => key, URL, URLSearchParams, TextEncoder, Uint8Array, crypto: webcrypto,
         localStorage: {getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value)},
@@ -45,6 +51,7 @@ async function harness(storage = new Map()) {
         const module = new vm.SourceTextModule(source, {context, initializeImportMeta: meta => {meta.env = {DEV: false};}});
         modules.set(name, module);
         await module.link(async specifier => {
+            if (specifier === './bucket-recovery.js') return load('pages/bucket-recovery.js');
             if (specifier.includes('operator-requests.service')) return load('services/operator-requests.service.js');
             if (specifier.includes('operator-dispatch')) return load('utils/operator-dispatch.js');
             if (specifier.includes('snapshot.service')) return load('services/snapshot.service.js');
@@ -53,6 +60,9 @@ async function harness(storage = new Map()) {
             if (specifier.includes('auth.service')) return synthetic({authService: auth});
             if (specifier.endsWith('version.js')) return synthetic({getVersion: () => 'fixture'});
             if (specifier.endsWith('/services/licensing.service.js')) return synthetic({licensingService: {}});
+            if (specifier.endsWith('/components/file-backups.js')) {
+                return synthetic({FileBackupsPanel: class { mount() {} destroy() {} }});
+            }
             if (specifier.endsWith('/components/licensing.js')) {
                 return synthetic({LicensingPanel: class {}, refreshLicenseBanner() {}, renderLicenseSummary() {}});
             }

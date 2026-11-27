@@ -31,6 +31,26 @@ Run `./vesta status`. Sign in at your usual address and check the catalog, recov
 
 Keep new work paused. Inspect the rollout and [collect diagnostics](operations.md). For the same-schema update, with producers settled and custody intact, reapply the previous accepted agent and application targets from your recovery set. Check readiness, identity and catalog access before restoring the original schedule. If the database or retained backup formats changed, use a coordinated recovery of the database, configuration, keys and journals.
 
+## Upgrade 6.1.0 or 6.1.1 to 6.2.0
+
+Both source releases use schema `backup_admission_pause`. Keep the API running during this step. Use the same manifest, cluster context and on-site registry as the installed site.
+
+```sh
+./vesta verify
+./vesta upgrade plan
+./vesta import-images
+./vesta upgrade prepare --output-dir /private/vesta/update
+```
+
+Skip image import when your registry already holds the exact digests in the plan. The launcher reads the schema through the running backend’s restricted runtime connection. Use a cluster identity that can read the site’s Route and Deployments and run the read-only observation inside the backend Deployment. Review `upgrade-plan.json` for the cluster API server, namespace, runtime database identity, image digests and stage order. The generated schema Job verifies that it reached the same installation through the schema-owner connection. An already-current site produces only a plan when its managed image digests match.
+
+1. Record the original admission, schedule and cleanup settings. Pause them, let producers settle and confirm the consistent database, credentials, key and journal recovery set. Rehearse the migration and recovery with an isolated copy.
+2. Review the prepared targets and their image digests. Use `oc --context CONTEXT diff -k /private/vesta/update/api` and the corresponding command for the `agent` target if present. Keep any site-local GitOps overlays and patches. Suspend API writers with your deployment procedure and confirm the backend has no running replicas.
+3. Apply `/private/vesta/update/upgrade` using `oc --context CONTEXT apply -k` or its GitOps equivalent. Wait for the `<resource-prefix>-upgrade-managed-files` Job to complete. A repeated migration requires the same database identity and verifies the target schema and runtime grants.
+4. Apply the API target and wait for API and console readiness. Apply the KubeVirt agent target or update native packages with the matching release. Preserve agent keys and journals. Run `./vesta status`, then confirm the catalog, recovery keys, authenticated heartbeats and a disposable restore. Restore the saved admission, schedule and cleanup settings only after acceptance.
+
+Keep writers stopped if the schema step or rollout fails. Retain the Job logs, accepted manifests and producer journals. The 6.2.0 `rollback-schema` render stage uses the same owner Secret and can return to `backup_admission_pause` only before managed file history, unverified legacy S3 quarantine or signed recovery publication custody exists. Render it separately using the accepted installer configuration and the `upgrade_installation_id` from the observed plan, then review it before applying. When either table has history, retain the 6.2.0 database and archives and follow the coordinated recovery steps below. Confirm the original release, database and settings before restoring its deployment or resuming work.
+
 ## Before a schema-changing upgrade or recovery
 
 Pause scheduled/new admissions, then inspect active and uncertain attempts.

@@ -39,11 +39,11 @@ func (e *transactionAPIExecutor) RetireStorageTransaction(_ context.Context, bac
 func TestRetirementRequiresAuthenticatedHTTPSAndExactIdentity(t *testing.T) {
 	for _, variant := range []string{"accepted", "no-key", "wrong-key", "http", "no-server-tls", "bad-body", "held"} {
 		t.Run(variant, func(t *testing.T) {
-			cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
 			executor := &transactionAPIExecutor{}
 			options := []ServerOption{WithBackupExecutor(executor)}
 			if variant != "no-server-tls" {
-				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			}
 			if variant == "held" {
 				executor.err = errors.New("not reviewed")
@@ -54,6 +54,7 @@ func TestRetirementRequiresAuthenticatedHTTPSAndExactIdentity(t *testing.T) {
 				body = `{"reservation_id":"reservation","proof":"forged"}`
 			}
 			request := httptest.NewRequest(http.MethodPost, "https://agent/api/backups/backup/retire", bytes.NewBufferString(body))
+			certifyTestController(request)
 			request.Header.Set("X-Orchestrator-Key", "expected")
 			if variant == "no-key" {
 				request.Header.Del("X-Orchestrator-Key")
@@ -72,7 +73,7 @@ func TestRetirementRequiresAuthenticatedHTTPSAndExactIdentity(t *testing.T) {
 				wanted = http.StatusOK
 			case "no-key":
 				wanted = http.StatusUnauthorized
-			case "wrong-key":
+			case "http", "wrong-key":
 				wanted = http.StatusForbidden
 			case "bad-body":
 				wanted = http.StatusBadRequest
@@ -99,11 +100,11 @@ func TestStorageTransactionHTTPSAuthenticatedAdmission(t *testing.T) {
 	transaction, _ := models.DecodeStorageTransaction(body)
 	for _, variant := range []string{"accepted", "no-header", "wrong-header", "empty-key", "auth-disabled", "http", "no-server-tls", "held"} {
 		t.Run(variant, func(t *testing.T) {
-			cfg := &config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"}
+			cfg := testControllerConfig(&config.Config{EnableAPIKeyValidation: true, OrchestratorAPIKey: "expected"})
 			executor := &transactionAPIExecutor{}
 			options := []ServerOption{WithBackupExecutor(executor)}
 			if variant != "no-server-tls" {
-				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12}))
+				options = append(options, WithTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12, ClientAuth: tls.RequireAndVerifyClientCert}))
 			}
 			if variant == "empty-key" {
 				cfg.OrchestratorAPIKey = ""
@@ -116,6 +117,7 @@ func TestStorageTransactionHTTPSAuthenticatedAdmission(t *testing.T) {
 			}
 			server := NewServer(cfg, "test", options...)
 			request := httptest.NewRequest(http.MethodPost, "https://agent/api/backups", bytes.NewReader(body))
+			certifyTestController(request)
 			request.Header.Set("X-Orchestrator-Key", "expected")
 			if variant == "no-header" {
 				request.Header.Del("X-Orchestrator-Key")
@@ -134,7 +136,7 @@ func TestStorageTransactionHTTPSAuthenticatedAdmission(t *testing.T) {
 				wanted = http.StatusAccepted
 			case "no-header":
 				wanted = http.StatusUnauthorized
-			case "wrong-header":
+			case "http", "wrong-header":
 				wanted = http.StatusForbidden
 			}
 			if response.Code != wanted {

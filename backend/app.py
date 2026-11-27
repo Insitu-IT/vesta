@@ -176,6 +176,7 @@ from routers import (  # noqa: E402
     agents_router,
     backups_router,
     schedules_router,
+    file_backups_router,
     groups_router,
     users_router,
     health_router,
@@ -197,6 +198,7 @@ from routers import (  # noqa: E402
     encryption_router,
     pki_router,
     s3_import_router,
+    recovery_trust_router,
     demo_router,
     operator_router,
 )
@@ -215,6 +217,7 @@ app.include_router(agents_router)
 app.include_router(queue_router)
 app.include_router(backups_router)
 app.include_router(schedules_router)
+app.include_router(file_backups_router)
 app.include_router(groups_router)
 app.include_router(users_router)
 app.include_router(health_router)
@@ -232,6 +235,7 @@ app.include_router(verification_router)
 app.include_router(encryption_router)
 app.include_router(pki_router)
 app.include_router(s3_import_router)
+app.include_router(recovery_trust_router)
 from core.operator_dispatch import operator_dispatcher  # noqa: E402
 
 app.include_router(operator_router)
@@ -444,6 +448,55 @@ async def startup_event():
             _db.close()
     except Exception as e:
         logger.warning(f"mTLS DB config load failed: {e}")
+
+    # Both manual and timed file jobs share the application scheduler and executor.
+    from core.file_backups import run_file_backup_tick
+
+    file_tick_lock = asyncio.Lock()
+
+    async def process_file_backups():
+        if file_tick_lock.locked():
+            return
+        async with file_tick_lock:
+            await run_file_backup_tick(SessionLocal, backup_executor)
+
+    def wake_file_backups():
+        with scheduler_work.callback():
+            scheduler_work.submit(process_file_backups)
+
+    if USE_REAL_BACKUP_EXECUTOR:
+        scheduler.add_job(
+            wake_file_backups,
+            "interval",
+            seconds=10,
+            id="managed_file_backups",
+            replace_existing=True,
+        )
+
+    # Recovery records are a separate bounded pass so unavailable offsite
+    # metadata cannot stall the ordinary backup queue.
+    from core.recovery_publication import run_recovery_publication
+    from core.task_lifetime import run_owned_worker
+
+    recovery_tick_lock = asyncio.Lock()
+
+    async def process_recovery_publications():
+        if recovery_tick_lock.locked():
+            return
+        async with recovery_tick_lock:
+            await run_owned_worker(run_recovery_publication, SessionLocal)
+
+    def wake_recovery_publications():
+        with scheduler_work.callback():
+            scheduler_work.submit(process_recovery_publications)
+
+    scheduler.add_job(
+        wake_recovery_publications,
+        "interval",
+        seconds=30,
+        id="signed_recovery_publications",
+        replace_existing=True,
+    )
 
     # Start backup queue processor
     from core.backup_queue_processor import BackupQueueProcessor

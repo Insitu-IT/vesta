@@ -130,7 +130,34 @@ async def check_post_lifespan_graph(monkeypatch, demo, bits):
         # Operator recovery and unreserved closeout add eight mounted routes.
         # They exist in every profile; their
         # presence is topology evidence, not demo/tenant admission qualification.
-        assert len(actual) == (
+        file_routes = {
+            ("GET", "/api/v1/file-sets"),
+            ("GET", "/api/v1/file-backups"),
+            ("POST", "/api/v1/file-backups"),
+            ("GET", "/api/v1/file-backups/{backup_id}"),
+            ("GET", "/api/v1/file-schedules"),
+            ("POST", "/api/v1/file-schedules"),
+            ("PATCH", "/api/v1/file-schedules/{schedule_id}"),
+            ("DELETE", "/api/v1/file-schedules/{schedule_id}"),
+        }
+        assert file_routes <= actual
+        recovery_routes = {
+            ("GET", "/api/v1/recovery/trust"),
+            ("POST", "/api/v1/recovery/s3/discover"),
+            ("POST", "/api/v1/recovery/s3/points/{backup_id}/preview"),
+            ("POST", "/api/v1/recovery/s3/points/{backup_id}/restore"),
+        }
+        assert recovery_routes <= actual
+        recovery_paths = {path for _, path in recovery_routes}
+        for route in rows:
+            if route["path"] in recovery_paths:
+                authority = (
+                    "deps:get_admin_user"
+                    if route["path"] == "/api/v1/recovery/trust"
+                    else "deps:get_installation_admin"
+                )
+                assert authority in route["dependencies"]
+        assert len(actual - file_routes - recovery_routes) == (
             195
             if demo
             else 199

@@ -403,7 +403,7 @@ func (r *nativeRestoreRunner) reconcile(ctx context.Context, state *nativeRestor
 			return err
 		}
 		s3 := state.Request.S3
-		open, close, err := restoreinput.S3SourceConfig(restoreinput.S3Configuration{Endpoint: s3.Endpoint, Bucket: s3.Bucket, Region: s3.Region, AccessKey: s3.AccessKey, SecretKey: s3.SecretKey, SessionToken: s3.SessionToken, CAPEM: state.CAPEM})
+		open, close, err := restoreinput.S3RestoreSourceConfig(restoreinput.S3Configuration{Endpoint: s3.Endpoint, Bucket: s3.Bucket, Region: s3.Region, AccessKey: s3.AccessKey, SecretKey: s3.SecretKey, SessionToken: s3.SessionToken, CAPEM: state.CAPEM}, state.Request.RecoveryOrigin)
 		if err != nil {
 			return err
 		}

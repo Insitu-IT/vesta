@@ -1,6 +1,12 @@
 # Community roadmap
 
-The current Community release protects VMs with a KubeVirt agent or native libvirt agent and sends backups to S3-compatible storage. Operators can recover a fresh VM or reconstruct raw disks with a saved chain and keys. See the [storage compatibility guide](packaging/community/storage-compatibility.md) for the combinations exercised today.
+The current Community release protects VMs with a KubeVirt agent or native libvirt agent and sends backups to S3-compatible storage. Operators can recover a fresh VM or choose a recovery point in S3 and reconstruct disks using their independent recovery credentials. Linux file sets can also run on a file-only server or alongside libvirt VMs. A scheduled set produces an independent encrypted archive. [Linux file backups](packaging/okd/runbooks/file-backups.md)
+
+See the [storage compatibility guide](packaging/community/storage-compatibility.md) for the combinations exercised today.
+
+## Recovery formats
+
+We plan to add whole-artifact authentication to a future VM encryption format while keeping the current readers and catalog checks available. We also plan a versioned recovery-key export with a memory-hard password derivation option. Existing recovery points and older key exports will remain part of compatibility testing.
 
 ## OpenShift and OKD 5.x
 

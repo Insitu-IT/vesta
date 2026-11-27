@@ -12,6 +12,16 @@ import httpx
 from version import check_compatibility
 
 
+def require_compatible_agent_version(version):
+    if (
+        not isinstance(version, str)
+        or re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version)
+        is None
+        or not check_compatibility(version)["compatible"]
+    ):
+        raise RuntimeError("Agent major version mismatch; coordinated upgrade required")
+
+
 class AgentHTTP:
     def __init__(self, **configuration):
         self._configuration = dict(configuration)
@@ -21,23 +31,14 @@ class AgentHTTP:
             if method.upper() not in {"GET", "HEAD", "OPTIONS"}:
                 # Probe the selected agent, not cached heartbeat configuration.
                 # No mutation is sent if version evidence is absent or incompatible.
+                # Ordinary callers can probe the public version without sending
+                # a bearer key. Certified dispatch has its own peer-bound probe.
                 probe = await client.get(
-                    str(httpx.URL(url).copy_with(path="/api/version", query=None)),
-                    headers=kwargs.get("headers"),
+                    str(httpx.URL(url).copy_with(path="/health", query=None)),
                 )
                 probe.raise_for_status()
                 version = probe.json().get("version")
-                if (
-                    not isinstance(version, str)
-                    or re.fullmatch(
-                        r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", version
-                    )
-                    is None
-                    or not check_compatibility(version)["compatible"]
-                ):
-                    raise RuntimeError(
-                        "Agent major version mismatch; coordinated upgrade required"
-                    )
+                require_compatible_agent_version(version)
             return await client.request(method, url, **kwargs)
 
     async def get(self, url, **kwargs):

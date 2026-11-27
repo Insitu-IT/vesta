@@ -2,15 +2,15 @@
 
 ## Does Vesta back up bare-metal servers?
 
-No. If a physical server runs libvirt/KVM, Vesta can protect the virtual machines on that host. The host operating system needs its own backup.
+Vesta can protect selected directories on a supported Linux server and the VMs on a libvirt host. Rebuilding a physical server from a whole-machine image needs a separate recovery plan.
 
 ## Can I restore a single file?
 
-Yes. Restore a fresh copy of the VM on an isolated network and copy the file out. You can also recover a disk and mount its filesystem read-only on a trusted machine. You choose the file in the recovered filesystem. Vesta has no built-in file picker. [Restore a VM or disk](../packaging/okd/runbooks/restore.md)
+Yes. For a [Linux file backup](../packaging/okd/runbooks/file-backups.md), list the archive and extract just the file you need with `vesta-restore`. For a VM backup, restore a fresh copy of the VM on an isolated network and copy the file out. You can also recover a disk and mount its filesystem read-only on a trusted machine. You choose the file in the recovered filesystem. Vesta has no built-in file picker. [Restore a VM or disk](../packaging/okd/runbooks/restore.md)
 
 ## Can I back up folders on my laptop?
 
-Vesta has no desktop agent for backing up selected folders. If a folder lives inside a protected VM, it’s included when you back up the disk that holds it.
+The enrolled Linux service can back up named directories on supported Enterprise Linux hosts. It runs on a schedule and needs access to your Vesta installation and S3 storage. Windows and macOS desktop backup clients are outside the current release. [Linux file backups](../packaging/okd/runbooks/file-backups.md)
 
 ## Does Vesta work with VMware, Nutanix AHV or Hyper-V?
 
@@ -35,3 +35,11 @@ Yes, with a routed connection such as a site-to-site VPN. The branch agent must 
 ## What happens when my two-year free license expires?
 
 Your backups, schedules and restores keep working. The console shows a reminder. If your installation still needs a free license, renew it in the portal and import the new file in **Settings → License**. [Renew a free license](../REGISTRATION.md#renew-a-free-license)
+
+## Can someone who can read my bucket read my backups?
+
+Encrypted VM disks need separately held keys. Linux file archives need their private recovery identity. A bucket reader can still see object sizes and names, and VM manifests can expose details such as volume identifiers and changed disk ranges. [What an S3 reader can see](../packaging/okd/runbooks/encryption-custody.md)
+
+## Can I recover by pointing Vesta at my S3 bucket?
+
+Yes. Browse the recovery points in the bucket, choose one and restore to a fresh destination. VM backups with encryption need the matching keys. The public recovery trust identifies signed points from your installation. Linux files use their separate private age identity. [Recover directly from S3](../packaging/okd/runbooks/bucket-recovery.md)

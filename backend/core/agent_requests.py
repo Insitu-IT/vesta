@@ -148,13 +148,12 @@ def build_heartbeat_response(
     agent_id: str,
     timestamp: str,
     config: Optional[dict],
-    s3_config: Optional[dict] = None,
 ) -> dict:
-    """Build heartbeat response dict (health.py:434-440)."""
+    """Retain the nullable compatibility field without delivering S3 credentials."""
     return {
         "status": "ok",
         "timestamp": timestamp,
         "agent_id": agent_id,
         "config": config or {},
-        "s3_config": s3_config,
+        "s3_config": None,
     }

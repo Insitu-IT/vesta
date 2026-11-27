@@ -2,6 +2,8 @@ package heartbeat
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"io"
@@ -604,5 +606,95 @@ func TestConcurrentHeartbeatBackoff(t *testing.T) {
 	case <-stopped:
 	case <-time.After(2 * time.Second):
 		t.Fatal("Run did not cancel during backoff")
+	}
+}
+
+func TestVMControllerPinForVerifiedEnrolledHeartbeat(t *testing.T) {
+	first, next := []byte("original controller fixture"), []byte("renewed controller fixture")
+	digest := func(leaf []byte) string {
+		hash := sha256.Sum256(leaf)
+		return hex.EncodeToString(hash[:])
+	}
+	var replied, denied bool
+	var mu sync.Mutex
+	backend := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		defer mu.Unlock()
+		if denied {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		leaf := first
+		if replied {
+			leaf = next
+		}
+		replied = true
+		_ = json.NewEncoder(w).Encode(models.HeartbeatResponse{
+			Status: "ok", AgentID: "test-agent-id", Config: map[string]interface{}{"vm_controller_sha256": digest(leaf)},
+		})
+	}))
+	defer backend.Close()
+	cfg := testConfig(backend.URL)
+	cfg.Provider = "libvirt"
+	svc := New(cfg, backend.Client(), "test")
+	svc.sendHeartbeat()
+	if ready, matches := cfg.ControllerPeer(config.VMController, first); !ready || !matches {
+		t.Fatal("configured VM-only agent failed to learn the verified controller")
+	}
+	if ready, _ := cfg.ControllerPeer(config.FileController, first); ready {
+		t.Fatal("VM heartbeat implicitly enabled file dispatch")
+	}
+	svc.sendHeartbeat()
+	if ready, matches := cfg.ControllerPeer(config.VMController, next); !ready || !matches {
+		t.Fatal("renewed controller was not learned")
+	}
+	if _, matches := cfg.ControllerPeer(config.VMController, first); matches {
+		t.Fatal("superseded controller survived renewal")
+	}
+	mu.Lock()
+	denied = true
+	mu.Unlock()
+	svc.sendHeartbeat()
+	if ready, _ := cfg.ControllerPeer(config.VMController, next); ready {
+		t.Fatal("explicit enrollment refusal did not revoke the pin")
+	}
+	svc.observeControllers(2, digest(next), "")
+	if ready, _ := cfg.ControllerPeer(config.VMController, next); ready {
+		t.Fatal("older concurrent observation reinstated a revoked controller")
+	}
+}
+
+func TestHeartbeatDoesNotFollowRedirectOrTrustPlainHTTP(t *testing.T) {
+	observed := make(chan struct{}, 1)
+	alternate := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		observed <- struct{}{}
+	}))
+	defer alternate.Close()
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Error("unexpected heartbeat method")
+		}
+		sum := sha256.Sum256([]byte("non-authoritative controller fixture"))
+		_ = json.NewEncoder(w).Encode(models.HeartbeatResponse{
+			Status: "ok", AgentID: "test-agent-id",
+			Config: map[string]interface{}{"vm_controller_sha256": hex.EncodeToString(sum[:])},
+		})
+	}))
+	defer backend.Close()
+	cfg := testConfig(backend.URL)
+	New(cfg, backend.Client(), "test").sendHeartbeat()
+	if ready, _ := cfg.ControllerPeer(config.VMController, nil); ready {
+		t.Fatal("plaintext heartbeat installed a controller")
+	}
+
+	redirect := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, alternate.URL, http.StatusTemporaryRedirect)
+	}))
+	defer redirect.Close()
+	New(testConfig(redirect.URL), redirect.Client(), "test").sendHeartbeat()
+	select {
+	case <-observed:
+		t.Fatal("heartbeat followed a redirect to a different origin")
+	default:
 	}
 }

@@ -105,7 +105,7 @@ def test_exact_keys_and_versions_deleted_catalog_retained(db_session):
     expected.add(f"vnbui-owned/generations/{generation.id}.json")
     assert {o["Key"] for o in store.deleted} == expected
     assert all("IfMatch" in o and "Prefix" not in o for o in store.deleted)
-    assert store.deleted[-1]["VersionId"] == "version-1"
+    assert store.deleted[0]["VersionId"] == "version-1"
     assert delete_transaction_payload(db_session, backup.id, client=store) == 0
 
 
@@ -123,7 +123,8 @@ def test_interrupted_delete_retries_same_receipts(db_session):
 
 
 @pytest.mark.parametrize(
-    "failure_stage", ["before_any", "after_one", "at_manifest", "head_after_delete"]
+    "failure_stage",
+    ["at_manifest", "first_payload", "last_payload", "head_after_delete"],
 )
 def test_permission_denied_retains_custody_and_retries_exact_receipts(
     db_session, failure_stage
@@ -141,12 +142,12 @@ def test_permission_denied_retains_custody_and_retries_exact_receipts(
             IfMatch=o["etag"],
             **({"VersionId": o["version_id"]} if o["version_id"] is not None else {}),
         )
-        for o in [*objects, manifest.prepared_receipt["receipt"]]
+        for o in [manifest.prepared_receipt["receipt"], *objects]
     ]
     denied_index = {
-        "before_any": 0,
-        "after_one": 1,
-        "at_manifest": len(expected) - 1,
+        "at_manifest": 0,
+        "first_payload": 1,
+        "last_payload": len(expected) - 1,
         "head_after_delete": 0,
     }[failure_stage]
 

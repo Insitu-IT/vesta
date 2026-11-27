@@ -130,6 +130,7 @@ def test_backup_detail_reports_saved_decision_without_recomputing(authority, dec
 
     backup = SimpleNamespace(
         id="backup",
+        org_id="organization",
         vm_id="vm",
         vm=SimpleNamespace(name="source"),
         authority_kind=authority,
@@ -158,6 +159,7 @@ def test_backup_detail_reports_saved_decision_without_recomputing(authority, dec
         return dispatches
 
     db.query.side_effect = query
+    db.execute.return_value.one_or_none.return_value = None
     dispatches.join.return_value.filter.return_value.all.return_value = []
     backups.filter.return_value.first.return_value = backup
     queues.filter_by.return_value.one_or_none.return_value = SimpleNamespace(
@@ -165,6 +167,7 @@ def test_backup_detail_reports_saved_decision_without_recomputing(authority, dec
     )
     response = get_backup(backup.id, db, current_user=object())
     assert response["scheduler_decision"] == decision
+    assert response["recovery_publication"] is None
     if authority == "scheduler":
         queues.filter_by.assert_called_once_with(
             started_backup_id=backup.id,

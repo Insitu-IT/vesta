@@ -47,7 +47,9 @@ def env_of(deployment):
 
 def test_fresh_names_and_local_references_agree_across_stages(fresh):
     items = [
-        x for stage in renderer.STAGES for x in renderer.render(fresh, stage)["items"]
+        x
+        for stage in renderer.STAGES
+        for x in renderer.render(fresh, stage, structural=True)["items"]
     ]
     objects = indexed(items)
     assert all(x["metadata"]["name"].startswith("vesta-") for x in items)
@@ -131,6 +133,8 @@ def test_actual_kustomize_matches_render_for_both_naming_families(
     config = fresh if mode == "fresh" else sample_config()
     if mode == "legacy-explicit":
         config["resource_prefix"] = "vnbui"
+    if stage in {"upgrade", "rollback-schema"}:
+        config["upgrade_installation_id"] = "10111111-1111-4111-8111-111111111111"
     destination = tmp_path / stage
     renderer.write_kustomize(config, stage, destination)
     output = subprocess.check_output([oc, "kustomize", str(destination)], text=True)

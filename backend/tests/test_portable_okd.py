@@ -35,6 +35,7 @@ def sample_config():
     }
     c["journal_storage_class"] = "journal-csi"
     c["scratch_storage_class"] = "scratch-csi"
+    c["upgrade_installation_id"] = "10111111-1111-4111-8111-111111111111"
     return c
 
 
@@ -145,8 +146,8 @@ def test_restored_grants_are_separate_from_fresh_migration(config):
 @pytest.mark.parametrize(
     "stage,flag",
     [
-        ("upgrade", "--upgrade-operation-safety"),
-        ("rollback-schema", "--rollback-operation-safety"),
+        ("upgrade", "--upgrade-managed-files"),
+        ("rollback-schema", "--rollback-managed-files"),
     ],
 )
 def test_reviewed_schema_transition_uses_only_owner_job(config, stage, flag):
@@ -180,7 +181,7 @@ def test_kustomize_target_matches_reviewed_stage(config, stage, tmp_path, oc_bin
     renderer.write_kustomize(config, stage, target)
     assert "resources:\n  - base\n" in (target / "kustomization.yaml").read_text()
     expected = renderer.render(config, stage)["items"]
-    base = renderer.render(renderer.base_config(), stage)["items"]
+    base = renderer.render(renderer.base_config(), stage, structural=True)["items"]
     for index, (before, after) in enumerate(zip(base, expected)):
         assert (
             json.loads(
@@ -766,7 +767,8 @@ def test_source_health_probes_and_rollback_target_are_explicit(config):
             "url": "http://database-health.protected-vms.svc/ready",
         }
     ]
-    config["rollback_schema_revision"] = "backup_verification"
+    config["rollback_schema_revision"] = "backup_admission_pause"
+    config["upgrade_installation_id"] = "10111111-1111-4111-8111-111111111111"
     objects = renderer.render(config, "agent")["items"]
     deployment = next(o for o in objects if o["kind"] == "Deployment")
     environment = {
@@ -779,7 +781,11 @@ def test_source_health_probes_and_rollback_target_are_explicit(config):
     )
     job = renderer.render(config, "rollback-schema")["items"][0]
     command = job["spec"]["template"]["spec"]["containers"][0]["command"]
-    assert command[-2:] == ["--rollback-revision", "backup_verification"]
+    assert "--rollback-managed-files" in command
+    assert (
+        command[command.index("--installation-id") + 1]
+        == config["upgrade_installation_id"]
+    )
     for endpoint in (
         "http://user:secret@host/ready",
         "http://@host/ready",
@@ -792,36 +798,74 @@ def test_source_health_probes_and_rollback_target_are_explicit(config):
             renderer.validate(config)
 
 
-def test_current_schema_upgrade_keeps_operator_ledger_rollback_selectable(config):
+def test_managed_file_schema_uses_only_reviewed_predecessor(config):
     from alembic.script import ScriptDirectory
 
-    # The kit's migration graph must include the new guard after the retained
-    # request ledger. Selecting that predecessor must reach the owner job rather
-    # than falling back to an older empty-ledger-only rollback boundary.
     migrations = ScriptDirectory(str(ROOT / "backend/alembic"))
-    assert migrations.get_heads() == ["backup_admission_pause"]
+    assert migrations.get_heads() == ["managed_file_backups"]
     assert (
-        migrations.get_revision("backup_admission_pause").down_revision
-        == "operator_requests"
+        migrations.get_revision("managed_file_backups").down_revision
+        == "backup_admission_pause"
     )
     config["rollback_schema_revision"] = "operator_requests"
+    with pytest.raises(ValueError, match="backup_admission_pause only"):
+        renderer.render(config, "rollback-schema")
+    config["rollback_schema_revision"] = "backup_admission_pause"
+    config["upgrade_installation_id"] = "10111111-1111-4111-8111-111111111111"
     for stage, flag in (
-        ("upgrade", "--upgrade-operation-safety"),
-        ("rollback-schema", "--rollback-operation-safety"),
+        ("upgrade", "--upgrade-managed-files"),
+        ("rollback-schema", "--rollback-managed-files"),
     ):
         (job,) = renderer.render(config, stage)["items"]
-        container = job["spec"]["template"]["spec"]["containers"][0]
-        assert flag in container["command"]
-        assert "--fresh" not in container["command"]
-        if stage == "rollback-schema":
-            assert container["command"][-2:] == [
-                "--rollback-revision",
-                "operator_requests",
-            ]
-        database = next(
-            item for item in container["env"] if item["name"] == "DATABASE_URL"
-        )
+        command = job["spec"]["template"]["spec"]["containers"][0]["command"]
+        assert flag in command
+        assert command[-2:] == ["--installation-id", config["upgrade_installation_id"]]
+        assert "--fresh" not in command
+        assert "--rollback-revision" not in command
+
+
+def test_executable_upgrade_and_rollback_require_observed_installation(config):
+    del config["upgrade_installation_id"]
+    for stage in ("upgrade", "rollback-schema"):
+        with pytest.raises(ValueError, match="observed upgrade_installation_id"):
+            renderer.render(config, stage)
+        (job,) = renderer.render(config, stage, structural=True)["items"]
         assert (
-            database["valueFrom"]["secretKeyRef"]["name"]
-            == config["secrets"]["database_owner"]
+            job["spec"]["template"]["spec"]["containers"][0]["command"][-1]
+            == "observed-uuid-required"
         )
+
+
+def test_vm_serving_trust_is_mounted_read_only_and_never_rendered_as_contents(config):
+    config["agent_serving_trust_config_map"] = "vm-agent-serving-trust"
+    items = renderer.render(config, "api")["items"]
+    backend = next(
+        item
+        for item in items
+        if item["kind"] == "Deployment"
+        and item["metadata"]["name"].endswith("-backend")
+    )
+    pod = backend["spec"]["template"]["spec"]
+    container = pod["containers"][0]
+    assert {
+        "name": "VESTA_AGENT_SERVING_TRUST_FILE",
+        "value": "/agent-serving-trust/agent-serving-trust.json",
+    } in container["env"]
+    assert {
+        "name": "agent-serving-trust",
+        "mountPath": "/agent-serving-trust",
+        "readOnly": True,
+    } in container["volumeMounts"]
+    trust = next(
+        value for value in pod["volumes"] if value["name"] == "agent-serving-trust"
+    )
+    assert trust["configMap"]["name"] == "vm-agent-serving-trust"
+    assert trust["configMap"]["defaultMode"] == 0o444
+    assert all(
+        item["kind"] != "ConfigMap"
+        or item["metadata"]["name"] != "vm-agent-serving-trust"
+        for item in items
+    )
+    config["agent_serving_trust_config_map"] = "../operator-file"
+    with pytest.raises(ValueError, match="ConfigMap name"):
+        renderer.render(config, "api")

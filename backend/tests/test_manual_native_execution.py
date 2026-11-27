@@ -38,9 +38,7 @@ def native_case(db_session, session_factory, monkeypatch):
         attempt_id=intent["attempt_id"],
         intent_sha256=digest(intent),
     )
-    owner.http_client.post.return_value = SimpleNamespace(
-        status_code=202, json=lambda: ack
-    )
+    owner.file_agent_http.response = SimpleNamespace(status_code=202, json=lambda: ack)
     return owner, backup, calls, ack
 
 
@@ -51,10 +49,7 @@ async def test_native_manual_dispatch_ack_is_exact_and_no_legacy_monitor(
     owner, backup, calls, ack = native_case
     assert await owner.execute_backup(backup.id) == ack
     assert [call[0] for call in calls] == ["capacity", "native-intent", "native-intent"]
-    assert (
-        owner.http_client.post.call_args.kwargs["json"]["protocol"]
-        == "vnbui-native-job/1"
-    )
+    assert owner.file_agent_http.assert_sent()["protocol"] == "vnbui-native-job/1"
     db_session.refresh(backup)
     assert backup.status == "running" and not owner.monitoring_tasks
 
@@ -66,11 +61,12 @@ async def test_native_uncertain_http_preserves_original_attempt(
 ):
     owner, backup, calls, ack = native_case
     if failure == "timeout":
-        owner.http_client.post.side_effect = TimeoutError("lost response")
+        owner.file_agent_http.failure = TimeoutError("lost response")
     elif failure == "wrong-attempt":
         ack["attempt_id"] = "different"
     else:
-        owner.http_client.post.return_value.status_code = 423
+        owner.file_agent_http.response.status_code = 423
     assert (await owner.execute_backup(backup.id))["status"] == "held"
+    assert owner.file_agent_http.assert_sent()["intent"]["backup_id"] == backup.id
     db_session.refresh(backup)
     assert backup.status == "pending" and not owner.monitoring_tasks

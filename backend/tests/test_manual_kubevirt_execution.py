@@ -3,14 +3,89 @@
 import asyncio
 import threading
 from types import SimpleNamespace
-from unittest.mock import AsyncMock
+from unittest.mock import Mock
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timedelta
 
+import httpx
 import pytest
 
 from core import backup_executor as module
-from models import Agent, Backup, S3Publication, VM
+from core.file_agent_http import AgentPeer, FileAgentHTTP
+from models import Agent, AgentCertificate, Backup, S3Publication, VM
+
+
+class CertifiedBackupTransport(FileAgentHTTP):
+    """Retain the real version probe and recheck, replacing only socket I/O."""
+
+    def __init__(self, peer, response):
+        super().__init__(ca=None, certificate=None)
+        self.peer = peer
+        self.response = response
+        self.failure = None
+        self.on_probe = None
+        self.on_send = None
+        self._request = Mock(side_effect=self._exchange)
+
+    def _exchange(self, peer, method, path, headers, payload, params):
+        assert peer == self.peer
+        assert headers == {
+            "X-Orchestrator-Key": "fixture",
+            "X-Vesta-Agent-ID": self.peer.agent_id,
+        }
+        assert params is None
+        if method == "GET":
+            assert path == "/api/version" and payload is None
+            if self.on_probe is not None:
+                self.on_probe()
+            return httpx.Response(
+                200,
+                json={"version": "6.2.0"},
+                request=httpx.Request("GET", "https://" + peer.hostname + path),
+            )
+        assert method == "POST" and path == "/api/backups"
+        if self.failure is not None:
+            raise self.failure
+        if self.on_send is not None:
+            self.on_send()
+        return self.response
+
+    def assert_not_contacted(self):
+        self._request.assert_not_called()
+
+    def assert_sent(self):
+        probe, send = self._request.call_args_list
+        assert probe.args[1:3] == ("GET", "/api/version")
+        assert send.args[1:3] == ("POST", "/api/backups")
+        return send.args[4]
+
+
+def install_certified_backup_transport(db, owner, agent, monkeypatch, response):
+    fingerprint = "a" * 64
+    agent.ip_address = "127.0.0.1"
+    agent.port = 8090
+    agent.cert_fingerprint = fingerprint
+    agent.mtls_enabled = True
+    db.add(
+        AgentCertificate(
+            agent_id=agent.id,
+            fingerprint=fingerprint,
+            common_name=agent.hostname,
+            status="active",
+            expires_at=datetime.utcnow() + timedelta(hours=1),
+        )
+    )
+    db.commit()
+    monkeypatch.delenv("VESTA_AGENT_SERVING_TRUST_FILE", raising=False)
+    owner.agent_tls_enabled = owner.agent_verify_ssl = True
+    monkeypatch.setattr(
+        owner, "_get_agent_headers", lambda: {"X-Orchestrator-Key": "fixture"}
+    )
+    peer = AgentPeer(
+        agent.ip_address, agent.port, agent.hostname, fingerprint, agent.id, fingerprint
+    )
+    owner.file_agent_http = CertifiedBackupTransport(peer, response)
+    return owner.file_agent_http
 
 
 @pytest.fixture
@@ -30,10 +105,6 @@ def case(db_session, session_factory, monkeypatch):
     db_session.add(backup)
     db_session.commit()
     owner = module.BackupExecutor()
-    owner.agent_tls_enabled = owner.agent_verify_ssl = True
-    monkeypatch.setattr(
-        owner, "_get_agent_headers", lambda: {"X-Orchestrator-Key": "fixture"}
-    )
     monkeypatch.setattr(module, "SessionLocal", session_factory)
     monkeypatch.delenv("ENABLE_ENCRYPTION", raising=False)
     monkeypatch.setattr(
@@ -74,8 +145,12 @@ def case(db_session, session_factory, monkeypatch):
         return await send(agent.id, request)
 
     monkeypatch.setattr("core.storage_dispatch.dispatch_kubevirt", dispatch)
-    owner.http_client = SimpleNamespace(
-        post=AsyncMock(return_value=SimpleNamespace(status_code=202, json=lambda: ack))
+    install_certified_backup_transport(
+        db_session,
+        owner,
+        agent,
+        monkeypatch,
+        SimpleNamespace(status_code=202, json=lambda: ack),
     )
     return owner, backup, calls, ack
 
@@ -160,7 +235,7 @@ async def test_cancelled_manual_admission_waits_and_never_sends(case, monkeypatc
     release.set()
     with pytest.raises(asyncio.CancelledError):
         await task
-    owner.http_client.post.assert_not_awaited()
+    owner.file_agent_http.assert_not_contacted()
 
 
 @pytest.mark.asyncio
@@ -173,9 +248,9 @@ async def test_manual_dispatch_accepts_exact_ack_without_legacy_monitor(
     assert backup.status == "running"
     assert [call[0] for call in calls] == ["capacity", "dispatch"]
     assert not owner.monitoring_tasks
-    request = owner.http_client.post.call_args
-    assert request.args[0].startswith("https://")
-    assert request.kwargs["headers"] == {"X-Orchestrator-Key": "fixture"}
+    request = owner.file_agent_http.assert_sent()
+    assert request["backup_id"] == ack["backup_id"]
+    assert request["plan_sha256"] == ack["plan_sha256"]
 
 
 @pytest.mark.asyncio
@@ -204,7 +279,7 @@ async def test_reservation_refusal_uses_shared_pristine_closeout(
             "reason": "pre_dispatch_no_effect",
         }
     assert closed == [backup.id]
-    owner.http_client.post.assert_not_called()
+    owner.file_agent_http.assert_not_contacted()
 
 
 @pytest.mark.asyncio
@@ -218,7 +293,7 @@ async def test_missing_original_human_never_reaches_capacity_or_agent(db_session
         "reason": "original_authority_unavailable",
     }
     assert calls == []
-    owner.http_client.post.assert_not_called()
+    owner.file_agent_http.assert_not_contacted()
 
 
 @pytest.mark.asyncio
@@ -230,9 +305,9 @@ async def test_uncertain_admission_never_marks_failed_or_completed(
 ):
     owner, backup, calls, ack = case
     if failure == "lost-reply":
-        owner.http_client.post.side_effect = TimeoutError("lost reply")
+        owner.file_agent_http.failure = TimeoutError("lost reply")
     else:
-        response = owner.http_client.post.return_value
+        response = owner.file_agent_http.response
         if failure == "held":
             response.status_code = 423
         elif failure == "wrong-attempt":
@@ -241,6 +316,7 @@ async def test_uncertain_admission_never_marks_failed_or_completed(
             ack["status"] = "completed"
     result = await owner.execute_backup(backup.id)
     assert result["status"] == "held"
+    assert owner.file_agent_http.assert_sent()["backup_id"] == backup.id
     db_session.refresh(backup)
     assert backup.status == "pending"
     assert not owner.monitoring_tasks
@@ -253,13 +329,12 @@ async def test_fast_publication_is_not_overwritten_with_running(
 ):
     owner, backup, _, ack = case
 
-    async def post(*args, **kwargs):
+    def publish_during_send():
         with session_factory() as db:
             db.get(Backup, backup.id).status = "completed"
             db.commit()
-        return SimpleNamespace(status_code=202, json=lambda: ack)
 
-    owner.http_client.post.side_effect = post
+    owner.file_agent_http.on_send = publish_during_send
     assert await owner.execute_backup(backup.id) == ack
     db_session.refresh(backup)
     assert backup.status == "completed"
@@ -289,7 +364,7 @@ async def test_configuration_refuses_before_capacity_or_transport(
         )
     assert (await owner.execute_backup(backup.id))["status"] == "held"
     assert calls == []
-    owner.http_client.post.assert_not_awaited()
+    owner.file_agent_http.assert_not_contacted()
 
 
 @pytest.mark.asyncio
@@ -301,7 +376,33 @@ async def test_encrypted_manual_dispatch_uses_transaction_not_static_key(
     monkeypatch.setenv("ENCRYPTION_KEY", "must-not-be-transported")
     assert await owner.execute_backup(backup.id) == ack
     assert len(calls) == 2
-    assert "must-not-be-transported" not in str(owner.http_client.post.call_args)
+    assert "must-not-be-transported" not in str(owner.file_agent_http.assert_sent())
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("when", ["before-probe", "after-probe"])
+async def test_manual_dispatch_keeps_payload_from_unverified_peer(
+    db_session, session_factory, case, when
+):
+    owner, backup, _, _ = case
+    transport = owner.file_agent_http
+
+    def revoke():
+        with session_factory() as db:
+            db.query(AgentCertificate).filter_by(
+                agent_id=transport.peer.agent_id
+            ).one().status = "revoked"
+            db.commit()
+
+    if when == "before-probe":
+        revoke()
+    else:
+        transport.on_probe = revoke
+    assert (await owner.execute_backup(backup.id))["status"] == "held"
+    contacted_methods = [call.args[1] for call in transport._request.call_args_list]
+    assert contacted_methods == (["GET"] if when == "after-probe" else [])
+    db_session.refresh(backup)
+    assert backup.status == "pending" and not owner.monitoring_tasks
 
 
 @pytest.mark.asyncio
@@ -346,7 +447,7 @@ async def test_source_refusal_before_publication_fails_and_releases_capacity(
     assert backup.capacity_state == "released"
     assert backup.tags["error"] == "pre_dispatch_refused"
     assert [call[0] for call in calls] == ["capacity", "source_refused"]
-    owner.http_client.post.assert_not_awaited()
+    owner.file_agent_http.assert_not_contacted()
 
 
 @pytest.mark.asyncio

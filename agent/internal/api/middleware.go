@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/subtle"
 	"fmt"
 	"log/slog"
 	"net"
@@ -27,7 +28,8 @@ func OrchestratorKeyAuth(key string) func(http.Handler) http.Handler {
 				http.Error(w, `{"detail":"Missing X-Orchestrator-Key header"}`, http.StatusUnauthorized)
 				return
 			}
-			if provided != key {
+			if len(r.Header.Values("X-Orchestrator-Key")) != 1 ||
+				subtle.ConstantTimeCompare([]byte(provided), []byte(key)) != 1 {
 				metrics.AuthAttemptsTotal.WithLabelValues("api_key", "invalid").Inc()
 				http.Error(w, `{"detail":"Invalid orchestrator key"}`, http.StatusForbidden)
 				return

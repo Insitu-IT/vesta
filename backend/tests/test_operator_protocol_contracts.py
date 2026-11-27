@@ -145,25 +145,13 @@ def test_health_include_and_full_alias(document, db_session, monkeypatch):
     validate(document, "/api/v1/health/detailed", "get", full)
 
 
-def test_heartbeat_helper_configured_and_unconfigured(document):
+def test_heartbeat_keeps_nullable_s3_field_without_credentials(document):
     from core.agent_requests import build_heartbeat_response
 
-    for s3 in (
-        None,
-        dict(
-            enabled=True,
-            endpoint=None,
-            bucket="owned",
-            region="us-east-1",
-            prefix="backups",
-            access_key="example",
-            secret_key="example",
-            delete_local=False,
-        ),
-    ):
-        value = build_heartbeat_response("agent", "2026-11-09T00:00:00", None, s3)
-        validate(document, "/api/v1/health/agents/{agent_id}/heartbeat", "post", value)
-        assert value["config"] == {}
+    value = build_heartbeat_response("agent", "2026-11-09T00:00:00", None)
+    validate(document, "/api/v1/health/agents/{agent_id}/heartbeat", "post", value)
+    assert value["config"] == {}
+    assert value["s3_config"] is None
 
 
 def test_diagnostics_observed_and_partial(document, db_session, monkeypatch):

@@ -9,7 +9,8 @@ The Vesta Community kit runs the API and web console on amd64 OKD or OpenShift. 
 | Control plane with a KubeVirt agent | The amd64 kit, an OKD or OpenShift cluster with the required virtualization APIs, PostgreSQL 17.x, a cluster-reachable registry, and S3-compatible storage |
 | Control plane with external native agents | The amd64 kit with `agent: "external"`, the same cluster, registry and database inputs, S3-compatible storage, and the matching x86_64 agent RPM for each host |
 | Operator CLI | The `vesta-cli-linux-amd64` binary, a reachable Vesta API, its trusted CA, and an account or token with the required permissions |
-| Offline recovery | The `vesta-restore-linux-amd64` binary, saved chain metadata, read access to the exact backup objects, any required decryption keys, and a fresh output location |
+| Managed Linux file sets | A supported Enterprise Linux x86-64 host, locally readable directories, room to stage one encrypted archive, an age public recipient, mutual TLS to the control plane, and a versioned HTTPS S3 bucket supporting conditional writes. [Configure a file set](../okd/runbooks/file-backups.md) |
+| Offline recovery | The `vesta-restore-linux-amd64` binary, read-only access to the bucket, independent recovery trust and any required decryption keys, and a fresh output location. [Recover directly from S3](../okd/runbooks/bucket-recovery.md) |
 
 The published Community kit contains three digest-pinned images and uses the `customer-postgresql` profile. Supply the database separately. Check the delivery profile in the kit before provisioning.
 

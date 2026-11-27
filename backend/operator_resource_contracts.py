@@ -447,7 +447,25 @@ def apply_resource_contracts(document):
     publish(
         "/api/v1/encryption/keys/import",
         "post",
-        obj({"imported_key_ids": STRINGS, "count": INTEGER}),
+        obj(
+            {
+                "imported_key_ids": STRINGS,
+                "count": INTEGER,
+                "recovery_trust": obj(
+                    {
+                        "schema": {"const": "vesta-recovery-trust/1"},
+                        "installation_id": STRING,
+                        "org_id": STRING,
+                        "public_key": {
+                            "type": "string",
+                            "pattern": "^[A-Za-z0-9_-]{43}$",
+                        },
+                        "key_id": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+                    }
+                ),
+            },
+            required=["imported_key_ids", "count"],
+        ),
         source="routers/encryption.py:import_keys",
     )
     publish(
@@ -463,62 +481,6 @@ def apply_resource_contracts(document):
         source="routers/encryption.py:confirm_export_custody",
     )
 
-    chain = obj(
-        {
-            "chain_id": STRING,
-            "vm_name": STRING,
-            "backup_count": INTEGER,
-            "imported_count": INTEGER,
-            "total_size_bytes": INTEGER,
-            "oldest_backup": nullable(STRING),
-            "newest_backup": nullable(STRING),
-            "encrypted": BOOLEAN,
-            "kek_available": BOOLEAN,
-            "kek_ids": STRINGS,
-            "status": {
-                "enum": ["available", "imported", "partial", "conflict", "kek_missing"]
-            },
-            "conflicts": array(
-                obj(
-                    {
-                        "backup_id": STRING,
-                        "reason": {
-                            "enum": ["exists_different_chain", "exists_different_vm"]
-                        },
-                        "existing_chain_id": nullable(STRING),
-                        "manifest_chain_id": STRING,
-                    }
-                )
-            ),
-        }
-    )
-    publish(
-        "/api/v1/s3/discover",
-        "get",
-        obj(
-            {
-                "chains": array(chain),
-                "s3_endpoint": nullable(STRING),
-                "s3_bucket": nullable(STRING),
-            }
-        ),
-        source="routers/s3_import.py:discover_chains,_classify_chain",
-    )
-    publish(
-        "/api/v1/s3/import",
-        "post",
-        obj(
-            {
-                "imported_count": INTEGER,
-                "skipped_count": INTEGER,
-                "vm_name": STRING,
-                "vm_id": STRING,
-                "vm_created": BOOLEAN,
-                "status": {"const": "ok"},
-            }
-        ),
-        source="routers/s3_import.py:import_chain",
-    )
     for path, methods in paths.items():
         if path.startswith(("/api/v1/encryption/", "/api/v1/s3/")):
             for method, operation in methods.items():

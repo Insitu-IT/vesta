@@ -7,8 +7,8 @@ digraph Backup {
   db [label="PostgreSQL\nCatalog and wrapped keys"];
   vm [label="VM disks\nKubeVirt or libvirt"];
   agent [label="Vesta agent\nCapture and optional encryption", fillcolor="#def0df"];
-  bucket [label="S3 bucket\nVersioned backup objects", fillcolor="#def0df"];
-  saved [label="Separately saved\nChain bundle and recovery keys", fillcolor="#faf0d5"];
+  bucket [label="S3 bucket\nVersioned objects and signed recovery points", fillcolor="#def0df"];
+  saved [label="Outside the bucket\nRecovery trust and keys", fillcolor="#faf0d5"];
   reader [label="Recovery workstation\nReconstruct fresh raw disks", fillcolor="#faf0d5"];
   {rank=same; console; api; db}
   {rank=same; vm; agent; bucket}
@@ -18,6 +18,7 @@ digraph Backup {
   api -> agent [label="authorize"];
   vm -> agent [label="disk extents", penwidth=2];
   agent -> bucket [label="backup objects", penwidth=2];
-  bucket -> reader [label="read versions"];
-  saved -> reader [label="select and decrypt"];
+  api -> bucket [label="sign recovery point"];
+  bucket -> reader [label="select point and read versions"];
+  saved -> reader [label="verify and decrypt"];
 }

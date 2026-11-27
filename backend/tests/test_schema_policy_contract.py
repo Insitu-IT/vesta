@@ -85,6 +85,8 @@ def test_policy_acceptance_rejects_drift(defect):
         "storage_capability_revocations",
         "storage_configuration_generations",
         "storage_configuration_activations",
+        "file_schedules",
+        "file_backups",
     ):
         row = next(row for row in rows if row.tablename == table)
         row.qual = row.with_check = part.qual

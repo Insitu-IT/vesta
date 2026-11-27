@@ -19,3 +19,5 @@ Select a disposable VM and write a file you can recognize. Back it up, restore a
 ## Maintain the site
 
 Keep your accepted manifest and recovery keys in separate approved custody. `./vesta --help` lists the available operations. Provide a different manifest with `--manifest PATH` after a command. Use the local `runbooks/reconfiguration.md` for site changes and `runbooks/upgrade-recovery.md` for an upgrade or rollback. For a native libvirt host, install the separate `vesta-agent` RPM from the matching [GitHub release](https://github.com/Insitu-IT/vesta/releases).
+
+To protect a Linux directory, choose the file-only agent RPM for your Enterprise Linux major or enable file sets on a libvirt host. From the kit root, open `runbooks/file-backups.md` to schedule a backup and recover a selected file.

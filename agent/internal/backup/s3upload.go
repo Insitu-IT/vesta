@@ -4,8 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/fs"
-	"log/slog"
+	"os"
 	"path/filepath"
 	"sync/atomic"
 	"time"
@@ -30,10 +29,12 @@ type S3Config struct {
 // considering the upload stalled. Resets every time data flows.
 const s3StallTimeout = 15 * time.Minute
 
-// UploadToS3 uploads all files in outputPath to S3 using resumable multipart upload.
-// If a previous upload was interrupted, it resumes from the last completed part.
-// On failure, partial state is preserved for future resume (not cleaned up).
-func UploadToS3(ctx context.Context, cfg S3Config, outputPath, backupID string, onProgress func(completedBytes, totalBytes int64)) (string, error) {
+// uploadMockStage uploads only the closed inventory from a successful mock job.
+func uploadMockStage(ctx context.Context, cfg S3Config, stage mockBackupStage, backupID string, onProgress func(completedBytes, totalBytes int64)) (string, error) {
+	if err := stage.recheck(); err != nil {
+		return "", err
+	}
+	outputPath := stage.path
 	stateDir := filepath.Join(filepath.Dir(outputPath), ".upload-state")
 	s3Prefix := cfg.Prefix + "/" + backupID
 
@@ -51,37 +52,20 @@ func UploadToS3(ctx context.Context, cfg S3Config, outputPath, backupID string, 
 		return "", fmt.Errorf("create uploader: %w", err)
 	}
 
-	// Collect files to upload
-	err = filepath.WalkDir(outputPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return err
+	for _, file := range stage.files {
+		path := filepath.Join(outputPath, file.name)
+		info, err := os.Lstat(path)
+		if err != nil || !sameMockFile(file.info, info) {
+			return "", fmt.Errorf("mock staging file changed: %s", file.name)
 		}
-
-		relPath, _ := filepath.Rel(outputPath, path)
-		objectKey := s3Prefix + "/" + relPath
-
-		info, _ := d.Info()
-		var size int64
-		if info != nil {
-			size = info.Size()
+		objectKey := s3Prefix + "/" + filepath.ToSlash(file.name)
+		if err := uploader.UploadFile(ctx, path, objectKey, file.info.Size()); err != nil {
+			return "", fmt.Errorf("upload %s: %w", file.name, err)
 		}
-
-		if err := uploader.UploadFile(ctx, path, objectKey, size); err != nil {
-			return fmt.Errorf("upload %s: %w", relPath, err)
-		}
-
-		slog.Info("uploaded to S3", "file", relPath, "key", objectKey)
-		return nil
-	})
-
-	if err != nil {
-		// Do NOT clean up — leave partial state for resume
-		return "", err
 	}
 
-	// All files uploaded — finalize
 	if err := uploader.Complete(); err != nil {
-		slog.Warn("cleanup upload state failed", "error", err)
+		return "", fmt.Errorf("cleanup mock upload state: %w", err)
 	}
 
 	return fmt.Sprintf("s3://%s/%s", cfg.Bucket, s3Prefix), nil

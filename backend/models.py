@@ -459,6 +459,7 @@ class Backup(OrganizationScoped, Base):
     )
 
     id = Column(String, primary_key=True, default=generate_uuid)
+    unverified_legacy_s3 = Column(Boolean, nullable=False, server_default=text("false"))
     capacity_state = Column(String, nullable=False, server_default=text("'unreserved'"))
     capacity_id = Column(Uuid(as_uuid=False), nullable=True)
     capacity_reserved_at = Column(DateTime(timezone=True), nullable=True)
@@ -560,6 +561,33 @@ class StorageLineageGeneration(OrganizationScoped, Base):
     tracker_uid = Column(String, nullable=False)
     checkpoint = Column(String, nullable=False)
     accepted_request = Column(JSONB, nullable=False)
+
+
+class RecoveryPublication(OrganizationScoped, Base):
+    """One durable, append-only signed offsite record for an accepted generation."""
+
+    __tablename__ = "recovery_publications"
+    __table_args__ = (
+        UniqueConstraint("org_id", "backup_id", name="uq_recovery_publication_backup"),
+        Index("ix_recovery_publication_due", "org_id", "next_attempt_at"),
+        CheckConstraint(
+            "attempt_count >= 0", name="ck_recovery_publication_attempt_count"
+        ),
+    )
+
+    generation_id = Column(
+        String, ForeignKey("storage_lineage_generations.id"), primary_key=True
+    )
+    backup_id = Column(String, ForeignKey("backups.id"), nullable=False)
+    object_key = Column(String(1024), nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    next_attempt_at = Column(DateTime(timezone=True), nullable=False)
+    attempt_count = Column(Integer, nullable=False, server_default=text("0"))
+    last_failure_at = Column(DateTime(timezone=True))
+    claim_token = Column(String, nullable=False)
+    envelope = Column(Text)
+    published_at = Column(DateTime(timezone=True))
+    publication_receipt = Column(JSONB(none_as_null=True))
 
 
 class StorageLineageHead(OrganizationScoped, Base):
@@ -1026,6 +1054,135 @@ class Schedule(OrganizationScoped, Base):
         return f"<Schedule {self.name} for {target}>"
 
 
+class FileSchedule(OrganizationScoped, Base):
+    """A revocable organization grant for a fixed enrolled host and file set."""
+
+    __tablename__ = "file_schedules"
+    __table_args__ = (
+        UniqueConstraint(
+            "org_id", "id", "agent_id", "file_set", name="uq_file_schedule_target"
+        ),
+        CheckConstraint(
+            r"storage_endpoint ~ '^https://([a-z0-9.-]+|\[[0-9a-f:]+\])(:[1-9][0-9]{0,4})?$' "
+            r"AND storage_region ~ '^[a-z0-9][a-z0-9-]{0,62}$'",
+            name="ck_file_schedule_storage_origin",
+        ).ddl_if(dialect="postgresql"),
+        Index("ix_file_schedules_due", "org_id", "enabled", "next_run_at"),
+    )
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    agent_id = Column(String, nullable=False)
+    file_set = Column(String(63), nullable=False)
+    storage_endpoint = Column(String(320), nullable=False)
+    storage_region = Column(String(63), nullable=False)
+    storage_bucket = Column(String(63), nullable=False)
+    storage_prefix = Column(String(512), nullable=False)
+    storage_recipient_sha256 = Column(String(64), nullable=False)
+    name = Column(String(255), nullable=False)
+    cron_expression = Column(String(100), nullable=False)
+    enabled = Column(Boolean, nullable=False)
+    authorized_by = Column(String, nullable=False)
+    grant_id = Column(String, nullable=False)
+    org_epoch = Column(BigInteger, nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    retired_at = Column(DateTime(timezone=True))
+    last_run_at = Column(DateTime(timezone=True))
+    next_run_at = Column(DateTime(timezone=True))
+
+
+class FileBackup(OrganizationScoped, Base):
+    """Persistent custody and recovery reference for a full file archive."""
+
+    __tablename__ = "file_backups"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ("org_id", "schedule_id", "agent_id", "file_set"),
+            (
+                "file_schedules.org_id",
+                "file_schedules.id",
+                "file_schedules.agent_id",
+                "file_schedules.file_set",
+            ),
+            name="fk_file_backup_schedule_target",
+        ),
+        UniqueConstraint(
+            "org_id", "actor_id", "request_key", name="uq_file_backup_request"
+        ),
+        UniqueConstraint(
+            "schedule_id", "scheduled_at", name="uq_file_backup_occurrence"
+        ),
+        CheckConstraint(
+            "(schedule_id IS NULL AND schedule_grant_id IS NULL AND scheduled_at IS NULL AND actor_id IS NOT NULL) OR "
+            "(schedule_id IS NOT NULL AND schedule_grant_id IS NOT NULL AND scheduled_at IS NOT NULL "
+            "AND actor_id IS NULL AND request_key IS NULL)",
+            name="ck_file_backup_authority",
+        ),
+        CheckConstraint(
+            "status IN ('pending', 'running', 'completed', 'failed') AND "
+            "((status IN ('completed', 'failed')) = (completed_at IS NOT NULL))",
+            name="ck_file_backup_status",
+        ),
+        CheckConstraint(
+            "(status = 'completed' AND s3_path IS NOT NULL AND s3_version_id IS NOT NULL "
+            "AND archive_format IS NOT NULL AND archive_size_bytes > 0 AND archive_size_bytes IS NOT NULL "
+            "AND archive_sha256 IS NOT NULL AND recipient_sha256 IS NOT NULL "
+            "AND files IS NOT NULL AND directories IS NOT NULL AND bytes IS NOT NULL AND error IS NULL) OR "
+            "(status <> 'completed' AND s3_path IS NULL AND s3_version_id IS NULL "
+            "AND archive_format IS NULL AND archive_size_bytes IS NULL AND archive_sha256 IS NULL "
+            "AND recipient_sha256 IS NULL)",
+            name="ck_file_backup_archive",
+        ),
+        CheckConstraint(
+            r"storage_endpoint ~ '^https://([a-z0-9.-]+|\[[0-9a-f:]+\])(:[1-9][0-9]{0,4})?$' "
+            r"AND storage_region ~ '^[a-z0-9][a-z0-9-]{0,62}$'",
+            name="ck_file_backup_storage_origin",
+        ).ddl_if(dialect="postgresql"),
+        Index("ix_file_backups_ready", "org_id", "status", "next_check_at"),
+        Index("ix_file_backups_target", "org_id", "agent_id", "file_set", "created_at"),
+        Index("ix_file_backups_schedule", "org_id", "schedule_id", "scheduled_at"),
+    )
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    agent_id = Column(String, nullable=False)
+    file_set = Column(String(63), nullable=False)
+    storage_endpoint = Column(String(320), nullable=False)
+    storage_region = Column(String(63), nullable=False)
+    storage_bucket = Column(String(63), nullable=False)
+    storage_prefix = Column(String(512), nullable=False)
+    storage_recipient_sha256 = Column(String(64), nullable=False)
+    schedule_id = Column(String)
+    schedule_grant_id = Column(String)
+    scheduled_at = Column(DateTime(timezone=True))
+    actor_id = Column(String)
+    request_key = Column(String(128))
+    status = Column(String(16), nullable=False, default="pending")
+    created_at = Column(DateTime(timezone=True), nullable=False)
+    started_at = Column(DateTime(timezone=True))
+    dispatch_started_at = Column(DateTime(timezone=True))
+    agent_accepted_at = Column(DateTime(timezone=True))
+    completed_at = Column(DateTime(timezone=True))
+    next_check_at = Column(DateTime(timezone=True), nullable=False)
+    check_token = Column(String)
+    files = Column(BigInteger)
+    directories = Column(BigInteger)
+    bytes = Column(BigInteger)
+    error = Column(String(255))
+    s3_path = Column(String(2048))
+    s3_version_id = Column(String(1024))
+    archive_format = Column(String(40))
+    archive_size_bytes = Column(BigInteger)
+    archive_sha256 = Column(String(64))
+    recipient_sha256 = Column(String(64))
+
+    @property
+    def target(self):
+        return {
+            "kind": "file_set",
+            "agent_id": self.agent_id,
+            "file_set": self.file_set,
+        }
+
+
 class SchedulerPrincipal(OrganizationScoped, Base):
     """Dormant noninteractive schedule identity; never a User or credential."""
 
@@ -1182,8 +1339,19 @@ class Restore(OrganizationScoped, Base):
 
     __tablename__ = "restores"
 
+    __table_args__ = (
+        CheckConstraint(
+            "(backup_id IS NOT NULL AND s3_recovery IS NULL) OR "
+            "(backup_id IS NULL "
+            "AND s3_recovery IS NOT NULL AND restore_to_original IS FALSE "
+            "AND target_vm_id IS NULL AND (native_plan IS NULL) <> (kubevirt_plan IS NULL))",
+            name="ck_restores_one_source",
+        ),
+    )
+
     id = Column(String, primary_key=True, default=generate_uuid)
-    backup_id = Column(String, ForeignKey("backups.id"), nullable=False)
+    backup_id = Column(String, ForeignKey("backups.id"), nullable=True)
+    s3_recovery = Column(JSONB(none_as_null=True), nullable=True)
     target_vm_id = Column(
         String, ForeignKey("vms.id"), nullable=True
     )  # If restoring to new VM

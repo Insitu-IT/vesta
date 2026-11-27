@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+from core.legacy_recovery import LEGACY_RECOVERY_REFUSAL, legacy_s3_unverified
 from models import Backup
 
 
@@ -16,6 +17,8 @@ class BackupDependencyError(RuntimeError):
 class BackupDeletionService:
     async def delete_payload(self, db, backup: Backup) -> int:
         """Use immutable accepted receipts or refuse before any provider effect."""
+        if legacy_s3_unverified(backup):
+            raise BackupDependencyError(LEGACY_RECOVERY_REFUSAL)
         if backup.capacity_state == "legacy_held":
             raise BackupDeletionError(
                 "Historical backup custody requires explicit reconciliation; retention cannot infer deletion authority"
